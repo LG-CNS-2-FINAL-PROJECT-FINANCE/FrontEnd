@@ -1,8 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import ScrollToTop from "./pages/common/ScrollToTop.js";
-import Layout from "./layout/Layout";
-import AdminLayout from "./layout/AdminLayout";
+import Layout from "./layout/user/Layout";
+import AdminLayout from "./layout/admin/AdminLayout";
 import Home from "./pages/Home"
 import Login from "./pages/Login"
 
