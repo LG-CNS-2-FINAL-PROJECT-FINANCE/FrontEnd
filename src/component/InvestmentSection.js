@@ -1,14 +1,14 @@
 import React from 'react';
-import ProjectCard from './StartingProjectCard';
+import ProjectCard from './InvestmentCard';
 
 function TopProjectsSection() {
     const topProjectsData = [
-        { id: 1, name: "프로젝트A", amount: "100,010,200원", progress: 60 },
-        { id: 2, name: "프로젝트B", amount: "200,500,000원", progress: 85 },
-        { id: 3, name: "프로젝트C", amount: "50,000,000원", progress: 30 },
-        { id: 4, name: "프로젝트D", amount: "300,123,456원", progress: 95 },
-        { id: 5, name: "프로젝트E", amount: "80,000,000원", progress: 50 },
-        { id: 6, name: "프로젝트F", amount: "150,000,000원", progress: 70 },
+        { id: 1, name: "프로젝트A", amount: "100,010,200원", dday:"0",  progress: 60 },
+        { id: 2, name: "프로젝트B", amount: "200,500,000원", dday:"12", progress: 85 },
+        { id: 3, name: "프로젝트C", amount: "50,000,000원", dday:"11",progress: 30 },
+        { id: 4, name: "프로젝트D", amount: "300,123,456원", dday:"0",progress: 95 },
+        { id: 5, name: "프로젝트E", amount: "80,000,000원", dday:"14",progress: 50 },
+        { id: 6, name: "프로젝트F", amount: "150,000,000원", dday:"-1", progress: 70 },
     ];
 
     return (
