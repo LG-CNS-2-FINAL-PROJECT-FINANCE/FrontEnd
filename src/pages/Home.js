@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import StartingTopProjectsSection from "../component/StartingTopProjectSection";
+import StartingTopProjectsSection from "../component/InvestmentSection";
 
 const images = [
   "/assets/startingpage_1.jpg",
