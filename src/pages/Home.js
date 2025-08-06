@@ -26,17 +26,16 @@ function Home() {
 
   return (
     <div
-      className="px-0 h-screen cursor-pointer transition-all duration-500"
+      className="px-0 cursor-pointer transition-all duration-500"
       onClick={handleClick}
     >
       <img
-        w-screen
         src={images[current]}
         alt={`Slide ${current}`}
         className=" w-full h-full object-cover transition-opacity duration-1000"
       />
 
-      <div className=" min-h-screen flex flex-row py-8">
+      <div className="flex flex-row py-8">
         {/* 왼쪽: 메인 컨텐츠 */}
         <div className="flex-1 flex flex-col ">
           {/* 상단: 사이트 설명 슬라이더 */}
