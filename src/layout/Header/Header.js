@@ -17,7 +17,7 @@ function Header(){
                 items-center
                 space-x-6
             ">
-                <div><a href="/"><img src="assets/logo.png" alt="로고" className="w-20 h-20 min-h-1 min-w-1" /></a></div>
+                <div><a href="/"><img src="assets/logo.png" alt="로고" className="w-20 h-10 min-h-1 min-w-1" /></a></div>
                 <div><a href="/asset">자산 조회</a></div>   {/*주소 나중에 변경*/}
                 <div><a href="/inv">투자 상품</a></div>     {/*주소 나중에 변경*/}
                 <div><a href="/token">토큰 거래</a></div>   {/*주소 나중에 변경*/}
