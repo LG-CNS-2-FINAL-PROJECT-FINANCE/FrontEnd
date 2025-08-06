@@ -10,6 +10,7 @@ function Header(){
             w-full
             bg-white
             py-2
+            px-[10%]
         ">
             <div className="
                 flex
