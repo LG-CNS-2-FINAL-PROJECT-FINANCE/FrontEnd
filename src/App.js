@@ -7,8 +7,8 @@ import AdminLayout from "./layout/AdminLayout";
 function App() {
   return (
     <BrowserRouter>
-        <div className="flex flex-col min-h-screen px-[10%]">
-        <ScrollToTop />
+        <div className="flex flex-col min-h-screen">
+            <ScrollToTop />
             <Routes>
                 <Route path='/' element={<Layout />}> {/*헤더, 푸터 고정 설정*/}
 

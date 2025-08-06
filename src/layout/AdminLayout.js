@@ -7,7 +7,11 @@ function AdminLayout() {
         //style={{minHeight: '100vh'}}
         <div>
             <AdminHeader/>
+
+            <main className="flex-grow">
             <Outlet />
+            </main>
+
             <AdminFooter/>
         </div>
     );
