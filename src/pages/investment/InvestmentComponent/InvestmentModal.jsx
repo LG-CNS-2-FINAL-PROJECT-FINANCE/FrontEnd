@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
+import useScrollLock from "../../../component/ScrollLock";
 
 function InvestmentModal({ isOpen, onClose, minInvestment, imageUrl, title, summary, author, tokenPrice }) {
 
     const [hasConfirmed, setHasConfirmed] = useState(false);
     const [investmentAmount, setInvestmentAmount] = useState(minInvestment || 0);
+
+    //스크롤 방지
+    useScrollLock(isOpen);
 
     if (!isOpen) return null;
 
