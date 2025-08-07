@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
 
 function Header() {
@@ -105,14 +105,14 @@ function Header() {
 
           {!isLogin ? (
               <div>
-                <FaUserCircle className="w-16 h-16 hover:cursor-pointer" onClick={() => navigate("/login/1")} />
+                <FaUser className="w-10 h-10 hover:cursor-pointer" onClick={() => navigate("/login/1")} />
               </div>
           ) : (
               <div>
                 <img
                     src={userRole === '투자자' ? "/assets/bull.png" : "/assets/pig.png"} // 예시: 역할에 따라 다른 아이콘
                     alt={`${userRole} 아이콘`}
-                    className="w-16 h-16 hover:cursor-pointer"
+                    className="w-12 h-12 hover:cursor-pointer"
                     onClick={() => navigate("/my-profile")} // 사용자 프로필 페이지로 이동
                 />
               </div>
