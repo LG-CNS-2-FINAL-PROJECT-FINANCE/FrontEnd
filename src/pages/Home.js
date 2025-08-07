@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
-import StartingTopProjectsSection from "../component/StartingTopProjectSection";
+import StartingTopProjectsSection from "../component/InvestmentSection";
 
 const images = [
   "/assets/startingpage_1.jpg",
