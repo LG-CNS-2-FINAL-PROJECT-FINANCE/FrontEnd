@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import ScrollToTop from "./pages/common/ScrollToTop.js";
-import Layout from "./layout/user/Layout";
-import AdminLayout from "./layout/admin/AdminLayout";
-import Home from "./pages/Home"
-import Login from "./pages/Login"
-import InvestmentListPage from "./pages/investment/investmentList";
-import InvestmentDetail from "./pages/investment/investmentDetail";
+import Layout from "./layout/user/Layout.jsx";
+import AdminLayout from "./layout/admin/AdminLayout.jsx";
+import Home from "./pages/Home.jsx";
+import Login from "./pages/login/Login.jsx";
+import InvestmentListPage from "./pages/investment/investmentList.jsx";
+import InvestmentDetail from "./pages/investment/investmentDetail.jsx";
 
 function App() {
   return (
@@ -22,7 +22,6 @@ function App() {
             {/*Investment*/}
             <Route path="investment" element={<InvestmentListPage />} />
             <Route path="investment/:id" element={<InvestmentDetail />} />
-
           </Route>
 
           {/*관리자 페이지 헤더*/}
