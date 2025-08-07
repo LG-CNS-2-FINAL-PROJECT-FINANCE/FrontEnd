@@ -25,7 +25,7 @@ function Header() {
       >
         <div>
           <img
-            src="assets/logo.png"
+            src="/assets/logo.png"
             alt="로고"
             className="w-20 h-10 min-h-1 min-w-1 hover:cursor-pointer"
             onClick={() => navigate("/")}
@@ -73,7 +73,7 @@ function Header() {
         </div>
         <div>
           <img
-            src="assets/bull.png"
+            src="/assets/bull.png"
             alt="투자자"
             className="w-16 h-16 hover:cursor-pointer"
             onClick={() => navigate("/login")}
