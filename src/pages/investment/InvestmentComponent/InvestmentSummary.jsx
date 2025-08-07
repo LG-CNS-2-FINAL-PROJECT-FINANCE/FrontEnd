@@ -1,25 +1,31 @@
 import React, { useState } from 'react';
 import { FaShareAlt, FaRegStar, FaStar, FaFlag, FaRegMoneyBillAlt, FaMoneyBillAlt } from 'react-icons/fa';
 import { RiMoneyCnyBoxFill, RiMoneyCnyBoxLine } from 'react-icons/ri';
+import InvestmentModal from "./InvestmentModal";
 
 
-function InvestmentSummary({ title, projectNumber, startDate, endDate, author, isFavorite: initialIsFavorite, isInvested }) {
+function InvestmentSummary({ title, projectNumber, startDate, endDate, author, isFavorite: initialIsFavorite, isInvested, minInvestment, imageUrl, summary, tokenPrice }) {
     const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // 공유하기, 즐겨찾기, 신고 로직
+    // 공유하기, 즐겨찾기, 신고
     const handleShare = () => { alert('공유하기!'); };
     const handleFavoriteToggle = () => {setIsFavorite(!isFavorite); alert(`즐겨찾기 ${isFavorite ? '해제' : '추가'}!`); };
     const handleReport = () => {alert('신고하기!'); };
 
     const handleInvest = () => {
-        alert('투자하기 (또는 추가 투자하기)!');
-
-        window.location.reload();
+        setIsModalOpen(true);
     };
+
     const handleCancelInvestment = () => {
         alert('투자를 취소합니다.');
 
         window.location.reload();
+    };
+
+    //모달을 닫는 함수
+    const closeModal = () => {
+        setIsModalOpen(false);
     };
 
     return (
@@ -35,29 +41,29 @@ function InvestmentSummary({ title, projectNumber, startDate, endDate, author, i
 
                 <div className="flex flex-col space-y-2">
 
-                    {/* 1. 상단 버튼 그룹: 투자하기, 투자 취소 */}
+                    {/* 투자하기, 투자 취소 버튼 */}
                     <div className="flex justify-end space-x-2">
                         <button
                             onClick={handleInvest}
                             className="bg-red-500 text-white py-2 px-3 rounded-md hover:bg-red-600 transition-colors font-semibold flex items-center"
                         >
                             {isInvested ? <RiMoneyCnyBoxFill className="inline-block mr-1" /> : <RiMoneyCnyBoxLine className="inline-block mr-1" />}
-                            {isInvested ? '추가 투자하기' : '투자하기'}
+                            {isInvested ? '투자하기' : '투자하기'} {/*원래 추가투자하기였는데 일단 그냥 하나로 보이게 변경 해둠*/}
                         </button>
 
                         <button
                             onClick={handleCancelInvestment}
                             className={`
-                border border-gray-300 py-2 px-3 rounded-md font-semibold flex items-center
-                ${isInvested ? 'text-gray-700 hover:bg-gray-100' : 'text-gray-400 cursor-not-allowed bg-gray-100'}
-              `}
+                                border border-gray-300 py-2 px-3 rounded-md font-semibold flex items-center
+                                ${isInvested ? 'text-gray-700 hover:bg-gray-100' : 'text-gray-400 cursor-not-allowed bg-gray-100'}
+                            `}
                             disabled={!isInvested}
                         >
                             <RiMoneyCnyBoxLine className="inline-block mr-1" /> 투자취소
                         </button>
                     </div>
 
-                    {/* 2. 하단 버튼 그룹: 공유, 즐겨찾기, 신고 */}
+                    {/* 공유, 즐겨찾기, 신고 버튼 */}
                     <div className="flex justify-end space-x-2">
                         <button onClick={handleShare} className="text-blue-500 hover:text-blue-700 flex items-center">
                             <FaShareAlt className="inline-block mr-1" /> 공유
@@ -75,6 +81,17 @@ function InvestmentSummary({ title, projectNumber, startDate, endDate, author, i
                 </div>
             </div>
             <hr className="my-4"/>
+
+            <InvestmentModal
+                isOpen={isModalOpen}
+                onClose={closeModal}
+                minInvestment={minInvestment}
+                imageUrl={imageUrl}
+                title={title}
+                summary={summary}
+                author={author}
+                tokenPrice={tokenPrice}
+            />
         </div>
     );
 }
