@@ -24,7 +24,7 @@ function Header() {
       >
         <div>
           <img
-            src={"/assets/logo.png"}
+            src="/assets/logo.png"
             alt="로고"
             className="w-20 h-10 min-h-1 min-w-1 hover:cursor-pointer"
             onClick={() => navigate("/")}
