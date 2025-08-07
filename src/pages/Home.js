@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
 
 const images = [
   "/assets/startingpage_1.jpg",
@@ -9,6 +10,8 @@ const images = [
 
 function Home() {
   const [current, setCurrent] = useState(0);
+  const cursorRef = useRef(null);
+  const cursorRef2 = useRef(null);
 
   // 자동으로 5초마다 슬라이드 전환
   useEffect(() => {
@@ -18,6 +21,30 @@ function Home() {
 
     return () => clearInterval(interval); // 클린업
   }, []);
+  // 마우스 이동 이벤트
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      const cursorSize = 10; // 첫 번째 커서 크기
+      const cursor2Size = 30; // 두 번째 커서 크기
+
+      gsap.to(cursorRef.current, {
+        duration: 0.15,
+        left: e.pageX - cursorSize / 2, // 커서 중심을 마우스 위치에 맞춤
+        top: e.pageY - cursorSize / 2,
+      });
+      gsap.to(cursorRef2.current, {
+        duration: 0.5,
+        left: e.pageX - cursor2Size / 2, // 커서 중심을 마우스 위치에 맞춤
+        top: e.pageY - cursor2Size / 2,
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
 
   // 클릭 시 다음 이미지로
   const handleClick = () => {
@@ -25,24 +52,38 @@ function Home() {
   };
 
   return (
-    <div
-      className="px-0 cursor-pointer transition-all duration-500"
-      onClick={handleClick}
-    >
+    <div className="px-0  transition-all duration-500">
+      {/* 커서 효과 */}
+      <div
+        ref={cursorRef}
+        className="mouse__cursor absolute w-2 h-2 bg-red-500 rounded-full pointer-events-none"
+      ></div>
+      <div
+        ref={cursorRef2}
+        className="mouse__cursor2 absolute w-8 h-8 bg-red-300 rounded-full pointer-events-none"
+      ></div>
+
+      {/* 이미지 */}
       <img
         src={images[current]}
         alt={`Slide ${current}`}
-        className=" w-full h-full object-cover transition-opacity duration-1000"
+        className="cursor-pointer w-full h-full object-cover transition-opacity duration-1000"
+        onClick={handleClick}
+        onMouseEnter={() => {
+          cursorRef.current.classList.add("active");
+          cursorRef2.current.classList.add("active");
+        }}
+        onMouseLeave={() => {
+          cursorRef.current.classList.remove("active");
+          cursorRef2.current.classList.remove("active");
+        }}
       />
 
       <div className="flex flex-row py-8">
         {/* 왼쪽: 메인 컨텐츠 */}
         <div className="flex-1 flex flex-col ">
           {/* 상단: 사이트 설명 슬라이더 */}
-          <div
-            className="w-[900px] h-[300px] rounded-xl flex items-center justify-center mb-8 cursor-pointer select-none relative"
-            onClick={handleClick}
-          >
+          <div className="w-[900px] h-[300px] rounded-xl flex items-center justify-center mb-8 select-none relative">
             <img
               src={images[current]}
               alt={`Slide ${current}`}
