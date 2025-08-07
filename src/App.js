@@ -6,6 +6,7 @@ import AdminLayout from "./layout/admin/AdminLayout";
 import Home from "./pages/Home"
 import Login from "./pages/Login"
 import InvestmentListPage from "./pages/investment/investmentList";
+import InvestmentDetail from "./pages/investment/investmentDetail";
 
 function App() {
   return (
@@ -18,7 +19,9 @@ function App() {
             <Route index element={<Home />}></Route>
             <Route path="/login" element={<Login />} />
 
+            {/*Investment*/}
             <Route path="investment" element={<InvestmentListPage />} />
+            <Route path="investment/:id" element={<InvestmentDetail />} />
 
           </Route>
 
