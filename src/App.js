@@ -17,7 +17,7 @@ function App() {
           {/*헤더, 푸터 고정 설정*/}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />}></Route>
-            <Route path="/login" element={<Login />} />
+            <Route path="/login/:id" element={<Login />}></Route>
 
             {/*Investment*/}
             <Route path="investment" element={<InvestmentListPage />} />

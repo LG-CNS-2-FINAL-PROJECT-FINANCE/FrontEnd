@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 function Header() {
@@ -76,7 +75,7 @@ function Header() {
             src="/assets/bull.png"
             alt="투자자"
             className="w-16 h-16 hover:cursor-pointer"
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/login/1")}
           />
         </div>
       </div>
