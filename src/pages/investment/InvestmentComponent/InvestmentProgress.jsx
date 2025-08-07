@@ -9,7 +9,6 @@ function InvestmentProgress({ currentAmount, minInvestment, targetAmount, progre
         <div className="bg-white p-6 rounded-lg mb-6">
             <h2 className="text-2xl font-bold mb-4">투자 목표 및 진행</h2>
 
-            {/* 목표 그래프 (진행률 바) */}
             <div className="w-full bg-gray-200 rounded-full h-4 mb-3">
                 <div
                     className="bg-red-500 h-4 rounded-full"

@@ -58,12 +58,12 @@ function InvestmentListPage() {
 
     return (
         <div className="container mx-auto py-8">
-            {/* 1. 검색창 */}
+            {/* 검색창 */}
             <section className="mb-10">
                 <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
             </section>
 
-            {/* 2. 마감 임박 카드 3개 */}
+            {/* 마감 임박 카드 4개 */}
             {searchTerm === '' && (
                 <section className="mb-12">
                     <h2 className="text-2xl font-bold mb-6">마감 임박 상품 ✨</h2>
@@ -79,17 +79,17 @@ function InvestmentListPage() {
                 </section>
             )}
 
-            {/* 3. 모든 투자 상품 섹션 (제목 및 정렬 버튼 포함) */}
+            {/* 모든 투자 상품 */}
             <section>
-                <div className="flex items-center justify-between mb-6"> {/* flex와 justify-between으로 정렬 UI 배치 */}
+                <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold">모든 투자 상품 펀딩 🚀</h2>
-                    <div className="flex space-x-2"> {/* 정렬 버튼 그룹 */}
+                    <div className="flex space-x-2">
                         <button
                             onClick={() => setCurrentSort(SORT_OPTIONS.LATEST)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                                 currentSort === SORT_OPTIONS.LATEST
-                                    ? 'bg-red-500 text-white' // 선택 시 스타일
-                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // 비선택 시 스타일
+                                    ? 'bg-red-500 text-white' // 선택 시
+                                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // 비선택 시
                             }`}
                         >
                             최신등록순
