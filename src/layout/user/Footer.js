@@ -15,6 +15,7 @@ function Footer(){
             justify-center   /* justify-content: center; */
             items-center     /* align-items: center; */
             p-4
+            px-[10%]
         ">
             <div className="flex w-full">
                 <div className="flex-1 px-4">

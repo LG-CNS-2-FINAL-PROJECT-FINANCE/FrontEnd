@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 
+import StartingTopProjectsSection from "../component/StartingTopProjectSection";
+
 const images = [
   "/assets/startingpage_1.jpg",
   "/assets/startingpage_2.jpg",
@@ -97,36 +99,8 @@ function Home() {
             </span>
           </div>
 
-          {/* TOP 조회수 */}
-          <div className="w-[900px]">
-            <div className="flex items-center mb-4">
-              <span className="text-2xl font-bold mr-2">{"<"}</span>
-              <span className="text-xl font-bold">TOP 조회수</span>
-              <span className="text-2xl font-bold ml-2">{">"}</span>
-            </div>
-            <div className="grid grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className="bg-gray-200 rounded-xl h-[200px] flex flex-col justify-between p-3"
-                >
-                  <div className="flex-1 rounded-lg bg-gray-300 mb-2"></div>
-                  <div>
-                    <div className="font-bold text-sm">프로젝트명</div>
-                    <div className="text-xs text-gray-600">
-                      100,010,200원 유치중
-                    </div>
-                    <div className="w-full h-2 bg-gray-300 rounded mt-1">
-                      <div
-                        className="h-2 bg-red-500 rounded"
-                        style={{ width: "60%" }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          {/*Top 조회수*/}
+          <StartingTopProjectsSection />
         </div>
         {/* 오른쪽: 실시간 상품 순위 */}
         <div className="pl-4 w-[30%] flex flex-col items-center">
