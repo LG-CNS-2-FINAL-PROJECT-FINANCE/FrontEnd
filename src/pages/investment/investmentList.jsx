@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import SearchBar from '../../component/Searchbar';
+import SearchBar from '../../component/SearchBar';
 import InvestmentCard from '../../component/InvestmentCard';
 
 // 정렬 기준을 위한 상수 정의
