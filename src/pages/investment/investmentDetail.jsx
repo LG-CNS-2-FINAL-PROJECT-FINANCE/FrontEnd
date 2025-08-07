@@ -11,11 +11,13 @@ function InvestmentDetail() {
     const [investment, setInvestment] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const dummyReporterId = '나는1번사용잔데용';
+
     useEffect(() => {
         const dummyDetail = {
             id: id,
             title: `LG CNS 금융 3조 프로젝트 ${id}`,
-            projectNumber: `PN-2024-${id.padStart(3, '0')}`,
+            projectNumber: `${id}번`,
             startDate: '2024.01.15',
             endDate: '2024.07.15',
             author: '운영팀',
@@ -58,6 +60,7 @@ function InvestmentDetail() {
                 imageUrl={investment.imageUrl}
                 summary={investment.summary}
                 tokenPrice={investment.tokenPrice}
+                reporterId={dummyReporterId}
             />
 
             {/* 2. 투자 목표 및 진행 */}

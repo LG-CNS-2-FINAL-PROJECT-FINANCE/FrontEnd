@@ -2,16 +2,18 @@ import React, { useState } from 'react';
 import { FaShareAlt, FaRegStar, FaStar, FaFlag, FaRegMoneyBillAlt, FaMoneyBillAlt } from 'react-icons/fa';
 import { RiMoneyCnyBoxFill, RiMoneyCnyBoxLine } from 'react-icons/ri';
 import InvestmentModal from "./InvestmentModal";
+import ReportModal from './ReportModal';
 
 
-function InvestmentSummary({ title, projectNumber, startDate, endDate, author, isFavorite: initialIsFavorite, isInvested, minInvestment, imageUrl, summary, tokenPrice }) {
+function InvestmentSummary({ title, projectNumber, startDate, endDate, author, isFavorite: initialIsFavorite, isInvested, minInvestment, imageUrl, summary, tokenPrice, reporterId }) {
     const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
     // 공유하기, 즐겨찾기, 신고
     const handleShare = () => { alert('공유하기!'); };
     const handleFavoriteToggle = () => {setIsFavorite(!isFavorite); alert(`즐겨찾기 ${isFavorite ? '해제' : '추가'}!`); };
-    const handleReport = () => {alert('신고하기!'); };
+    const handleReport = () => { setIsReportModalOpen(true); };
 
     const handleInvest = () => {
         setIsModalOpen(true);
@@ -23,9 +25,18 @@ function InvestmentSummary({ title, projectNumber, startDate, endDate, author, i
         window.location.reload();
     };
 
-    //모달을 닫는 함수
+    //투자하기 모달 닫기
     const closeModal = () => {
         setIsModalOpen(false);
+    };
+
+    //신고하기 모달 닫기
+    const closeReportModal = () => {
+        setIsReportModalOpen(false);
+    };
+
+    const handleReportSubmit = (reportData) => {
+        console.log('신고 데이터:', reportData);
     };
 
     return (
@@ -91,6 +102,14 @@ function InvestmentSummary({ title, projectNumber, startDate, endDate, author, i
                 summary={summary}
                 author={author}
                 tokenPrice={tokenPrice}
+            />
+
+            <ReportModal
+                isOpen={isReportModalOpen}
+                onClose={closeReportModal}
+                projectNumber={projectNumber} // prop으로 받은 projectNumber 전달
+                reporterId={reporterId}       // prop으로 받은 reporterId 전달
+                onSubmitReport={handleReportSubmit} // 신고 처리 함수 전달
             />
         </div>
     );
