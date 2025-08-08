@@ -1,48 +1,59 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 
 function Header() {
   const navigate = useNavigate();
 
   const [isLogin, setIsLogin] = useState(false);
-  const [userRole, setUserRole] = useState('투자자'); // 기본 역할을 '투자자'로 초기화
+  const [userRole, setUserRole] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     if (token) {
       try {
-        const decodedToken = jwtDecode(token);
-        //decodedToken에 role 정보가 있을 경우 사용하고, 없으면 기본값으로 '투자자' 설정
-        setUserRole(decodedToken.role || '투자자');
-        setIsLogin(true); // 토큰이 유효하게 디코딩되면 로그인 상태로 설정
+        const decodedToken = JSON.parse(token); // 임시 JSON.stringify로 저장된 토큰이므로 JSON.parse 사용
+        const roleFromToken = decodedToken.role || '';
+        setUserRole(roleFromToken);
+        setIsLogin(true);
+
+        // 테스트를 위해 주석 처리
+        // if (isLogin && !roleFromToken) {
+        //     navigate('/select-role');
+        // }
       } catch (error) {
-        console.error("JWT 토큰 디코딩 오류:", error);
-        setIsLogin(false); // 토큰 디코딩 실패 시 로그인 상태 아님
+        console.error("토큰 디코딩/파싱 오류:", error);
+        setIsLogin(false);
+        setUserRole('');
         localStorage.removeItem('jwtToken');
+        // navigate('/login/1');
       }
     } else {
-      setIsLogin(false); // 토큰이 없으면 로그인 상태 아님
+      setIsLogin(false);
+      setUserRole('');
+      // navigate('/login/1');
     }
-  }, []);
+  }, [isLogin, navigate]);
 
-  //테스트를 위한 임시 함수
+
+  // 테스트를 위한 임시 로그인/로그아웃
   const toggleLoginStatus = () => {
     if (isLogin) {
       localStorage.removeItem('jwtToken');
       setIsLogin(false);
-      setUserRole('투자자');
+      setUserRole(''); // 로그아웃 시 역할 초기화
+      navigate('/login/1');
     } else {
-      const testToken = JSON.stringify({ role: '투자자' }); // 이 부분은 실제 JWT 토큰 형식이 아님을 명심해주세요.
-      localStorage.setItem('jwtToken', testToken);
+      localStorage.setItem('jwtToken', JSON.stringify({}));
       setIsLogin(true);
-      setUserRole('투자자'); //임시 로그인 시 역할 설정
+      navigate('/select-role');
     }
   };
 
-  const handleRoleToggle = () => {
-    setUserRole(prevRole => (prevRole === '투자자' ? '창작자' : '투자자'));
+  // 역할 선택 페이지로 이동
+  const handleRoleSelectionRedirect = () => {
+    navigate('/select-role');
   };
 
   return (
@@ -58,33 +69,35 @@ function Header() {
                 onClick={() => navigate("/")}
             />
           </div>
-          <div>
-          <span
-              className="hover:cursor-pointer"
-              onClick={() => navigate("/asset")}
-          >
-            자산 조회
-          </span>
-          </div>
-          <div>
-          <span
-              className="hover:cursor-pointer"
-              onClick={() => navigate("/investment")}
-          >
-            투자 상품
-          </span>
-          </div>
-          <div>
-          <span
-              className="hover:cursor-pointer"
-              onClick={() => navigate("/market")}
-          >
-            토큰 거래
-          </span>
-          </div>
+
+              <>
+                <div>
+                <span
+                    className="hover:cursor-pointer"
+                    onClick={() => navigate("/asset")}
+                >
+                  자산 조회
+                </span>
+                </div>
+                <div>
+                <span
+                    className="hover:cursor-pointer"
+                    onClick={() => navigate("/investment")}
+                >
+                  투자 상품
+                </span>
+                </div>
+                <div>
+                <span
+                    className="hover:cursor-pointer"
+                    onClick={() => navigate("/market")}
+                >
+                  토큰 거래
+                </span>
+                </div>
+              </>
         </div>
         <div className="flex items-center space-x-4">
-          {/* 로그인 상태에 따른 버튼 표시 */}
           {!isLogin ? (
               <button
                   className="bg-red-500 px-5 py-3 rounded-full text-amber-50"
@@ -95,10 +108,14 @@ function Header() {
           ) : (
               <div>
                 <button
-                    className={userRole === '투자자' ? "bg-red-500 px-5 py-3 rounded-full text-amber-50" : "bg-blue-600 px-5 py-3 rounded-full text-amber-50"}
-                    onClick={handleRoleToggle}
+                    className={
+                      userRole === '투자자' ? "bg-red-500 px-5 py-3 rounded-full text-amber-50" :
+                          userRole === '창작자' ? "bg-blue-600 px-5 py-3 rounded-full text-amber-50" :
+                              "bg-gray-400 px-5 py-3 rounded-full text-gray-700 hover:bg-gray-500"
+                    }
+                    onClick={handleRoleSelectionRedirect}
                 >
-                  {userRole}
+                  {userRole || '역할 선택'}
                 </button>
               </div>
           )}
@@ -109,16 +126,27 @@ function Header() {
               </div>
           ) : (
               <div>
-                <img
-                    src={userRole === '투자자' ? "/assets/bull.png" : "/assets/pig.png"} // 예시: 역할에 따라 다른 아이콘
-                    alt={`${userRole} 아이콘`}
-                    className="w-12 h-12 hover:cursor-pointer"
-                    onClick={() => navigate("/my-profile")} // 사용자 프로필 페이지로 이동
-                />
+                {userRole === '투자자' ? (
+                    <img
+                        src="/assets/bull.png"
+                        alt="투자자 아이콘"
+                        className="w-12 h-12 hover:cursor-pointer"
+                        onClick={() => navigate("/my-profile")}
+                    />
+                ) : userRole === '창작자' ? (
+                    <img
+                        src="/assets/pig.png"
+                        alt="창작자 아이콘"
+                        className="w-12 h-12 hover:cursor-pointer"
+                        onClick={() => navigate("/my-profile")}
+                    />
+                ) : (
+                    <FaUser className="w-12 h-12 hover:cursor-pointer" onClick={() => navigate("/my-profile")} />
+                )}
               </div>
           )}
 
-          {/*테스트용 버튼 나중에 삭제할거임*/}
+          {/* 로그인 테스트용 버튼 */}
           <button
               className="bg-gray-400 px-5 py-3 rounded-full text-white"
               onClick={toggleLoginStatus}
