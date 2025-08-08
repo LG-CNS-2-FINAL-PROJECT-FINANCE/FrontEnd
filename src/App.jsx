@@ -7,6 +7,8 @@ import Home from "./pages/Home.jsx";
 import Login from "./pages/login/Login.jsx";
 import InvestmentListPage from "./pages/investment/investmentList.jsx";
 import InvestmentDetail from "./pages/investment/investmentDetail.jsx";
+import Market from "./pages/market/Market.jsx";
+import MarketDetail from "./pages/market/MarketDetail.jsx";
 
 function App() {
   return (
@@ -22,6 +24,10 @@ function App() {
             {/*Investment*/}
             <Route path="investment" element={<InvestmentListPage />} />
             <Route path="investment/:id" element={<InvestmentDetail />} />
+
+            {/*Market*/}
+            <Route path="/market" element={<Market />} />
+            <Route path="/market/:id" element={<MarketDetail />} />
           </Route>
 
           {/*관리자 페이지 헤더*/}
