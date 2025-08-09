@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TiltedCard from '../investment/InvestmentComponent/TiltedCard';
 
 function RoleSelectionPage() {
     const navigate = useNavigate();
@@ -63,40 +64,61 @@ function RoleSelectionPage() {
                     </p>
                 )}
                 <p className="py-4">역할 변경은 오른쪽 상단에서 변경 가능합니다.</p>
-                <div className="flex space-x-4">
-                    {/* 투자자 버튼 */}
-                    <button
-                        onClick={() => handleRoleSelect('투자자')}
-                        className={`w-full py-12 rounded-lg text-lg font-semibold transition-all duration-300 transform
-                            ${currentRole === '투자자' ? 'text-gray-800 cursor-not-allowed bg-gray-100 shadow-inner' : 'text-gray-700 hover:scale-105 hover:shadow-lg hover:bg-gray-50'}
-                            flex flex-col items-center justify-center space-y-6
-                        `}
-                        disabled={currentRole === '투자자'}
-                    >
-                        <img
-                            src="/assets/bull.png"
-                            alt="투자자 아이콘"
-                            className="w-48 h-48 object-contain"
-                        />
-                        <span className="font-extrabold text-4xl mt-4">투자자</span>
-                    </button>
 
-                    {/* 창작자 버튼 */}
-                    <button
-                        onClick={() => handleRoleSelect('창작자')}
-                        className={`w-full py-12 rounded-lg text-lg font-semibold transition-all duration-300 transform
-                            ${currentRole === '창작자' ? 'text-gray-800 cursor-not-allowed bg-gray-100 shadow-inner' : 'text-gray-700 hover:scale-105 hover:shadow-lg hover:bg-gray-50'}
-                            flex flex-col items-center justify-center space-y-6
-                        `}
-                        disabled={currentRole === '창작자'}
-                    >
-                        <img
-                            src="/assets/pig.png"
-                            alt="창작자 아이콘"
-                            className="w-48 h-48 object-contain"
+
+                <div className="flex space-x-32">
+                    {/* ✨ 투자자 TiltedCard */}
+                    <div className="flex-1 min-w-[150px] flex items-center justify-center"> {/* TiltedCard를 감싸는 컨테이너 */}
+                        <TiltedCard
+                            imageSrc="/assets/bull.png"
+                            altText="투자자"
+                            // captionText="투자자" // 툴팁 텍스트
+                            containerHeight="320px" // 이미지와 텍스트를 담을 컨테이너 높이
+                            containerWidth="100%" // 부모 컨테이너 너비에 맞춤
+                            imageHeight="256px" // 이미지 자체의 크기
+                            imageWidth="256px"   // 이미지 자체의 크기
+                            rotateAmplitude={12}
+                            scaleOnHover={1.15}
+                            showMobileWarning={false}
+                            showTooltip={true} // 툴팁 활성화
+                            displayOverlayContent={true} // 오버레이 콘텐츠 표시
+                            overlayContent={false}
+                            onClick={() => handleRoleSelect('투자자')}
+                            isDisabled={currentRole === '투자자'}
+                            nonTiltingContent={
+                                <span className="font-extrabold text-4xl text-red-500">투자자</span>
+                            }
                         />
-                        <span className="font-extrabold text-4xl mt-4">창작자</span>
-                    </button>
+                    </div>
+
+                    {/* ✨ 창작자 TiltedCard */}
+                    <div className="flex-1 min-w-[150px] flex items-center justify-center"> {/* TiltedCard를 감싸는 컨테이너 */}
+                        <TiltedCard
+                            imageSrc="/assets/pig.png"
+                            altText="창작자"
+                            // captionText="창작자"
+                            containerHeight="320px"
+                            containerWidth="100%"
+                            imageHeight="256px"
+                            imageWidth="256px"
+                            rotateAmplitude={12}
+                            scaleOnHover={1.15}
+                            showMobileWarning={false}
+                            showTooltip={true}
+                            displayOverlayContent={true}
+                            overlayContent={
+                                false
+                                /*<div className="inset-0 flex flex-col items-end justify-start">
+                                    <span className="font-extrabold mb-2 text-2xl text-blue-500">창작자</span>
+                                </div>*/
+                            }
+                            onClick={() => handleRoleSelect('창작자')}
+                            isDisabled={currentRole === '창작자'}
+                            nonTiltingContent={
+                                <span className="font-extrabold text-4xl text-blue-500">창작자</span>
+                            }
+                        />
+                    </div>
                 </div>
 
                 {/*뒤로가기 버튼인데 일단 필요한지 필요 없는지 모르겠어서 일단 비활성화 해둠*/}
