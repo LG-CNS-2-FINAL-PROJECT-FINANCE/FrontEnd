@@ -10,6 +10,9 @@ import InvestmentDetail from "./pages/investment/investmentDetail.jsx";
 import Market from "./pages/market/Market.jsx";
 import MarketDetail from "./pages/market/MarketDetail.jsx";
 import RoleSelectionPage from "./pages/Role/RoleSelectionPage";
+import MyPage from "./pages/MyPage/MyPage.jsx";
+import MyInvestments from "./pages/MyPage/MyInvestments.jsx";
+import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
 
 function App() {
   return (
@@ -32,6 +35,11 @@ function App() {
             {/*Market*/}
             <Route path="/market" element={<Market />} />
             <Route path="/market/:id" element={<MarketDetail />} />
+            
+            {/*MyPage*/}
+            <Route path="/my-profile" element={<MyPage />} />
+            <Route path="/my-investments" element={<MyInvestments />} />
+            <Route path="/my-favorites" element={<MyFavorites />} />
           </Route>
 
           {/*관리자 페이지 헤더*/}
