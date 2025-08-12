@@ -9,12 +9,17 @@ import InvestmentListPage from "./pages/investment/investmentList.jsx";
 import InvestmentDetail from "./pages/investment/investmentDetail.jsx";
 import Market from "./pages/market/Market.jsx";
 import MarketDetail from "./pages/market/MarketDetail.jsx";
+import { ToastContainer } from "react-toastify";
+import Asset from "./pages/asset/Asset.jsx";
 import RoleSelectionPage from "./pages/Role/RoleSelectionPage";
+
 
 function App() {
   return (
     <BrowserRouter>
       <div className="flex flex-col">
+        {/* 전역 토스트 컨테이너 */}
+        <ToastContainer position="bottom-right" />
         <ScrollToTop />
         <Routes>
           {/*헤더, 푸터 고정 설정*/}
@@ -32,6 +37,9 @@ function App() {
             {/*Market*/}
             <Route path="/market" element={<Market />} />
             <Route path="/market/:id" element={<MarketDetail />} />
+
+            {/*Asset*/}
+            <Route path="/asset" element={<Asset />} />
           </Route>
 
           {/*관리자 페이지 헤더*/}
