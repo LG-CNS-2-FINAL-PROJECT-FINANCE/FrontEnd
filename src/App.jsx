@@ -35,7 +35,10 @@ function App() {
           </Route>
 
           {/*관리자 페이지 헤더*/}
-          <Route path="/admin" element={<AdminLayout />}></Route>
+          <Route path="/admin" element={<AdminLayout />}>
+
+
+          </Route>
         </Routes>
       </div>
     </BrowserRouter>
