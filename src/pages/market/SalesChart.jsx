@@ -61,7 +61,7 @@ const options = {
 
 function SalesChart() {
   return (
-    <div className="max-w-xl mx-auto bg-white rounded-lg ">
+    <div className="max-w-md mx-auto bg-white rounded-lg ">
       <Line data={data} options={options} />
     </div>
   );
