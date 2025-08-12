@@ -11,6 +11,8 @@ import Market from "./pages/market/Market.jsx";
 import MarketDetail from "./pages/market/MarketDetail.jsx";
 import { ToastContainer } from "react-toastify";
 import Asset from "./pages/asset/Asset.jsx";
+import RoleSelectionPage from "./pages/Role/RoleSelectionPage";
+
 
 function App() {
   return (
@@ -23,7 +25,10 @@ function App() {
           {/*헤더, 푸터 고정 설정*/}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />}></Route>
+            {/*로그인 페이지*/}
             <Route path="/login/:id" element={<Login />}></Route>
+            {/*역할 선택 페이지*/}
+            <Route path="/select-role" element={<RoleSelectionPage />} />
 
             {/*Investment*/}
             <Route path="investment" element={<InvestmentListPage />} />

@@ -22,7 +22,7 @@ function LoginDetail_6() {
       <button
         className="mt-6 bg-red-400 text-white px-6 py-2 rounded-lg flex items-center justify-center hover:bg-red-500 transition-colors"
         onClick={() => {
-          navigate("/");
+          navigate("/select-role");
         }}
       >
         시작하기
