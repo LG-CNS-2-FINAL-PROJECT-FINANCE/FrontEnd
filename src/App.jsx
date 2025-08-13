@@ -20,6 +20,8 @@ import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
 import AccountManagement from "./pages/MyPage/AccountManagement.jsx";
 import EditInfo from "./pages/MyPage/EditInfo.jsx";
 import MyReports from "./pages/MyPage/MyReports.jsx";
+import ReportManagement from "./pages/admin/ReportManagement";
+import PostManagement from "./pages/admin/PostManagement";
 
 
 function App() {
@@ -64,6 +66,8 @@ function App() {
           {/*관리자 페이지 헤더*/}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="user" element={<UserManagement />}></Route>
+            <Route path="reports" element={<ReportManagement />}></Route>
+            {/*<Route path="posts" element={<PostManagement />}></Route>*/}
 
           </Route>
         </Routes>

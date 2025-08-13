@@ -27,22 +27,47 @@ export default function AdminLogin() {
             const res = await api.post(
                 '/user/auth/admin/login',
                 { adminId: adminId.trim(), password: pw },
-                // { withCredentials: true } // 서버가 refresh token 쿠키를 사용할 경우 필요
+                { withCredentials: true } // 서버가 쿠키를 쓴다면 true로
             );
 
-            const { accessToken, refreshToken, user } = res.data || {};
+            console.log('response status:', res.status);
+            console.log('response headers:', res.headers);
+            console.log('response data:', res.data);
 
-            if (!accessToken) {
-                setErr('서버 응답이 올바르지 않습니다.');
-                setLoading(false);
-                return;
+            // 응답 데이터/헤더에서 토큰 추출 (안전하게 여러 케이스 처리)
+            const data = res.data;
+            let accessToken = null;
+            let refreshToken = null;
+            let user = null;
+
+            // 바디에 토큰이 있으면 우선 사용
+            if (data && typeof data === 'object') {
+                accessToken = data.accessToken || data.access_token || data.token || null;
+                refreshToken = data.refreshToken || data.refresh_token || null;
+                user = data.user || data.data?.user || null;
             }
 
-            if (setAccessToken) setAccessToken(accessToken);
-            if (setRefreshToken && refreshToken) setRefreshToken(refreshToken);
-            if (setUser && user) setUser(user);
+            // 바디에 없으면 Authorization 헤더에서 추출
+            if (!accessToken && res.headers) {
+                const authHeader = res.headers['authorization'] || res.headers?.Authorization;
+                if (authHeader) {
+                    accessToken = authHeader.replace(/^Bearer\s+/i, '');
+                }
+            }
 
-            // 로그인 성공 후 관리자 메인으로 이동
+            console.log('extracted accessToken:', accessToken);
+
+            // 상태 업데이트
+            if (accessToken && setAccessToken) setAccessToken(accessToken);
+            if (setRefreshToken && refreshToken) setRefreshToken(refreshToken);
+            if (setUser && (user || (typeof data === 'string' ? null : data.user))) setUser(user);
+
+            // 전역 axios 기본 헤더에도 넣어두면 이후 요청에 자동 포함
+            if (accessToken) {
+                api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+            }
+
+            // 성공 처리
             navigate('/admin/user');
         } catch (error) {
             console.error(error);
