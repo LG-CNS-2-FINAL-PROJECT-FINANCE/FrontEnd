@@ -12,6 +12,8 @@ import MarketDetail from "./pages/market/MarketDetail.jsx";
 import { ToastContainer } from "react-toastify";
 import Asset from "./pages/asset/Asset.jsx";
 import RoleSelectionPage from "./pages/Role/RoleSelectionPage";
+import AdminLogin from "./pages/admin/login/AdminLogin";
+import UserManagement from "./pages/admin/UserManagement";
 import MyPage from "./pages/MyPage/MyPage.jsx";
 import MyInvestments from "./pages/MyPage/MyInvestments.jsx";
 import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
@@ -57,8 +59,13 @@ function App() {
 
           </Route>
 
+          {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
+          <Route path="/admin/login" element={<AdminLogin />} />
           {/*관리자 페이지 헤더*/}
-          <Route path="/admin" element={<AdminLayout />}></Route>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="user" element={<UserManagement />}></Route>
+
+          </Route>
         </Routes>
       </div>
     </BrowserRouter>
