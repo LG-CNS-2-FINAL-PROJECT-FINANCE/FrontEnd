@@ -13,6 +13,8 @@ import RoleSelectionPage from "./pages/Role/RoleSelectionPage";
 import MyPage from "./pages/MyPage/MyPage.jsx";
 import MyInvestments from "./pages/MyPage/MyInvestments.jsx";
 import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
+import AccountManagement from "./pages/MyPage/AccountManagement.jsx";
+import EditInfo from "./pages/MyPage/EditInfo.jsx";
 
 function App() {
   return (
@@ -40,6 +42,8 @@ function App() {
             <Route path="/my-profile" element={<MyPage />} />
             <Route path="/my-investments" element={<MyInvestments />} />
             <Route path="/my-favorites" element={<MyFavorites />} />
+            <Route path="/account-management" element={<AccountManagement />} />
+            <Route path="/edit-info" element={<EditInfo />} />
           </Route>
 
           {/*관리자 페이지 헤더*/}
