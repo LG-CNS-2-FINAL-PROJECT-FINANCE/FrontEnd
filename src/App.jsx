@@ -10,6 +10,8 @@ import InvestmentDetail from "./pages/investment/investmentDetail.jsx";
 import Market from "./pages/market/Market.jsx";
 import MarketDetail from "./pages/market/MarketDetail.jsx";
 import RoleSelectionPage from "./pages/Role/RoleSelectionPage";
+import AdminLogin from "./pages/admin/login/AdminLogin";
+import UserManagement from "./pages/admin/UserManagement";
 
 function App() {
   return (
@@ -34,9 +36,11 @@ function App() {
             <Route path="/market/:id" element={<MarketDetail />} />
           </Route>
 
+          {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
+          <Route path="/admin/login" element={<AdminLogin />} />
           {/*관리자 페이지 헤더*/}
           <Route path="/admin" element={<AdminLayout />}>
-
+            <Route path="user" element={<UserManagement />}></Route>
 
           </Route>
         </Routes>
