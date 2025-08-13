@@ -5,7 +5,7 @@ const api = axios.create({
     // withCredentials: true, // 쿠키 방식 필요시 사용
 });
 
-export function setupInterceptors(getAccessToken, getRefreshToken, setTokens, logout) {
+export function loginaxiosInstance(getAccessToken, getRefreshToken, setTokens, logout) {
     api.interceptors.request.use(config => {
         const token = getAccessToken();
         if (token) config.headers.Authorization = `Bearer ${token}`;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import api from "../../api/axiosInstance";
+import api from "../../api/loginaxiosInstance";
 
 export default function UserManagement() {
     const [users, setUsers] = useState([]);
