@@ -3,7 +3,7 @@ import React from 'react';
 const PortfolioSection = () => {
     return (
         <div 
-            className="bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg mb-8 flex items-center justify-center w-full"
+            className="bg-gray-100 border-2 border-dashed border-gray-200 rounded-lg mb-8 flex items-center justify-center w-full"
             style={{ height: '281px' }}
         >
             <div className="text-center text-gray-500">

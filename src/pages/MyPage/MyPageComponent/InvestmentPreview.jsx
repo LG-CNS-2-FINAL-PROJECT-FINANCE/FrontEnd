@@ -20,7 +20,7 @@ const InvestmentPreview = ({ investments }) => {
             
             {/* Investment List with Thin Gray Border - full width */}
             <div 
-                className="border border-gray-300 rounded-lg p-6 relative w-full"
+                className="border border-gray-200 rounded-lg p-6 relative w-full"
             >
                 {/* Add More Button - positioned at top right */}
                 {investments.length > 5 && (
@@ -33,9 +33,9 @@ const InvestmentPreview = ({ investments }) => {
                 )}
 
                 {/* Investment Grid - shows only preview (5 items) */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4">
                     {displayedInvestments.map((investment) => (
-                        <div key={investment.id} className="transform scale-75">
+                        <div key={investment.id} className="transform scale-90">
                             <InvestmentCard project={investment} />
                         </div>
                     ))}

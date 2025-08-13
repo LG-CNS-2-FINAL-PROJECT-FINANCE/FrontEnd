@@ -9,12 +9,12 @@ const FavoriteList = ({ favorites }) => {
             
             {/* Full Favorites List with Thin Gray Border - full width */}
             <div 
-                className="border border-gray-300 rounded-lg p-6 w-full"
+                className="border border-gray-200 rounded-lg p-6 w-full"
             >
                 {/* Favorites Grid - shows all items */}
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-4 gap-2">
                     {favorites.map((favorite) => (
-                        <div key={favorite.id} className="transform scale-75">
+                        <div key={favorite.id} className="transform scale-90">
                             <InvestmentCard project={favorite} />
                         </div>
                     ))}
