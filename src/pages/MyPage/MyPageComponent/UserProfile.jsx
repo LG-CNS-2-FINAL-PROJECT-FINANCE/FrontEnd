@@ -1,8 +1,14 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MdOutlineEmail } from "react-icons/md";
 import { IoCalendarNumberSharp } from "react-icons/io5";
 
 const UserProfile = () => {
+    const navigate = useNavigate();
+
+    const handleAccountManagement = () => {
+        navigate('/account-management');
+    };
     return (
         <div className="w-[220px] relative bg-white min-h-screen">
             <img 
@@ -22,17 +28,18 @@ const UserProfile = () => {
                 </div>
             </div>
             
-            {/* Account Management Button - Thinner */}
+            {/* Account Management Button */}
             <button 
-                className="absolute bg-white hover:bg-gray-50 border-2 border-gray-300 text-gray-800 font-medium py-1 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center text-xs"
+                className="absolute bg-white hover:bg-gray-50 border-2 border-gray-200 text-gray-800 font-medium py-1 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center text-xs"
                 style={{ left: '30px', top: '380px', width: '170px' }}
+                onClick={handleAccountManagement}
             >
                 계정관리
             </button>
             
             {/* Information Box */}
             <div 
-                className="absolute border-2 border-gray-300 rounded-lg p-4 bg-white"
+                className="absolute border-2 border-gray-200 rounded-lg p-4 bg-white"
                 style={{ left: '30px', top: '450px', width: '170px' }}
             >
                 <h3 className="font-bold text-base mb-3 text-gray-800">정보</h3>
