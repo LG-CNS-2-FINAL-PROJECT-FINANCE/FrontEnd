@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useScrollLock from "../../../component/ScrollLock";
+import useScrollLock from "../../../component/useScrollLock";
 import { CiCircleQuestion } from "react-icons/ci";
 
 function AssetDepositModal({ isOpen, onClose, onConfirm }) {
@@ -43,6 +43,7 @@ function AssetDepositModal({ isOpen, onClose, onConfirm }) {
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg relative animate-fade-in">
         <button
           onClick={onClose}
+          type="button"
           className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-3xl font-bold"
         >
           &times;
@@ -76,6 +77,7 @@ function AssetDepositModal({ isOpen, onClose, onConfirm }) {
 
         <div className="flex justify-center space-x-3 mt-6">
           <button
+            type="button"
             onClick={onClose}
             className="bg-gray-300 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors font-semibold"
           >
@@ -83,6 +85,7 @@ function AssetDepositModal({ isOpen, onClose, onConfirm }) {
           </button>
           <button
             onClick={handleSubmit}
+            type="button"
             className="bg-red-300 text-white py-2 px-4 rounded-md hover:bg-red-500 transition-colors font-semibold"
           >
             입금신청

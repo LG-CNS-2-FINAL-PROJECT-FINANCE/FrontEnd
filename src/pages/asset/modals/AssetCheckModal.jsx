@@ -1,4 +1,4 @@
-import useScrollLock from "../../../component/ScrollLock";
+import useScrollLock from "../../../component/useScrollLock";
 import { toast } from "react-toastify";
 
 function AssetCheckModal({

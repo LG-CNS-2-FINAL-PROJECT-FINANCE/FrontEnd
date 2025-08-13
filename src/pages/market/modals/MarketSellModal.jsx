@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
-import useScrollLock from "../../../component/ScrollLock";
 import SalesChart from "../SalesChart";
 import { toast } from "react-toastify";
+import useScrollLock from "../../../component/useScrollLock";
 
 export default function MarketSellModal({ isOpen, onClose, onConfirm }) {
   useScrollLock(isOpen);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import useScrollLock from "../../../component/ScrollLock";
+import useScrollLock from "../../../component/useScrollLock";
 
 function InvestmentModal({
   isOpen,

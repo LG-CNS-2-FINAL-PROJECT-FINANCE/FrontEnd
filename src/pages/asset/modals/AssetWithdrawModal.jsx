@@ -1,5 +1,5 @@
 import { useState } from "react";
-import useScrollLock from "../../../component/ScrollLock";
+import useScrollLock from "../../../component/useScrollLock";
 import { CiCircleQuestion } from "react-icons/ci";
 
 function AssetWithdrawModal({ isOpen, onClose, onConfirm }) {
@@ -90,6 +90,7 @@ function AssetWithdrawModal({ isOpen, onClose, onConfirm }) {
           </button>
           <button
             onClick={handleSubmit}
+            type="button"
             className="bg-red-300 text-white py-2 px-4 rounded-md hover:bg-red-500 transition-colors font-semibold"
           >
             출금신청

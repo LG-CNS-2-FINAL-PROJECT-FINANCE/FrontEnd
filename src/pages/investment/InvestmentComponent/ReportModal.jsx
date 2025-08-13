@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import useScrollLock from "../../../component/ScrollLock";
+import useScrollLock from '../../../component/useScrollLock';
 
 function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitReport }) {
     const [selectedType, setSelectedType] = useState(''); // 선택된 신고 유형
