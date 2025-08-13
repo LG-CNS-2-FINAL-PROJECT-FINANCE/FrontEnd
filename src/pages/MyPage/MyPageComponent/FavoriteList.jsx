@@ -11,7 +11,7 @@ const FavoriteList = ({ favorites }) => {
             <div 
                 className="border border-gray-200 rounded-lg p-6 w-full"
             >
-                {/* Favorites Grid - shows all items */}
+                {/* Favorites Grid */}
                 <div className="grid grid-cols-4 gap-2">
                     {favorites.map((favorite) => (
                         <div key={favorite.id} className="transform scale-90">

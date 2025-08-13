@@ -6,8 +6,8 @@ import InvestmentCard from '../../../component/InvestmentCard';
 const InvestmentPreview = ({ investments }) => {
     const navigate = useNavigate();
     
-    // Always show only first 5 items for preview
-    const displayedInvestments = investments.slice(0, 5);
+    // Always show only first 8 items for preview
+    const displayedInvestments = investments.slice(0, 8);
 
     const handleMoreClick = () => {
         navigate('/my-investments');
@@ -32,7 +32,7 @@ const InvestmentPreview = ({ investments }) => {
                     </button>
                 )}
 
-                {/* Investment Grid - shows only preview (5 items) */}
+                {/* Investment Grid - shows only preview (8 items) */}
                 <div className="grid grid-cols-4">
                     {displayedInvestments.map((investment) => (
                         <div key={investment.id} className="transform scale-90">

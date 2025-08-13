@@ -8,8 +8,8 @@ import { LuUserPen } from "react-icons/lu";
 const EditInfo = () => {
     const navigate = useNavigate();
 
-    const handleEditInfo = () => {
-        navigate('/edit-info');
+    const handleNavigation = (path) => {
+        navigate(path);
     };
 
     return (
@@ -17,7 +17,7 @@ const EditInfo = () => {
             {/* Gray vertical line at 220px */}
             <div className="absolute left-[220px] top-0 bottom-0 w-px bg-gray-200 z-10"></div>
 
-            {/* Left side - Sticky Bull image area (same as MyPage) */}
+            {/* Left side - Sticky Bull image area*/}
             <div className="w-[220px] sticky top-0 h-screen">
                 <UserProfile />
             </div>
@@ -42,11 +42,11 @@ const EditInfo = () => {
 
                         {/* Form Fields */}
                         <div className="w-full space-y-4 mt-8">
-                            <div className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-50" onClick={handleEditInfo}>
+                            <div className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-50" onClick={() => handleNavigation('/edit-info')}>
                                 회원 정보 수정 
                                 <LuUserPen className="text-gray-600" size={20} />
                             </div>
-                            <div className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center">
+                            <div className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-50" onClick={() => handleNavigation('/my-reports')}>
                                 신고내역
                                 <MdReportGmailerrorred className="text-gray-600" size={20} />
                             </div>

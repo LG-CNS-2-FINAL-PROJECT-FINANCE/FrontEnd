@@ -15,6 +15,7 @@ import MyInvestments from "./pages/MyPage/MyInvestments.jsx";
 import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
 import AccountManagement from "./pages/MyPage/AccountManagement.jsx";
 import EditInfo from "./pages/MyPage/EditInfo.jsx";
+import MyReports from "./pages/MyPage/MyReports.jsx";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="/my-favorites" element={<MyFavorites />} />
             <Route path="/account-management" element={<AccountManagement />} />
             <Route path="/edit-info" element={<EditInfo />} />
+            <Route path="/my-reports" element={<MyReports />} />
           </Route>
 
           {/*관리자 페이지 헤더*/}

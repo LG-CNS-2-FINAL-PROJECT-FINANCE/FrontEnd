@@ -6,8 +6,8 @@ import InvestmentCard from '../../../component/InvestmentCard';
 const FavoritePreview = ({ favorites }) => {
     const navigate = useNavigate();
     
-    // Always show only first 5 items for preview
-    const displayedFavorites = favorites.slice(0, 5);
+    // Always show only first 8 items for preview
+    const displayedFavorites = favorites.slice(0, 8);
 
     const handleMoreClick = () => {
         navigate('/my-favorites');
@@ -32,7 +32,7 @@ const FavoritePreview = ({ favorites }) => {
                     </button>
                 )}
 
-                {/* Favorites Grid - shows only preview (5 items) */}
+                {/* Favorites Grid - shows only preview (8 items) */}
                 <div className="grid grid-cols-4 gap-2">
                     {displayedFavorites.map((favorite) => (
                         <div key={favorite.id} className="transform scale-90">
