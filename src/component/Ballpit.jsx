@@ -499,7 +499,7 @@ const X = {
   colors: [0, 0, 0],
   ambientColor: 16777215,
   ambientIntensity: 1,
-  lightIntensity: 200,
+  lightIntensity: 10,
   materialParams: {
     metalness: 0.5,
     roughness: 0.5,
