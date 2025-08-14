@@ -20,6 +20,7 @@ export default function PostManagement() {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [status, setStatus] = useState('ALL'); // ALL, PUBLISHED, DRAFT, DELETED 등
+    const [title, setTitle] = useState('');
 
     const [page, setPage] = useState(1);
     const [size, setSize] = useState(20);
@@ -58,6 +59,7 @@ export default function PostManagement() {
                 endDate: opts.endDate ?? endDate,
                 status: opts.status ?? status,
                 signal: controller.signal, // AbortController signal 전달
+                title: opts.title ?? title,
             });
 
             setPosts(mapped);
@@ -217,9 +219,11 @@ export default function PostManagement() {
                             <tr>
                                 <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b">게시물번호</th>
                                 <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b">사용자번호</th>
+                                <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b">제목</th>
                                 <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b">시작일자</th>
                                 <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b">종료일자</th>
                                 <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b">게시물상태</th>
+                                <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b">상태</th>
                             </tr>
                             </thead>
 
@@ -233,9 +237,11 @@ export default function PostManagement() {
                                     <tr key={getPostKey(p)} className="hover:bg-gray-50">
                                         <td className="px-4 py-3 text-sm border-b">{p.postNo ?? p.id ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{p.userNo ?? p.userId ?? '-'}</td>
+                                        <td className="px-4 py-3 text-sm border-b">{p.title ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{formatDate(p.startDate) ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{formatDate(p.endDate) ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{p.status ?? '-'}</td>
+                                        <td className="px-4 py-3 text-sm border-b">{p.type ?? '-'}</td>
                                     </tr>
                                 ))
                             )}

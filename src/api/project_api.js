@@ -2,11 +2,13 @@ import { privateApi as api } from './axiosInstance';
 
 function mapToUiPost(item) {
     return {
-        postNo: item.project_id ?? item.postNo ?? item.id ?? null,
-        userNo: item.user_seq ?? item.userNo ?? item.userId ?? null,
+        postNo: item.project_id ?? item.requestId ?? item.id ?? null,
+        userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,
         startDate: item.start_date ?? item.startDate ?? null,
         endDate: item.end_date ?? item.endDate ?? null,
         status: item.status ?? item.postStatus ?? null,
+        type: item.type ?? null,
+        title: item.title ?? null,
     };
 }
 
@@ -18,13 +20,15 @@ export async function getPosts({
                                    startDate,
                                    endDate,
                                    status,
-                                   signal // AbortController.signal (optional)
+                                   signal,
+                                   title,
                                } = {}) {
     const params = { page, size };
     if (type && q) { params.type = type; params.q = q; }
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
     if (status && status !== 'ALL') params.status = status;
+    if (title) params.title = title;
 
     const res = await api.get('/product/request', { params, signal });
     const payload = res.data;
