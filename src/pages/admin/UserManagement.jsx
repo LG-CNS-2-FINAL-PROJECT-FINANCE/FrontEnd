@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from "../../api/loginaxiosInstance"; // 경로 맞춰 사용
-import { AuthContext } from '../../context/AuthContext'; // 경로 확인
+import api from "../../api/loginaxiosInstance";
+import { AuthContext } from '../../context/AuthContext';
 
 export default function UserManagement() {
     const { accessToken, logout } = useContext(AuthContext); // accessToken 사용, logout 제공되면 에러시 호출
@@ -17,7 +17,6 @@ export default function UserManagement() {
     const debounceRef = useRef(null);
     const abortRef = useRef(null); // AbortController 보관
 
-    // 유틸: 서버 응답에서 리스트를 안전하게 추출
     const parseResponseToList = (payload) => {
         if (!payload) return [];
         if (Array.isArray(payload)) return payload;
@@ -31,7 +30,6 @@ export default function UserManagement() {
         console.log('fetchUsers called, accessToken=', accessToken);
         const headers = { Authorization: `Bearer ${accessToken}` };
         console.log('request headers will be', headers);
-        // accessToken 없으면 호출 중지(추가 안전장치)
         if (!accessToken) {
             setUsers([]);
             setTotal(0);
@@ -54,14 +52,14 @@ export default function UserManagement() {
                 params.q = q;
             }
 
-            // 안전하게 Authorization 헤더를 요청단에서 붙이는 방식 (인스턴스 기본 헤더에 의존하지 않음)
+            // 안전하게 Authorization 헤더를 요청단에서 붙이는 방식
             const headers = {
                 Authorization: `Bearer ${accessToken}`,
             };
 
             const res = await api.get('/user/auth', {
                 params,
-                signal: controller.signal, // axios 최신버전에서 지원
+                signal: controller.signal,
                 headers,
             });
 
@@ -111,7 +109,6 @@ export default function UserManagement() {
                 try { abortRef.current.abort(); } catch (e) {}
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [accessToken]);
 
     // 검색 디바운스 처리
@@ -124,7 +121,6 @@ export default function UserManagement() {
         return () => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [query, searchType, accessToken]);
 
     return (
@@ -165,7 +161,7 @@ export default function UserManagement() {
                         <table className="min-w-full table-fixed border-collapse">
                             <thead className="bg-gray-100 sticky top-0 z-10">
                             <tr>
-                                <th className="w-20 px-4 py-2 text-left text-sm font-medium border-b">사용자번호</th>
+                                <th className="w-24 px-4 py-2 text-left text-sm font-medium border-b">사용자번호</th>
                                 <th className="w-64 px-4 py-2 text-left text-sm font-medium border-b">이메일</th>
                                 <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b">닉네임</th>
                                 <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b">역할</th>

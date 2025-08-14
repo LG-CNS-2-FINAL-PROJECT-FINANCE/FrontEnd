@@ -5,7 +5,7 @@ import api from "../../../api/loginaxiosInstance";
 
 
 export default function AdminLogin() {
-    const { setAccessToken, setRefreshToken, setUser } = useContext(AuthContext);
+    const { setTokens, setUser } = useContext(AuthContext);
     const [adminId, setAdminId] = useState('');
     const [pw, setPw] = useState('');
     const [err, setErr] = useState('');
@@ -57,15 +57,34 @@ export default function AdminLogin() {
 
             console.log('extracted accessToken:', accessToken);
 
+            const finalAccess = accessToken; // 바디나 헤더에서 추출한 값
+            const finalRefresh = refreshToken; // 바디에서 추출한 경우
+
+            if (typeof setTokens === 'function') {
+                setTokens(finalAccess, finalRefresh);
+            } else {
+                console.log('직접 저장합니다.')
+                if (finalAccess) {
+                    localStorage.setItem('ACCESS_TOKEN', finalAccess);
+                    api.defaults.headers.common['Authorization'] = `Bearer ${finalAccess}`;
+                }
+                if (finalRefresh) {
+                    localStorage.setItem('REFRESH_TOKEN', finalRefresh);
+                }
+            }
+
+// 사용자 상태 업데이트
+            if (setUser && user) setUser(user);
+
             // 상태 업데이트
-            if (accessToken && setAccessToken) setAccessToken(accessToken);
+            /*if (accessToken && setAccessToken) setAccessToken(accessToken);
             if (setRefreshToken && refreshToken) setRefreshToken(refreshToken);
             if (setUser && (user || (typeof data === 'string' ? null : data.user))) setUser(user);
 
             // 전역 axios 기본 헤더에도 넣어두면 이후 요청에 자동 포함
             if (accessToken) {
                 api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-            }
+            }*/
 
             // 성공 처리
             navigate('/admin/user');

@@ -1,7 +1,5 @@
-/*
-// src/pages/admin/PostManagement.jsx
 import React, { useEffect, useState, useRef } from 'react';
-import api from '../../api/axiosInstance'; // 경로는 프로젝트 구조에 맞춰 조정하세요
+import api from '../../api/axiosInstance'; // 프로젝트 구조에 맞춰 경로 조정
 import dayjs from 'dayjs';
 
 export default function PostManagement() {
@@ -17,6 +15,7 @@ export default function PostManagement() {
     const [status, setStatus] = useState('ALL'); // ALL, PUBLISHED, DRAFT, DELETED 등
 
     const debounceRef = useRef(null);
+    const abortRef = useRef(null);
 
     const parseResponseToList = (data) => {
         if (!data) return [];
@@ -24,6 +23,18 @@ export default function PostManagement() {
         if (data.posts) return data.posts;
         if (data.data && Array.isArray(data.data)) return data.data;
         return [];
+    };
+
+    // 서버 응답 항목에서 필요한 필드만 골라 매핑
+    const mapToUiPost = (item) => {
+        return {
+            postNo: item.postNo ?? item.id ?? item.productId ?? null,
+            userNo: item.userNo ?? item.userId ?? item.authorId ?? null,
+            startDate: item.startDate ?? item.start_date ?? item.startedAt ?? null,
+            endDate: item.endDate ?? item.end_date ?? item.endedAt ?? null,
+            status: item.status ?? item.state ?? item.postStatus ?? null,
+            // raw: item // 필요하면 원본 보관
+        };
     };
 
     const fetchPosts = async (opts = {}) => {
@@ -45,13 +56,28 @@ export default function PostManagement() {
             if (ed) params.endDate = ed;
             if (stt && stt !== 'ALL') params.status = stt;
 
-            // 실제 백엔드 엔드포인트가 다르면 '/admin/posts' 등으로 변경하세요
-            const res = await api.get('/posts', { params });
+            // 이전 요청 취소
+            if (abortRef.current) {
+                try { abortRef.current.abort(); } catch (e) { /* ignore */ }
+            }
+            const controller = new AbortController();
+            abortRef.current = controller;
+
+            const res = await api.get('/product', {
+                params,
+                signal: controller.signal,
+            });
+
             const payload = res.data;
             const list = parseResponseToList(payload);
-            setPosts(list);
-            setTotal(payload.total ?? list.length);
+            // map to UI shape and filter out items missing postNo/userNo if desired
+            const mapped = list.map(mapToUiPost);
+            setPosts(mapped);
+            setTotal(payload.total ?? mapped.length);
         } catch (e) {
+            if (e.name === 'CanceledError' || e?.message === 'canceled') {
+                return;
+            }
             console.error('fetchPosts error', e);
             setError('게시물 목록을 불러오는 중 오류가 발생했습니다.');
         } finally {
@@ -62,6 +88,11 @@ export default function PostManagement() {
     // 마운트 시 초기 로드
     useEffect(() => {
         fetchPosts();
+        return () => {
+            if (abortRef.current) {
+                try { abortRef.current.abort(); } catch (e) {}
+            }
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -91,7 +122,6 @@ export default function PostManagement() {
 
     return (
         <div className="flex flex-col h-full min-h-[calc(100vh-4rem)]">
-            {/!* 상단 검색영역 *!/}
             <div className="p-4 bg-white shadow-sm">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
                     <div>
@@ -99,11 +129,11 @@ export default function PostManagement() {
                         <div className="text-sm text-gray-500">전체: {total ?? '-' }건</div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full max-w-3xl">
+                    <div className="flex flex-wrap items-center gap-2 w-full max-w-4xl">
                         <select
                             value={searchType}
                             onChange={(e) => setSearchType(e.target.value)}
-                            className="px-3 py-2 border rounded"
+                            className="w-36 px-3 py-2 border rounded"
                         >
                             <option value="postNo">게시물번호</option>
                             <option value="userNo">사용자번호</option>
@@ -114,7 +144,7 @@ export default function PostManagement() {
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             placeholder={`${searchType === 'postNo' ? '게시물번호' : '사용자번호'} 검색`}
-                            className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
+                            className="flex-1 min-w-0 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
                         />
 
                         <input
@@ -124,6 +154,7 @@ export default function PostManagement() {
                             className="px-3 py-2 border rounded"
                             aria-label="시작일자"
                         />
+                        <div className="px-1">~</div>
                         <input
                             type="date"
                             value={endDate}
@@ -132,21 +163,22 @@ export default function PostManagement() {
                             aria-label="종료일자"
                         />
 
-                        <select value={status} onChange={(e) => setStatus(e.target.value)} className="px-3 py-2 border rounded">
+                        <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-36 px-3 py-2 border rounded">
                             <option value="ALL">전체상태</option>
                             <option value="PUBLISHED">게시됨</option>
                             <option value="DRAFT">임시저장</option>
                             <option value="DELETED">삭제</option>
-                            {/!* 서버 상태값에 맞춰 옵션 추가/수정 *!/}
                         </select>
 
                         <button onClick={handleSearchClick} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">검색</button>
                         <button onClick={handleReset} className="px-3 py-2 border rounded text-sm">초기화</button>
+                        {/*<div className="flex gap-2">
+                        </div>*/}
                     </div>
                 </div>
             </div>
 
-            {/!* 테이블 영역 *!/}
+            {/* 테이블 영역 */}
             <div className="flex-1 p-4 bg-gray-50">
                 <div className="bg-white rounded shadow overflow-hidden">
                     <div className="px-4 py-3 border-b flex items-center justify-between">
@@ -205,4 +237,3 @@ function formatDate(d) {
         return d;
     }
 }
-*/
