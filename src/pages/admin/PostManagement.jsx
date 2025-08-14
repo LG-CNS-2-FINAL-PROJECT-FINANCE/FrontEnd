@@ -1,8 +1,15 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { privateApi as api } from '../../api/axiosInstance';
+import React, { useEffect, useState, useRef, useContext } from 'react';
+import { getPosts } from '../../api/project_api';
 import dayjs from 'dayjs';
+import { AuthContext } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function PostManagement() {
+    const { accessToken, logout } = useContext(AuthContext);
+    console.log('[PostManagement] Component Render - accessToken:', accessToken);
+
+    const navigate = useNavigate();
+
     const [posts, setPosts] = useState([]);
     const [total, setTotal] = useState(null);
     const [loading, setLoading] = useState(false);
@@ -14,48 +21,27 @@ export default function PostManagement() {
     const [endDate, setEndDate] = useState('');
     const [status, setStatus] = useState('ALL'); // ALL, PUBLISHED, DRAFT, DELETED 등
 
+    const [page, setPage] = useState(1);
+    const [size, setSize] = useState(20);
+
     const debounceRef = useRef(null);
     const abortRef = useRef(null);
 
-    const parseResponseToList = (data) => {
-        if (!data) return [];
-        if (Array.isArray(data)) return data;
-        if (data.posts) return data.posts;
-        if (data.data && Array.isArray(data.data)) return data.data;
-        return [];
-    };
-
-    // 서버 응답 항목에서 필요한 필드만 골라 매핑
-    const mapToUiPost = (item) => {
-        return {
-            postNo: item.postNo ?? item.id ?? item.productId ?? null, //게시물 번호
-            userNo: item.userNo ?? item.userId ?? item.authorId ?? null, //사용자 번호
-            startDate: item.startDate ?? item.start_date ?? item.startedAt ?? null, //시작일자
-            endDate: item.endDate ?? item.end_date ?? item.endedAt ?? null, //종료일자
-            status: item.status ?? item.state ?? item.postStatus ?? null, //게시물상태
-            // raw: item // 필요하면 원본 보관
-        };
-    };
-
     const fetchPosts = async (opts = {}) => {
+
+        if (!accessToken) {
+            setPosts([]);
+            setTotal(0);
+            setLoading(false);
+            return;
+        }
+
+        console.log('[PostManagement] fetchPosts 호출됨. 옵션:', opts);
+        console.log('[PostManagement] 현재 상태: query=', query, 'startDate=', startDate, 'endDate=', endDate, 'status=', status, 'page=', page, 'size=', size);
+
         setLoading(true);
         setError('');
         try {
-            const params = {};
-            const q = opts.q ?? query.trim();
-            const st = opts.startDate ?? startDate;
-            const ed = opts.endDate ?? endDate;
-            const stt = opts.status ?? status;
-            const type = opts.type ?? searchType;
-
-            if (q) {
-                params.type = type; // 서버가 type/q 형태를 기대하면 이대로, 아니면 키 맞춤
-                params.q = q;
-            }
-            if (st) params.startDate = st;
-            if (ed) params.endDate = ed;
-            if (stt && stt !== 'ALL') params.status = stt;
-
             // 이전 요청 취소
             if (abortRef.current) {
                 try { abortRef.current.abort(); } catch (e) { /* ignore */ }
@@ -63,53 +49,69 @@ export default function PostManagement() {
             const controller = new AbortController();
             abortRef.current = controller;
 
-            const res = await api.get('/product', {
-                params,
-                signal: controller.signal,
+            const { posts: mapped, total: totalCount } = await getPosts({
+                page: opts.page ?? page, // fetchPosts 파라미터 또는 현재 page/size 상태 사용
+                size: opts.size ?? size,
+                type: opts.type ?? searchType,
+                q: opts.q ?? query.trim(),
+                startDate: opts.startDate ?? startDate,
+                endDate: opts.endDate ?? endDate,
+                status: opts.status ?? status,
+                signal: controller.signal, // AbortController signal 전달
             });
 
-            const payload = res.data;
-            const list = parseResponseToList(payload);
-            // map to UI shape and filter out items missing postNo/userNo if desired
-            const mapped = list.map(mapToUiPost);
             setPosts(mapped);
-            setTotal(payload.total ?? mapped.length);
+            setTotal(totalCount ?? mapped.length);
         } catch (e) {
             if (e.name === 'CanceledError' || e?.message === 'canceled') {
                 return;
             }
             console.error('fetchPosts error', e);
             setError('게시물 목록을 불러오는 중 오류가 발생했습니다.');
+
+            if (e.response?.status === 401 || e.response?.status === 403) {
+                if (logout) {
+                    await logout();
+                }
+                navigate('/admin/login');
+            }
         } finally {
             setLoading(false);
         }
     };
 
-    // 마운트 시 초기 로드
     useEffect(() => {
-        fetchPosts();
+        // accessToken이 없으면 API 호출을 하지 않습니다.
+        if (!accessToken) {
+            setPosts([]);
+            setTotal(null); // 토큰 없으면 총 개수도 초기화
+            setLoading(false);
+            return;
+        }
+        fetchPosts(); // accessToken이 유효할 때만 API 호출을 시작
         return () => {
             if (abortRef.current) {
                 try { abortRef.current.abort(); } catch (e) {}
             }
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [accessToken]);
 
     // 검색어 디바운스
     useEffect(() => {
+        if (!accessToken) return;
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => {
-            fetchPosts({ q: query.trim() });
+            setPage(1);
+            fetchPosts({ page: 1, q: query.trim() });
         }, 400);
         return () => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [query, searchType]);
+    }, [query, searchType, startDate, endDate, status]);
 
     const handleSearchClick = () => {
-        fetchPosts({ q: query.trim(), startDate, endDate, status, type: searchType });
+        setPage(1);
+        fetchPosts({ page: 1, q: query.trim(), startDate, endDate, status, type: searchType });
     };
 
     const handleReset = () => {
@@ -117,7 +119,23 @@ export default function PostManagement() {
         setStartDate('');
         setEndDate('');
         setStatus('ALL');
-        fetchPosts({ q: '', startDate: '', endDate: '', status: 'ALL' });
+        setPage(1);
+        fetchPosts({ page: 1, q: '', startDate: '', endDate: '', status: 'ALL' });
+    };
+
+    // 간단한 페이징 UI 핸들러
+    const handlePrev = () => {
+        if (page <= 1) return;
+        const np = page - 1;
+        setPage(np);
+        fetchPosts({ page: np });
+    };
+    const handleNext = () => {
+        const maxPage = Math.max(1, Math.ceil((total ?? 0) / size));
+        if (page >= maxPage) return;
+        const np = page + 1;
+        setPage(np);
+        fetchPosts({ page: np });
     };
 
     return (
@@ -172,8 +190,6 @@ export default function PostManagement() {
 
                         <button onClick={handleSearchClick} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">검색</button>
                         <button onClick={handleReset} className="px-3 py-2 border rounded text-sm">초기화</button>
-                        {/*<div className="flex gap-2">
-                        </div>*/}
                     </div>
                 </div>
             </div>
@@ -183,6 +199,16 @@ export default function PostManagement() {
                 <div className="bg-white rounded shadow overflow-hidden">
                     <div className="px-4 py-3 border-b flex items-center justify-between">
                         <div className="text-sm text-gray-600">{loading ? '로딩 중...' : error ? error : `검색결과: ${posts.length}건`}</div>
+                        <div className="flex items-center gap-2">
+                            <button onClick={handlePrev} disabled={page <= 1} className="px-2 py-1 border rounded">이전</button>
+                            <span className="text-sm"> {page} </span>
+                            <button onClick={handleNext} disabled={total !== null && page >= Math.ceil(total / size)} className="px-2 py-1 border rounded">다음</button>
+                            <select value={size} onChange={(e) => { setSize(Number(e.target.value)); setPage(1); fetchPosts({ page: 1, size: Number(e.target.value) }); }} className="ml-2 px-2 py-1 border rounded">
+                                <option value={10}>10</option>
+                                <option value={20}>20</option>
+                                <option value={50}>50</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div className="max-h-[65vh] overflow-y-auto">
@@ -222,7 +248,6 @@ export default function PostManagement() {
     );
 }
 
-// ----------------- 유틸 -----------------
 function getPostKey(p) {
     return p.postNo ?? p.id ?? p._id ?? `${p.userNo ?? p.userId}-${Math.random().toString(36).slice(2,9)}`;
 }
