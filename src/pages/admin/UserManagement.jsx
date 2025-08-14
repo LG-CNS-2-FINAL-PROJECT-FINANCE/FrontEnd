@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from "../../api/loginaxiosInstance";
+import api from "../../api/admin_api";
 import { AuthContext } from '../../context/AuthContext';
 
 export default function UserManagement() {

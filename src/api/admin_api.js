@@ -1,14 +1,19 @@
 import axios from 'axios';
+import api from './axiosInstance';
 
-const api = axios.create({
-    baseURL: process.env.REACT_APP_API_BASE_LOGIN || '',
-    // withCredentials: true, // 쿠키 방식 필요시 사용
-});
+let initialized = false;
 
-export function loginaxiosInstance(getAccessToken, getRefreshToken, setTokens, logout) {
+export function admin_api(getAccessToken, getRefreshToken, setTokens, logout) {
+    if (initialized) return;
+    initialized = true;
+
+    // 요청 인터셉터: access token 자동 추가
     api.interceptors.request.use(config => {
         const token = getAccessToken();
-        if (token) config.headers.Authorization = `Bearer ${token}`;
+        if (token) {
+            config.headers = config.headers || {};
+            config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
     });
 
@@ -42,7 +47,13 @@ export function loginaxiosInstance(getAccessToken, getRefreshToken, setTokens, l
                         const refreshToken = getRefreshToken();
                         if (!refreshToken) throw new Error('No refresh token');
 
-                        const r = await axios.post('/user/auth/login', { refreshToken }, { withCredentials: true });
+                        // 인터셉터 우회용 별도 클라이언트 생성 (같은 baseURL 사용)
+                        const refreshClient = axios.create({
+                            baseURL: api.defaults.baseURL || '',
+                            withCredentials: true,
+                        });
+
+                        const r = await refreshClient.post('/user/auth/login', { refreshToken });
                         const newAccess = r.data.accessToken;
                         const newRefresh = r.data.refreshToken || refreshToken;
                         setTokens(newAccess, newRefresh);
@@ -65,4 +76,4 @@ export function loginaxiosInstance(getAccessToken, getRefreshToken, setTokens, l
     );
 }
 
-export default api;
+export default admin_api;

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../context/AuthContext';
-import api from "../../../api/loginaxiosInstance";
+import api from "../../../api/admin_api";
 
 
 export default function AdminLogin() {
