@@ -20,6 +20,12 @@ import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
 import AccountManagement from "./pages/MyPage/AccountManagement.jsx";
 import EditInfo from "./pages/MyPage/EditInfo.jsx";
 import MyReports from "./pages/MyPage/MyReports.jsx";
+import ReportManagement from "./pages/admin/ReportManagement";
+import PostManagement from "./pages/admin/PostManagement";
+import Aml from "./pages/admin/Aml";
+import FraudDetection from "./pages/admin/FraudDetection";
+import Setting from "./pages/admin/Setting";
+import SystemMonitoring from "./pages/admin/SystemMonitoring";
 
 
 function App() {
@@ -64,6 +70,12 @@ function App() {
           {/*관리자 페이지 헤더*/}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="user" element={<UserManagement />}></Route>
+            <Route path="reports" element={<ReportManagement />}></Route>
+            <Route path="posts" element={<PostManagement />}></Route>
+            <Route path="aml" element={<Aml />}></Route>
+            <Route path="frauddetection" element={<FraudDetection />}></Route>
+            <Route path="settings" element={<Setting />}></Route>
+            <Route path="systemmonitoring" element={<SystemMonitoring />}></Route>
 
           </Route>
         </Routes>

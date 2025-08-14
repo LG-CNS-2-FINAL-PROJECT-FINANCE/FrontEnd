@@ -20,9 +20,9 @@ export default function AdminSidebar() {
     const navItems = [
         { to: '/admin/user', label: '사용자관리' },
         { to: '/admin/reports', label: '신고관리' },
-        { to: '/admin/system-monitor', label: '시스템모니터링' },
+        { to: '/admin/systemMonitoring', label: '시스템모니터링' },
         { to: '/admin/posts', label: '게시물관리' },
-        { to: '/admin/fraud-detection', label: '이상거래탐지' },
+        { to: '/admin/fraudDetection', label: '이상거래탐지' },
         { to: '/admin/aml', label: '자금세탁방지' },
         { to: '/admin/settings', label: '설정' },
     ];
