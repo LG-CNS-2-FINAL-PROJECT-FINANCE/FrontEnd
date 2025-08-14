@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import api from '../../api/axiosInstance'; // 프로젝트 구조에 맞춰 경로 조정
+import { privateApi as api } from '../../api/axiosInstance';
 import dayjs from 'dayjs';
 
 export default function PostManagement() {
@@ -28,11 +28,11 @@ export default function PostManagement() {
     // 서버 응답 항목에서 필요한 필드만 골라 매핑
     const mapToUiPost = (item) => {
         return {
-            postNo: item.postNo ?? item.id ?? item.productId ?? null,
-            userNo: item.userNo ?? item.userId ?? item.authorId ?? null,
-            startDate: item.startDate ?? item.start_date ?? item.startedAt ?? null,
-            endDate: item.endDate ?? item.end_date ?? item.endedAt ?? null,
-            status: item.status ?? item.state ?? item.postStatus ?? null,
+            postNo: item.postNo ?? item.id ?? item.productId ?? null, //게시물 번호
+            userNo: item.userNo ?? item.userId ?? item.authorId ?? null, //사용자 번호
+            startDate: item.startDate ?? item.start_date ?? item.startedAt ?? null, //시작일자
+            endDate: item.endDate ?? item.end_date ?? item.endedAt ?? null, //종료일자
+            status: item.status ?? item.state ?? item.postStatus ?? null, //게시물상태
             // raw: item // 필요하면 원본 보관
         };
     };
