@@ -23,12 +23,20 @@ export async function getPosts({
                                    signal,
                                    title,
                                } = {}) {
+
+    console.log('[project_api] getPosts 호출됨. 원본 파라미터:', { page, size, type, q, startDate, endDate, status, title});
+
     const params = { page, size };
-    if (type && q) { params.type = type; params.q = q; }
+    if (type) {
+        params.type = type;
+        params.q = q;
+    }
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
     if (status && status !== 'ALL') params.status = status;
     if (title) params.title = title;
+
+    console.log('[project_api] 서버로 전송될 최종 쿼리 파라미터:', params);
 
     const res = await api.get('/product/request', { params, signal });
     const payload = res.data;

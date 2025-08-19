@@ -38,7 +38,7 @@ export default function PostManagement() {
         }
 
         console.log('[PostManagement] fetchPosts 호출됨. 옵션:', opts);
-        console.log('[PostManagement] 현재 상태: query=', query, 'startDate=', startDate, 'endDate=', endDate, 'status=', status, 'page=', page, 'size=', size);
+        console.log('[PostManagement] 현재 상태: query=', query, 'startDate=', startDate, 'endDate=', endDate, 'status=', status, 'page=', page, 'size=', size, 'title=', title);
 
         setLoading(true);
         setError('');
@@ -50,19 +50,24 @@ export default function PostManagement() {
             const controller = new AbortController();
             abortRef.current = controller;
 
-            const { posts: mapped, total: totalCount } = await getPosts({
-                page: opts.page ?? page, // fetchPosts 파라미터 또는 현재 page/size 상태 사용
+            const paramsToFetch = {
+                page: opts.page ?? page,
                 size: opts.size ?? size,
                 type: opts.type ?? searchType,
                 q: opts.q ?? query.trim(),
                 startDate: opts.startDate ?? startDate,
                 endDate: opts.endDate ?? endDate,
                 status: opts.status ?? status,
-                signal: controller.signal, // AbortController signal 전달
-                title: opts.title ?? title,
-            });
+                signal: controller.signal,
+                title: opts.title ?? title.trim(),
+            };
+
+            const { posts: mapped, total: totalCount } = await getPosts(paramsToFetch);
+
+
 
             setPosts(mapped);
+            console.log('mapped 확인 : ', mapped)
             setTotal(totalCount ?? mapped.length);
         } catch (e) {
             if (e.name === 'CanceledError' || e?.message === 'canceled') {
@@ -90,7 +95,7 @@ export default function PostManagement() {
             setLoading(false);
             return;
         }
-        fetchPosts(); // accessToken이 유효할 때만 API 호출을 시작
+        fetchPosts({ page, size, q: '', startDate: '', endDate: '', status: 'ALL', title: '' });
         return () => {
             if (abortRef.current) {
                 try { abortRef.current.abort(); } catch (e) {}
@@ -98,18 +103,26 @@ export default function PostManagement() {
         };
     }, [accessToken]);
 
-    // 검색어 디바운스
     useEffect(() => {
         if (!accessToken) return;
+        const allSearchFieldsEmpty = !query.trim() && !title.trim() && !startDate && !endDate && status === 'ALL';
+
         if (debounceRef.current) clearTimeout(debounceRef.current);
+
         debounceRef.current = setTimeout(() => {
-            setPage(1);
-            fetchPosts({ page: 1, q: query.trim() });
+            if (allSearchFieldsEmpty) {
+                setPage(1); // 페이지 초기화
+                fetchPosts({ page: 1, q: '', startDate: '', endDate: '', status: 'ALL', title: '' }); // <<<< 모든 필드 초기화 상태로 fetch
+            } else {
+                setPage(1);
+                fetchPosts({ page: 1, q: query.trim(), startDate, endDate, status, type: searchType, title: title.trim() }); // <<<< 모든 검색 필드 값 전달
+            }
         }, 400);
+
         return () => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
-    }, [query, searchType, startDate, endDate, status]);
+    }, [query, searchType, startDate, endDate, status, title, accessToken]); // <<<< 모든 검색 관련 상태를 의존성에 추가
 
     const handleSearchClick = () => {
         setPage(1);
@@ -121,23 +134,24 @@ export default function PostManagement() {
         setStartDate('');
         setEndDate('');
         setStatus('ALL');
+        setTitle('');
         setPage(1);
-        fetchPosts({ page: 1, q: '', startDate: '', endDate: '', status: 'ALL' });
+        fetchPosts({ page: 1, q: '', startDate: '', endDate: '', status: 'ALL', type: 'postNo', title: '' });
     };
 
-    // 간단한 페이징 UI 핸들러
     const handlePrev = () => {
         if (page <= 1) return;
-        const np = page - 1;
-        setPage(np);
-        fetchPosts({ page: np });
+        const newPage = page - 1;
+        setPage(newPage);
+        fetchPosts({ page: newPage, q: query.trim(), startDate, endDate, status, type: searchType, title: title.trim() });
     };
+
     const handleNext = () => {
         const maxPage = Math.max(1, Math.ceil((total ?? 0) / size));
         if (page >= maxPage) return;
-        const np = page + 1;
-        setPage(np);
-        fetchPosts({ page: np });
+        const newPage = page + 1;
+        setPage(newPage);
+        fetchPosts({ page: newPage, q: query.trim(), startDate, endDate, status, type: searchType, title: title.trim() });
     };
 
     return (
