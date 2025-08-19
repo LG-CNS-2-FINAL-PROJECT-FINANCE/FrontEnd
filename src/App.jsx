@@ -20,7 +20,7 @@ import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
 import AccountManagement from "./pages/MyPage/AccountManagement.jsx";
 import EditInfo from "./pages/MyPage/EditInfo.jsx";
 import MyReports from "./pages/MyPage/MyReports.jsx";
-// import ProductRegistration from "./pages/product/ProductRegistration.jsx";
+import ProductRegistration from "./pages/product/ProductRegistration.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 
 
@@ -46,7 +46,7 @@ function App() {
               <Route path="investment/:id" element={<InvestmentDetail />} />
 
               {/*Product Registration*/}
-              {/* <Route path="/product-registration" element={<ProductRegistration />} /> */}
+              {<Route path="/product-registration" element={<ProductRegistration />} />}
 
               {/*Market*/}
               <Route path="/market" element={<Market />} />
