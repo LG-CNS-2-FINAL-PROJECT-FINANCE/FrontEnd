@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
-import InvestmentSummary from './InvestmentComponent/InvestmentSummary';
-import InvestmentProgress from './InvestmentComponent/InvestmentProgress';
-import InvestmentDescription from './InvestmentComponent/InvestmentDescription';
-import InvestmentFiles from './InvestmentComponent/InvestmentFiles';
+import InvestmentSummary from './investmentComponent/InvestmentSummary';
+import InvestmentProgress from './investmentComponent/InvestmentProgress';
+import InvestmentDescription from './investmentComponent/InvestmentDescription';
+import InvestmentFiles from './investmentComponent/InvestmentFiles';
 
 function InvestmentDetail() {
     const { id } = useParams();

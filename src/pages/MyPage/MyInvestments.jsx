@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import UserProfile from './MyPageComponent/UserProfile';
-import InvestmentList from './MyPageComponent/InvestmentList';
-import { investmentData } from './MyPageComponent/data/investmentData';
+import UserProfile from './my_page_component/UserProfile';
+import InvestmentList from './my_page_component/InvestmentList';
+import { investmentData } from './my_page_component/data/investmentData';
 
 const MyInvestments = () => {
     const [investments, setInvestments] = useState([]);

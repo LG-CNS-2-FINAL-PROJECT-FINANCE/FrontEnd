@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TiltedCard from '../investment/InvestmentComponent/TiltedCard';
+import TiltedCard from '../investment/investmentComponent/TiltedCard';
 import { useTheme } from '../../context/ThemeContext';
 
 function RoleSelectionPage() {
