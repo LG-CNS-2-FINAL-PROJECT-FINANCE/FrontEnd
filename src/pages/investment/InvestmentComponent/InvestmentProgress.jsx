@@ -1,4 +1,5 @@
 import React from "react";
+import { useTheme } from "../../../context/ThemeContext";
 
 function InvestmentProgress({
   currentAmount,
@@ -6,6 +7,8 @@ function InvestmentProgress({
   targetAmount,
   progress,
 }) {
+  const { themeColors } = useTheme();
+  
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("ko-KR", {
       style: "currency",
@@ -19,13 +22,13 @@ function InvestmentProgress({
 
       <div className="w-full bg-gray-200 rounded-full h-4 mb-3">
         <div
-          className="bg-red-500 h-4 rounded-full"
+          className={`${themeColors.primaryBg} h-4 rounded-full`}
           style={{ width: `${progress}%` }}
         ></div>
       </div>
 
       <div className="flex justify-between items-baseline mb-4">
-        <span className="text-xl font-bold text-red-500">{progress}%</span>
+        <span className={`text-xl font-bold ${themeColors.primaryText}`}>{progress}%</span>
         <span className="text-sm text-gray-500">
           목표: {formatCurrency(targetAmount)}
         </span>

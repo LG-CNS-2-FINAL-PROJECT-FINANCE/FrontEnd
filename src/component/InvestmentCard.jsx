@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
 
 function InvestmentCard({ project }) {
     const ddayValue = Number(project.dday);
+    const { themeColors } = useTheme();
 
     return (
         <Link
@@ -24,9 +26,9 @@ function InvestmentCard({ project }) {
 
                 <div className="text-sm font-medium mb-3">
                     {ddayValue > 0 ? (
-                        <span className="text-red-500 font-bold">D-{ddayValue}</span>
+                        <span className={`${themeColors.primaryText} font-bold`}>D-{ddayValue}</span>
                     ) : ddayValue === 0 ? (
-                        <span className="text-red-500 font-bold">D-Day</span>
+                        <span className={`${themeColors.primaryText} font-bold`}>D-Day</span>
                     ) : (
                         <span className="text-gray-500">모집 마감</span>
                     )}
@@ -34,7 +36,7 @@ function InvestmentCard({ project }) {
 
                 <div className="w-full h-2 bg-gray-300 rounded-full mt-1">
                     <div
-                        className="h-full bg-red-500 rounded-full"
+                        className={`h-full ${themeColors.primaryBg} rounded-full`}
                         style={{ width: project.progress + "%" }}
                     ></div>
                 </div>
