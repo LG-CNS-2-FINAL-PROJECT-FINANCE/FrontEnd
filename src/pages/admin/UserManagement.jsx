@@ -178,9 +178,9 @@ export default function UserManagement() {
                                     <td colSpan="8" className="p-6 text-center text-gray-500">표시할 사용자가 없습니다.</td>
                                 </tr>
                             ) : (
-                                users.map((u) => (
-                                    <tr key={u.userNo ?? u.id ?? u._id ?? `${u.email}-${u.nickname}`} className="hover:bg-gray-50">
-                                        <td className="px-4 py-3 text-sm border-b">{u.userNo ?? u.id ?? '-'}</td>
+                                users.map((u,index) => (
+                                    <tr key={index} className="hover:bg-gray-50">
+                                        <td className="px-4 py-3 text-sm border-b">{u.userSeq ?? u.id ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b break-words">{u.email ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{u.nickname ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{u.role ?? '-'}</td>
