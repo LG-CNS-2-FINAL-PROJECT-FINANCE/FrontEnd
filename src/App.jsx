@@ -14,12 +14,12 @@ import Asset from "./pages/asset/Asset.jsx";
 import RoleSelectionPage from "./pages/Role/RoleSelectionPage";
 import AdminLogin from "./pages/admin/login/AdminLogin";
 import UserManagement from "./pages/admin/UserManagement";
-import MyPage from "./pages/MyPage/MyPage.jsx";
-import MyInvestments from "./pages/MyPage/MyInvestments.jsx";
-import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
-import AccountManagement from "./pages/MyPage/AccountManagement.jsx";
-import EditInfo from "./pages/MyPage/EditInfo.jsx";
-import MyReports from "./pages/MyPage/MyReports.jsx";
+import MyPage from "./pages/mypage/MyPage.jsx";
+import MyInvestments from "./pages/mypage/MyInvestments.jsx";
+import MyFavorites from "./pages/mypage/MyFavorites.jsx";
+import AccountManagement from "./pages/mypage/AccountManagement.jsx";
+import EditInfo from "./pages/mypage/EditInfo.jsx";
+import MyReports from "./pages/mypage/MyReports.jsx";
 import ReportManagement from "./pages/admin/ReportManagement";
 import PostManagement from "./pages/admin/postManagement/PostManagement";
 import Aml from "./pages/admin/Aml";
@@ -28,6 +28,7 @@ import Setting from "./pages/admin/Setting";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import ProductRegistration from "./pages/product/ProductRegistration.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
+
 
 
 function App() {

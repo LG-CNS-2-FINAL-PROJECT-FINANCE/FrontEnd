@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import UserProfile from './my_page_component/UserProfile';
 import PortfolioSection from './my_page_component/PortfolioSection';
 import InvestmentPreview from './my_page_component/InvestmentPreview';
 import FavoritePreview from './my_page_component/FavoritePreview';
 import { investmentData } from './my_page_component/data/investmentData';
 import { favoriteData } from './my_page_component/data/favoriteData';
+import UserProfile from './my_page_component/UserProfile';
 
 const MyPage = () => {
     const [investments, setInvestments] = useState([]);
