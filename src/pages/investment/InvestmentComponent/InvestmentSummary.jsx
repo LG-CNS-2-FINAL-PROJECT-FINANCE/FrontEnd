@@ -4,12 +4,11 @@ import {
   FaRegStar,
   FaStar,
   FaFlag,
-  FaRegMoneyBillAlt,
-  FaMoneyBillAlt,
 } from "react-icons/fa";
 import { RiMoneyCnyBoxFill, RiMoneyCnyBoxLine } from "react-icons/ri";
 import InvestmentModal from "./InvestmentModal";
 import ReportModal from "./ReportModal";
+import { useTheme } from "../../../context/ThemeContext";
 
 function InvestmentSummary({
   title,
@@ -28,6 +27,7 @@ function InvestmentSummary({
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const { themeColors } = useTheme();
 
   // 공유하기, 즐겨찾기, 신고
   const handleShare = () => {
@@ -83,7 +83,7 @@ function InvestmentSummary({
           <div className="flex justify-end space-x-2">
             <button
               onClick={handleInvest}
-              className="bg-red-500 text-white py-2 px-3 rounded-md hover:bg-red-600 transition-colors font-semibold flex items-center"
+              className={`${themeColors.primaryBg} text-white py-2 px-3 rounded-md hover:${themeColors.primaryHover} transition-colors font-semibold flex items-center`}
             >
               {isInvested ? (
                 <RiMoneyCnyBoxFill className="inline-block mr-1" />
@@ -133,7 +133,7 @@ function InvestmentSummary({
 
             <button
               onClick={handleReport}
-              className="text-red-500 hover:text-red-700 flex items-center"
+              className={`${themeColors.primaryText} hover:${themeColors.primaryText} opacity-75 flex items-center`}
             >
               <FaFlag className="inline-block mr-1" /> 신고
             </button>

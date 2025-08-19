@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import UserProfile from './MyPageComponent/UserProfile';
-import FavoriteList from './MyPageComponent/FavoriteList';
-import { favoriteData } from './MyPageComponent/data/favoriteData';
+import UserProfile from './my_page_component/UserProfile';
+import FavoriteList from './my_page_component/FavoriteList';
+import { favoriteData } from './my_page_component/data/favoriteData';
 
 const MyFavorites = () => {
     const [favorites, setFavorites] = useState([]);

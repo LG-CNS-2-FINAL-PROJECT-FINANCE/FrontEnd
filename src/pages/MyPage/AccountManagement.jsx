@@ -1,4 +1,4 @@
-import UserProfile from './MyPageComponent/UserProfile';
+import UserProfile from './my_page_component/UserProfile';
 import { useNavigate } from 'react-router-dom';
 import { MdReportGmailerrorred } from "react-icons/md";
 import { MdOutlineLogout } from "react-icons/md";

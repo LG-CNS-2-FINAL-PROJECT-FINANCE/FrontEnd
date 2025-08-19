@@ -26,44 +26,50 @@ import Aml from "./pages/admin/Aml";
 import FraudDetection from "./pages/admin/FraudDetection";
 import Setting from "./pages/admin/Setting";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
+import ProductRegistration from "./pages/product/ProductRegistration.jsx";
+import { ThemeProvider } from "./context/ThemeContext.jsx";
 
 
 function App() {
   return (
-    <BrowserRouter>
-      <div className="flex flex-col">
-        {/* 전역 토스트 컨테이너 */}
-        <ToastContainer position="bottom-right" />
-        <ScrollToTop />
-        <Routes>
-          {/*헤더, 푸터 고정 설정*/}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />}></Route>
-            {/*로그인 페이지*/}
-            <Route path="/login/:id" element={<Login />}></Route>
-            {/*역할 선택 페이지*/}
-            <Route path="/select-role" element={<RoleSelectionPage />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        <div className="flex flex-col">
+          {/* 전역 토스트 컨테이너 */}
+          <ToastContainer position="bottom-right" />
+          <ScrollToTop />
+          <Routes>
+            {/*헤더, 푸터 고정 설정*/}
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />}></Route>
+              {/*로그인 페이지*/}
+              <Route path="/login/:id" element={<Login />}></Route>
+              {/*역할 선택 페이지*/}
+              <Route path="/select-role" element={<RoleSelectionPage />} />
 
-            {/*Investment*/}
-            <Route path="investment" element={<InvestmentListPage />} />
-            <Route path="investment/:id" element={<InvestmentDetail />} />
+              {/*Investment*/}
+              <Route path="investment" element={<InvestmentListPage />} />
+              <Route path="investment/:id" element={<InvestmentDetail />} />
 
-            {/*Market*/}
-            <Route path="/market" element={<Market />} />
-            <Route path="/market/:id" element={<MarketDetail />} />
-            
-            {/*MyPage*/}
-            <Route path="/my-profile" element={<MyPage />} />
-            <Route path="/my-investments" element={<MyInvestments />} />
-            <Route path="/my-favorites" element={<MyFavorites />} />
-            <Route path="/account-management" element={<AccountManagement />} />
-            <Route path="/edit-info" element={<EditInfo />} />
-            <Route path="/my-reports" element={<MyReports />} />
+              {/*Product Registration*/}
+              {<Route path="/product-registration" element={<ProductRegistration />} />}
 
-            {/*Asset*/}
-            <Route path="/asset" element={<Asset />} />
+              {/*Market*/}
+              <Route path="/market" element={<Market />} />
+              <Route path="/market/:id" element={<MarketDetail />} />
+              
+              {/*MyPage*/}
+              <Route path="/my-profile" element={<MyPage />} />
+              <Route path="/my-investments" element={<MyInvestments />} />
+              <Route path="/my-favorites" element={<MyFavorites />} />
+              <Route path="/account-management" element={<AccountManagement />} />
+              <Route path="/edit-info" element={<EditInfo />} />
+              <Route path="/my-reports" element={<MyReports />} />
 
-          </Route>
+              {/*Asset*/}
+              <Route path="/asset" element={<Asset />} />
+                
+             </Route>
 
           {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -75,12 +81,13 @@ function App() {
             <Route path="aml" element={<Aml />}></Route>
             <Route path="frauddetection" element={<FraudDetection />}></Route>
             <Route path="settings" element={<Setting />}></Route>
-            <Route path="systemmonitoring" element={<SystemMonitoring />}></Route>
+            <Route path="systemmonitoring" element={<SystemMonitoring />}></Route>            
 
-          </Route>
-        </Routes>
-      </div>
-    </BrowserRouter>
+            </Route>
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

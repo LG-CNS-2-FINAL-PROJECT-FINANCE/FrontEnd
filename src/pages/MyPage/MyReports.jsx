@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import UserProfile from './MyPageComponent/UserProfile';
-import ReportList from './MyPageComponent/ReportList';
-import { reportData } from './MyPageComponent/data/reportData';
+import UserProfile from './my_page_component/UserProfile';
+import ReportList from './my_page_component/ReportList';
+import { reportData } from './my_page_component/data/reportData';
 
 const MyReports = () => {
     const [reports, setReports] = useState([]);

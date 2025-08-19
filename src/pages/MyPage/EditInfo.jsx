@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import UserProfile from './MyPageComponent/UserProfile';
+import UserProfile from './my_page_component/UserProfile';
 
 const AccountManagement = () => {
     const [formData, setFormData] = useState({
