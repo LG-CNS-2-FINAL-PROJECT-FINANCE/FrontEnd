@@ -9,6 +9,7 @@ function mapToUiPost(item) {
         status: item.status ?? item.postStatus ?? null,
         type: item.type ?? null,
         title: item.title ?? null,
+        summary: item.summary ?? null,
     };
 }
 
