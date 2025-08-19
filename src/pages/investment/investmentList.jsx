@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import SearchBar from '../../component/SearchBar';
 import InvestmentCard from '../../component/InvestmentCard';
+import { useTheme } from '../../context/ThemeContext';
 
 // 정렬 기준을 위한 상수 정의
 const SORT_OPTIONS = {
@@ -13,6 +14,7 @@ function InvestmentListPage() {
     const [investments, setInvestments] = useState([]); // 모든 투자 상품 데이터
     const [searchTerm, setSearchTerm] = useState(''); // 검색창에 입력된 검색어
     const [currentSort, setCurrentSort] = useState(SORT_OPTIONS.LATEST); // 현재 선택된 정렬 기준, 기본은 최신등록순
+    const { themeColors, role } = useTheme();
 
     //임시 더미 데이터.
     useEffect(() => {
@@ -82,13 +84,15 @@ function InvestmentListPage() {
             {/* 모든 투자 상품 */}
             <section>
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold">모든 투자 상품 펀딩 🚀</h2>
+                    <h2 className="text-2xl font-bold">
+                        {role === '창작자' ? '내 프로젝트 관리 🎨' : '모든 투자 상품 펀딩 🚀'}
+                    </h2>
                     <div className="flex space-x-2">
                         <button
                             onClick={() => setCurrentSort(SORT_OPTIONS.LATEST)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                                 currentSort === SORT_OPTIONS.LATEST
-                                    ? 'bg-red-500 text-white' // 선택 시
+                                    ? `${themeColors.primaryBg} text-white` // 선택 시
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300' // 비선택 시
                             }`}
                         >
@@ -98,7 +102,7 @@ function InvestmentListPage() {
                             onClick={() => setCurrentSort(SORT_OPTIONS.VIEWS)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                                 currentSort === SORT_OPTIONS.VIEWS
-                                    ? 'bg-red-500 text-white'
+                                    ? `${themeColors.primaryBg} text-white`
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
                         >
@@ -108,7 +112,7 @@ function InvestmentListPage() {
                             onClick={() => setCurrentSort(SORT_OPTIONS.DEADLINE)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
                                 currentSort === SORT_OPTIONS.DEADLINE
-                                    ? 'bg-red-500 text-white'
+                                    ? `${themeColors.primaryBg} text-white`
                                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                             }`}
                         >

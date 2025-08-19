@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { FaUser } from "react-icons/fa";
+import { useTheme } from "../../context/ThemeContext";
 // import { jwtDecode } from "jwt-decode";
 
 function Header() {
   const navigate = useNavigate();
+  const { role: themeRole, themeColors } = useTheme();
 
   const [isLogin, setIsLogin] = useState(false);
   const [userRole, setUserRole] = useState('');
@@ -34,7 +36,7 @@ function Header() {
       setUserRole('');
       // navigate('/login/1');
     }
-  }, [isLogin, navigate]);
+  }, [isLogin, navigate, themeRole]); // themeRole을 dependency에 추가
 
 
   // 테스트를 위한 임시 로그인/로그아웃
@@ -90,9 +92,15 @@ function Header() {
                 <div>
                 <span
                     className="hover:cursor-pointer"
-                    onClick={() => navigate("/market")}
+                    onClick={() => {
+                      if (themeRole === '창작자' || userRole === '창작자') {
+                        //navigate("/product-registration");
+                      } else {
+                        navigate("/market");
+                      }
+                    }}
                 >
-                  토큰 거래
+                  {themeRole === '창작자' || userRole === '창작자' ? '상품 등록' : '토큰 거래'}
                 </span>
                 </div>
               </>
@@ -100,7 +108,7 @@ function Header() {
         <div className="flex items-center space-x-4">
           {!isLogin ? (
               <button
-                  className="bg-red-500 px-5 py-3 rounded-full text-amber-50"
+                  className={`${themeColors.primaryBg} px-5 py-3 rounded-full text-amber-50`}
                   onClick={() => navigate("/login/1")}
               >
                 로그인
@@ -109,8 +117,8 @@ function Header() {
               <div>
                 <button
                     className={
-                      userRole === '투자자' ? "bg-red-500 px-5 py-3 rounded-full text-amber-50" :
-                          userRole === '창작자' ? "bg-blue-600 px-5 py-3 rounded-full text-amber-50" :
+                      userRole === '투자자' ? `${themeColors.primaryBg} px-5 py-3 rounded-full text-amber-50` :
+                          userRole === '창작자' ? `${themeColors.primaryBg} px-5 py-3 rounded-full text-amber-50` :
                               "bg-gray-400 px-5 py-3 rounded-full text-gray-700 hover:bg-gray-500"
                     }
                     onClick={handleRoleSelectionRedirect}

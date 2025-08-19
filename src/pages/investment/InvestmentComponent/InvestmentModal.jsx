@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import useScrollLock from "../../../component/useScrollLock";
+import { useTheme } from "../../../context/ThemeContext";
 
 function InvestmentModal({
   isOpen,
@@ -13,6 +14,7 @@ function InvestmentModal({
 }) {
   const [hasConfirmed, setHasConfirmed] = useState(false);
   const [investmentAmount, setInvestmentAmount] = useState(minInvestment || 0);
+  const { themeColors } = useTheme();
 
   //스크롤 방지
   useScrollLock(isOpen);
@@ -169,8 +171,8 @@ function InvestmentModal({
                             py-2 px-4 rounded-md font-semibold transition-colors
                             ${
                               hasConfirmed && investmentAmount >= minInvestment
-                                ? "bg-red-500 text-white hover:bg-red-600"
-                                : "bg-red-300 text-gray-100 cursor-not-allowed"
+                                ? `${themeColors.primaryBg} text-white hover:${themeColors.primaryHover}`
+                                : `${themeColors.primaryBg} opacity-50 text-gray-100 cursor-not-allowed`
                             }
                         `}
             disabled={!hasConfirmed || investmentAmount < minInvestment}
