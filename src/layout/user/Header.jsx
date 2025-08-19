@@ -94,7 +94,7 @@ function Header() {
                     className="hover:cursor-pointer"
                     onClick={() => {
                       if (themeRole === '창작자' || userRole === '창작자') {
-                        //navigate("/product-registration");
+                        navigate("/product-registration");
                       } else {
                         navigate("/market");
                       }
