@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import InvestmentFiles from "../investment/investmentComponent/InvestmentFiles";
+import InvestmentFiles from "../investment/investment_component/InvestmentFiles";
 import { useEffect, useState } from "react";
 import { FaChevronLeft } from "react-icons/fa";
 import SalesChart from "./SalesChart";
