@@ -11,16 +11,16 @@ import Market from "./pages/market/Market.jsx";
 import MarketDetail from "./pages/market/MarketDetail.jsx";
 import { ToastContainer } from "react-toastify";
 import Asset from "./pages/asset/Asset.jsx";
-import RoleSelectionPage from "./pages/Role/RoleSelectionPage";
 import AdminLogin from "./pages/admin/login/AdminLogin";
 import UserManagement from "./pages/admin/UserManagement";
-import MyPage from "./pages/MyPage/MyPage.jsx";
-import MyInvestments from "./pages/MyPage/MyInvestments.jsx";
-import MyFavorites from "./pages/MyPage/MyFavorites.jsx";
-import AccountManagement from "./pages/MyPage/AccountManagement.jsx";
-import EditInfo from "./pages/MyPage/EditInfo.jsx";
-import MyReports from "./pages/MyPage/MyReports.jsx";
-
+import MyFavorites from "./pages/myPage/MyFavorites.jsx";
+import AccountManagement from "./pages/myPage/AccountManagement.jsx";
+import EditInfo from "./pages/myPage/EditInfo.jsx";
+import MyReports from "./pages/myPage/MyReports.jsx";
+import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
+import MyInvestments from "./pages/myPage/MyInvestments.jsx";
+import RoleSelectionPage from "./pages/role/RoleSelectionPage.jsx";
+import MyPage from "./pages/myPage/MyPage.jsx";
 
 function App() {
   return (
@@ -35,9 +35,9 @@ function App() {
             <Route index element={<Home />}></Route>
             {/*로그인 페이지*/}
             <Route path="/login/:id" element={<Login />}></Route>
+            <Route path="/login/kakaoConfirm" element={<KakaoConfirm />} />
             {/*역할 선택 페이지*/}
             <Route path="/select-role" element={<RoleSelectionPage />} />
-
             {/*Investment*/}
             <Route path="investment" element={<InvestmentListPage />} />
             <Route path="investment/:id" element={<InvestmentDetail />} />
@@ -45,7 +45,7 @@ function App() {
             {/*Market*/}
             <Route path="/market" element={<Market />} />
             <Route path="/market/:id" element={<MarketDetail />} />
-            
+
             {/*MyPage*/}
             <Route path="/my-profile" element={<MyPage />} />
             <Route path="/my-investments" element={<MyInvestments />} />
@@ -56,15 +56,14 @@ function App() {
 
             {/*Asset*/}
             <Route path="/asset" element={<Asset />} />
-
           </Route>
 
-          {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
+          {/*관리자 로그인 페이지*/}
+          {/*얘는 헤더가 없음*/}
           <Route path="/admin/login" element={<AdminLogin />} />
           {/*관리자 페이지 헤더*/}
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="user" element={<UserManagement />}></Route>
-
           </Route>
         </Routes>
       </div>
