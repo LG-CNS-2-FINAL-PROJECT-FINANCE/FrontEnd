@@ -1,66 +1,17 @@
-import { privateApi as api } from './axiosInstance';
+import { publicApi as api } from './axiosInstance';
 
-function mapToUiPost(item) {
+function mapToInvestmentCardData(item) {
     return {
-        requestId: item.project_id ?? item.requestId ?? item.id ?? null,
-        userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,
-        startDate: item.start_date ?? item.startDate ?? null,
-        endDate: item.end_date ?? item.endDate ?? null,
-        status: item.status ?? item.postStatus ?? null,
-        type: item.type ?? null,
-        title: item.title ?? null,
-        summary: item.summary ?? null,
+        requestId: item.requestId ?? null,       // 창작물 번호
+        userSeq: item.userSeq ?? null,           // 사용자 번호
+        title: item.title ?? null,               // 제목
+        amount: item.amount ?? null,             // 모금액
+        startDate: item.startDate ?? null, //시작일
+        endDate: item.endDate ?? null, //종료일
+        deadline: item.deadline,      // 마감기간
+        percent: item.percent,    // 달성률
+        document: item.document && item.document.length > 0 ? item.document[0].url : 'default_image.jpg', // 이미지파일
+        viewCount: item.viewCount,          // 조회수
+        state: item.state        // 창작물 상태
     };
 }
-
-export async function getPosts({
-                                   page = 1,
-                                   size = 20,
-                                   type,
-                                   q,
-                                   startDate,
-                                   endDate,
-                                   status,
-                                   signal,
-                                   title,
-                               } = {}) {
-
-    console.log('[project_api] getPosts 호출됨. 원본 파라미터:', { page, size, type, q, startDate, endDate, status, title});
-
-    const params = { page, size };
-    if (type) {
-        params.type = type;
-        params.q = q;
-    }
-    if (startDate) params.startDate = startDate;
-    if (endDate) params.endDate = endDate;
-    if (status && status !== 'ALL') params.status = status;
-    if (title) params.title = title;
-
-    console.log('[project_api] 서버로 전송될 최종 쿼리 파라미터:', params);
-
-    const res = await api.get('/product/request', { params, signal });
-    const payload = res.data;
-
-    let list = [];
-    let total = 0;
-
-    if (Array.isArray(payload)) {
-        list = payload;
-        total = payload.length;
-    } else if (payload.posts && Array.isArray(payload.posts)) {
-        list = payload.posts;
-        total = payload.total ?? payload.count ?? list.length;
-    } else if (payload.data && Array.isArray(payload.data)) {
-        list = payload.data;
-        total = payload.total ?? list.length;
-    } else {
-        list = [];
-        total = 0;
-    }
-
-    const posts = list.map(mapToUiPost);
-    return { posts, total, page, size };
-}
-
-export default { getPosts };
