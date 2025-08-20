@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from "react";
-import { getPosts } from "../../../api/project_api";
+import { getPosts } from "../../../api/admin_project_api";
 import dayjs from "dayjs";
 import { AuthContext } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
