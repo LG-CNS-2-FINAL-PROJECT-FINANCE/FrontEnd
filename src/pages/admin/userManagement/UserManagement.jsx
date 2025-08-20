@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from "../../api/admin_api";
-import { AuthContext } from '../../context/AuthContext';
+import api from "../../../api/admin_api";
+import { AuthContext } from '../../../context/AuthContext';
+import UserSettingModal from './UserSettingModal';
 
 export default function UserManagement() {
-    const { accessToken, logout } = useContext(AuthContext); // accessToken 사용, logout 제공되면 에러시 호출
+    const { accessToken, logout, user: authUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [users, setUsers] = useState([]);
@@ -14,8 +15,11 @@ export default function UserManagement() {
     const [query, setQuery] = useState('');
     const [total, setTotal] = useState(null);
 
+    const [isSettingModalOpen, setIsSettingModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+
     const debounceRef = useRef(null);
-    const abortRef = useRef(null); // AbortController 보관
+    const abortRef = useRef(null);
 
     const parseResponseToList = (payload) => {
         if (!payload) return [];
@@ -27,21 +31,14 @@ export default function UserManagement() {
     };
 
     const fetchUsers = async (q = '') => {
-        console.log('fetchUsers called, accessToken=', accessToken);
-        const headers = { Authorization: `Bearer ${accessToken}` };
-        console.log('request headers will be', headers);
         if (!accessToken) {
             setUsers([]);
             setTotal(0);
+            setLoading(false);
             return;
         }
 
-        // 이전 요청 취소
-        if (abortRef.current) {
-            try { abortRef.current.abort(); } catch (e) { /* ignore */ }
-        }
-        const controller = new AbortController();
-        abortRef.current = controller;
+        console.log('fetchUsers called, accessToken=', accessToken);
 
         setLoading(true);
         setError('');
@@ -52,15 +49,9 @@ export default function UserManagement() {
                 params.q = q;
             }
 
-            // 안전하게 Authorization 헤더를 요청단에서 붙이는 방식
-            const headers = {
-                Authorization: `Bearer ${accessToken}`,
-            };
-
-            const res = await api.get('/user', {
+            const res = await api.get('/user/auth', {
                 params,
-                signal: controller.signal,
-                headers,
+                signal: abortRef.current?.signal,
             });
 
             const payload = res.data;
@@ -68,21 +59,15 @@ export default function UserManagement() {
             setUsers(list);
             setTotal(payload.total ?? list.length);
         } catch (e) {
-            // 요청 취소는 무시
             if (e.name === 'CanceledError' || e?.message === 'canceled') {
-                // 요청 취소됨
                 return;
             }
 
             console.error('fetchUsers error', e);
 
-            // 인증 관련 에러라면 logout 처리 또는 로그인 페이지로 이동
             const status = e?.response?.status;
             if (status === 401 || status === 403) {
-                // 서버가 인증/권한 문제로 차단했을 때: 로그아웃 또는 로그인 페이지로 리다이렉트
-                try {
-                    logout && await logout();
-                } catch (err) { /* ignore */ }
+                if (logout) { await logout(); }
                 navigate('/admin/login');
                 return;
             }
@@ -93,17 +78,14 @@ export default function UserManagement() {
         }
     };
 
-    // accessToken 이 있을 때만 초기 조회
     useEffect(() => {
         if (!accessToken) {
-            // 토큰 없으면 초기화
             setUsers([]);
             setTotal(null);
+            setLoading(false);
             return;
         }
-        // 초기 로드
         fetchUsers();
-        // cleanup: 컴포넌트 언마운트 시 요청 취소
         return () => {
             if (abortRef.current) {
                 try { abortRef.current.abort(); } catch (e) {}
@@ -111,9 +93,8 @@ export default function UserManagement() {
         };
     }, [accessToken]);
 
-    // 검색 디바운스 처리
     useEffect(() => {
-        if (!accessToken) return; // 토큰 없으면 검색 금지
+        if (!accessToken) return;
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => {
             fetchUsers(query.trim());
@@ -122,6 +103,31 @@ export default function UserManagement() {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
     }, [query, searchType, accessToken]);
+
+    const handleSearchClick = () => {
+        fetchUsers(query.trim());
+    };
+
+    const handleReset = () => {
+        setQuery('');
+        setSearchType('email'); // 검색 타입도 초기화
+        fetchUsers(''); // 모든 쿼리 파라미터 초기화
+    };
+
+    const handleRowClick = (user) => {
+        setSelectedUser(user);
+        setIsSettingModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setIsSettingModalOpen(false);
+        setSelectedUser(null);
+    };
+
+    const handleUserStatusChange = (userId, newStatus) => {
+        fetchUsers(query.trim());
+        handleModalClose();
+    };
 
     return (
         <div className="flex flex-col h-full min-h-[calc(100vh-4rem)]">
@@ -146,7 +152,8 @@ export default function UserManagement() {
                             className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
                         />
 
-                        <button onClick={() => fetchUsers(query.trim())} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">검색</button>
+                        <button onClick={handleSearchClick} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">검색</button>
+                        <button onClick={handleReset} className="px-3 py-2 border rounded text-sm">초기화</button> {/* 초기화 버튼 추가 */}
                     </div>
                 </div>
             </div>
@@ -159,16 +166,17 @@ export default function UserManagement() {
 
                     <div className="max-h-[65vh] overflow-y-auto">
                         <table className="min-w-full table-fixed border-collapse">
-                            <thead className="bg-gray-100 sticky top-0 z-10">
+                            <thead className="bg-red-500 sticky top-0 z-10">
                             <tr>
-                                <th className="w-24 px-4 py-2 text-left text-sm font-medium border-b">사용자번호</th>
-                                <th className="w-64 px-4 py-2 text-left text-sm font-medium border-b">이메일</th>
-                                <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b">닉네임</th>
-                                <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b">역할</th>
-                                <th className="w-20 px-4 py-2 text-left text-sm font-medium border-b">나이</th>
-                                <th className="w-20 px-4 py-2 text-left text-sm font-medium border-b">성별</th>
-                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b">마지막 접속일자</th>
-                                <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b">사용자상태</th>
+                                <th className="w-24 px-4 py-2 text-left text-sm font-medium border-b text-white">사용자번호</th>
+                                <th className="w-64 px-4 py-2 text-left text-sm font-medium border-b text-white">이메일</th>
+                                <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b text-white">닉네임</th>
+                                <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b text-white">역할</th>
+                                <th className="w-20 px-4 py-2 text-left text-sm font-medium border-b text-white">나이</th>
+                                <th className="w-20 px-4 py-2 text-left text-sm font-medium border-b text-white">성별</th>
+                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b text-white">마지막 접속일자</th>
+                                <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b text-white">사용자상태</th>
+                                {/* <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b text-white">상태</th> // 이 컬럼은 현재 데이터를 알 수 없어 주석처리 */}
                             </tr>
                             </thead>
 
@@ -178,15 +186,15 @@ export default function UserManagement() {
                                     <td colSpan="8" className="p-6 text-center text-gray-500">표시할 사용자가 없습니다.</td>
                                 </tr>
                             ) : (
-                                users.map((u,index) => (
-                                    <tr key={index} className="hover:bg-gray-50">
+                                users.map((u) => (
+                                    <tr key={u.userSeq ?? u.id} onClick={() => handleRowClick(u)} className="hover:bg-gray-50 cursor-pointer">
                                         <td className="px-4 py-3 text-sm border-b">{u.userSeq ?? u.id ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b break-words">{u.email ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{u.nickname ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{u.role ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{u.age ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{u.gender ?? '-'}</td>
-                                        <td className="px-4 py-3 text-sm border-b">{u.lastLogin ?? '-'}</td>
+                                        <td className="px-4 py-3 text-sm border-b">{u.latestAt ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{u.status ?? '-'}</td>
                                     </tr>
                                 ))
@@ -196,6 +204,21 @@ export default function UserManagement() {
                     </div>
                 </div>
             </div>
+
+            {isSettingModalOpen && selectedUser && (
+                <UserSettingModal
+                    open={isSettingModalOpen}
+                    onClose={handleModalClose}
+                    user={selectedUser}
+                    onStatusChange={handleUserStatusChange}
+                    adminId={authUser?.id || authUser?.userSeq}
+                />
+            )}
         </div>
     );
+}
+
+
+function getUserKey(u) {
+    return u.userSeq ?? u.id ?? u._id ?? `${u.email}-${u.nickname}`;
 }

@@ -2,7 +2,7 @@ import { privateApi as api } from './axiosInstance';
 
 function mapToUiPost(item) {
     return {
-        postNo: item.project_id ?? item.requestId ?? item.id ?? null,
+        requestId: item.project_id ?? item.requestId ?? item.id ?? null,
         userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,
         startDate: item.start_date ?? item.startDate ?? null,
         endDate: item.end_date ?? item.endDate ?? null,

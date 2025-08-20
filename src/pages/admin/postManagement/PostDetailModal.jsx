@@ -34,11 +34,11 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
                 '/product/request/approve' :
                 '/product/request/reject';
 
-            const payload = { postNo: post.postNo };
+            const payload = { requestId: post.requestId };
 
             await api.post(endpoint, payload);
 
-            onStatusChange(post.postNo, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
+            onStatusChange(post.requestId, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
         } catch (e) {
             console.error('게시물 상태 업데이트 실패:', e);
             setUpdateError(e?.response?.data?.message || '상태 업데이트에 실패했습니다. 다시 시도해주세요.');
@@ -68,7 +68,7 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
 
                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-700">
                         <div>
-                            <strong>게시물번호:</strong> {post.postNo}
+                            <strong>게시물번호:</strong> {post.requestId}
                         </div>
                         <div>
                             <strong>사용자번호:</strong> {post.userNo}
