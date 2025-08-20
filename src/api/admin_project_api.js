@@ -25,7 +25,7 @@ export async function getPosts({
                                    title,
                                } = {}) {
 
-    console.log('[project_api] getPosts 호출됨. 원본 파라미터:', { page, size, type, q, startDate, endDate, status, title});
+    console.log('[admin_project_api] getPosts 호출됨. 원본 파라미터:', { page, size, type, q, startDate, endDate, status, title});
 
     const params = { page, size };
     if (type) {
@@ -37,7 +37,7 @@ export async function getPosts({
     if (status && status !== 'ALL') params.status = status;
     if (title) params.title = title;
 
-    console.log('[project_api] 서버로 전송될 최종 쿼리 파라미터:', params);
+    console.log('[admin_project_api] 서버로 전송될 최종 쿼리 파라미터:', params);
 
     const res = await api.get('/product/request', { params, signal });
     const payload = res.data;
@@ -62,5 +62,3 @@ export async function getPosts({
     const posts = list.map(mapToUiPost);
     return { posts, total, page, size };
 }
-
-export default { getPosts };
