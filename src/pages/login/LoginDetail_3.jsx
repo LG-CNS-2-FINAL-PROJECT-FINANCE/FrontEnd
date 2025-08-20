@@ -8,7 +8,7 @@ function LoginDetail_3() {
   const [nickname, setNickname] = useState("");
   const [error, setError] = useState(false);
   const location = useLocation();
-  const { name } = location.state || {};
+  const { userName } = location.state || {};
 
   const handleNext = () => {
     if (nickname.trim() === "") {
@@ -17,7 +17,7 @@ function LoginDetail_3() {
     } else {
       // 입력값이 유효하면 다음 페이지로 이동
       setError(false);
-      navigate("/login/4", { state: { name, nickname } });
+      navigate("/login/4", { state: { userName, nickname } });
     }
   };
 
@@ -26,14 +26,14 @@ function LoginDetail_3() {
       {/* 텍스트 영역 */}
       <button
         className="p-3 bg-white rounded-full border border-red-500 text-red-500 hover:bg-red-300 transition"
-        onClick={() => navigate("/login/2", { state: { name } })}
+        onClick={() => navigate("/login/2", { state: { userName } })}
       >
         <FiArrowLeft className="text-2xl" />
       </button>
       <div>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4">
-            쪼개몰에서 사용하실 닉네임을 설정해주세요!
+            {userName}님! 쪼개몰에서 사용하실 닉네임을 설정해주세요!
           </h1>
           <p className="text-lg text-gray-500">
             다른 사용자에게 보여지며 수정 가능합니다.{" "}
