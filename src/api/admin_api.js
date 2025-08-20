@@ -1,6 +1,5 @@
-// admin_api.js
 import axios from 'axios';
-import { privateApi as api } from './axiosInstance'; // 프로젝트 공통 인스턴스 (baseURL, withCredentials 설정 권장)
+import { privateApi as api } from './axiosInstance';
 
 export function adminApiSetup(getAccessToken, getRefreshToken, setTokens, logout) {
     // 고유 retry 키

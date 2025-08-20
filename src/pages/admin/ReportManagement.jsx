@@ -125,14 +125,14 @@ export default function ReportManagement() {
 
                     <div className="max-h-[65vh] overflow-y-auto">
                         <table className="min-w-full table-fixed border-collapse">
-                            <thead className="bg-gray-100 sticky top-0 z-10">
+                            <thead className="bg-red-500 sticky top-0 z-10">
                             <tr>
-                                <th className="w-24 px-4 py-2 text-left text-sm font-medium border-b">신고번호</th>
-                                <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b">프로젝트번호</th>
-                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b">신고자ID</th>
-                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b">작성자ID</th>
-                                <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b">신고유형</th>
-                                <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b">처리상태</th>
+                                <th className="w-24 px-4 py-2 text-left text-sm font-medium border-b text-white">신고번호</th>
+                                <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b text-white">프로젝트번호</th>
+                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b text-white">신고자ID</th>
+                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b text-white">작성자ID</th>
+                                <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b text-white">신고유형</th>
+                                <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b text-white">처리상태</th>
                             </tr>
                             </thead>
 
