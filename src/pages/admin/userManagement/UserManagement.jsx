@@ -31,6 +31,9 @@ export default function UserManagement() {
     };
 
     const fetchUsers = async (q = '') => {
+        console.log('fetchUsers called, accessToken=', accessToken);
+        const headers = { Authorization: `Bearer ${accessToken}` };
+        console.log('request headers will be', headers);
         if (!accessToken) {
             setUsers([]);
             setTotal(0);
