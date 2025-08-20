@@ -57,7 +57,7 @@ export default function UserManagement() {
                 Authorization: `Bearer ${accessToken}`,
             };
 
-            const res = await api.get('/user', {
+            const res = await api.get('/user/auth', {
                 params,
                 signal: controller.signal,
                 headers,

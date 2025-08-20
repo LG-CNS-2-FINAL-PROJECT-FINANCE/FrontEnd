@@ -17,6 +17,7 @@ import UserManagement from "./pages/admin/UserManagement";
 import MyPage from "./pages/mypage/MyPage.jsx";
 import MyInvestments from "./pages/mypage/MyInvestments.jsx";
 import MyFavorites from "./pages/mypage/MyFavorites.jsx";
+import MyProduct from "./pages/mypage/MyProduct.jsx";
 import AccountManagement from "./pages/mypage/AccountManagement.jsx";
 import EditInfo from "./pages/mypage/EditInfo.jsx";
 import MyReports from "./pages/mypage/MyReports.jsx";
@@ -63,6 +64,7 @@ function App() {
               <Route path="/my-profile" element={<MyPage />} />
               <Route path="/my-investments" element={<MyInvestments />} />
               <Route path="/my-favorites" element={<MyFavorites />} />
+              <Route path="/my-product" element={<MyProduct />} />
               <Route path="/account-management" element={<AccountManagement />} />
               <Route path="/edit-info" element={<EditInfo />} />
               <Route path="/my-reports" element={<MyReports />} />
@@ -70,7 +72,7 @@ function App() {
               {/*Asset*/}
               <Route path="/asset" element={<Asset />} />
                 
-             </Route>
+          </Route>
 
           {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
           <Route path="/admin/login" element={<AdminLogin />} />

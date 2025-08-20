@@ -27,7 +27,10 @@ function InvestmentSummary({
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const { themeColors } = useTheme();
+  const { themeColors, role } = useTheme();
+  
+  // Determine if current user is a creator
+  const isCreator = role === '창작자';
 
   // 공유하기, 즐겨찾기, 신고
   const handleShare = () => {
@@ -42,11 +45,19 @@ function InvestmentSummary({
   };
 
   const handleInvest = () => {
-    setIsModalOpen(true);
+    if (isCreator) {
+      alert("중단 요청을 보냅니다.");
+    } else {
+      setIsModalOpen(true);
+    }
   };
 
   const handleCancelInvestment = () => {
-    alert("투자를 취소합니다.");
+    if (isCreator) {
+      alert("수정 요청을 보냅니다.");
+    } else {
+      alert("투자를 취소합니다.");
+    }
 
     window.location.reload();
   };
@@ -81,6 +92,16 @@ function InvestmentSummary({
         <div className="flex flex-col space-y-2">
           {/* 투자하기, 투자 취소 버튼 */}
           <div className="flex justify-end space-x-2">
+            {/* 분배요청 버튼 - 창작자만 보임 */}
+            {isCreator && (
+              <button
+                onClick={() => alert("분배 요청을 보냅니다.")}
+                className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
+              >
+                <RiMoneyCnyBoxLine className="inline-block mr-1" /> 분배요청
+              </button>
+            )}
+
             <button
               onClick={handleInvest}
               className={`${themeColors.primaryBg} text-white py-2 px-3 rounded-md hover:${themeColors.primaryHover} transition-colors font-semibold flex items-center`}
@@ -90,7 +111,7 @@ function InvestmentSummary({
               ) : (
                 <RiMoneyCnyBoxLine className="inline-block mr-1" />
               )}
-              {isInvested ? "투자하기" : "투자하기"}{" "}
+              {isCreator ? "중단요청" : "투자하기"}{" "}
               {/*원래 추가투자하기였는데 일단 그냥 하나로 보이게 변경 해둠*/}
             </button>
 
@@ -106,7 +127,7 @@ function InvestmentSummary({
                             `}
               disabled={!isInvested}
             >
-              <RiMoneyCnyBoxLine className="inline-block mr-1" /> 투자취소
+              <RiMoneyCnyBoxLine className="inline-block mr-1" /> {isCreator ? "수정요청" : "투자취소"}
             </button>
           </div>
 

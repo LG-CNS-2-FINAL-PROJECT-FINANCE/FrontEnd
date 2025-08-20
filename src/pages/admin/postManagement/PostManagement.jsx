@@ -2,14 +2,31 @@ import React, { useEffect, useState, useRef, useContext } from 'react';
 import { getPosts } from '../../../api/project_api';
 import dayjs from 'dayjs';
 import { AuthContext } from '../../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-import PostDetailModal from '../postManagement/PostDetailModal'; // 모달 컴포넌트 임포트
+import PostDetailModal from '../postManagement/PostDetailModal';
+
+// Button component for consistent styling
+const Button = ({ variant = 'primary', onClick, children, disabled = false }) => {
+    const baseStyles = 'px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-1 transition-colors disabled:opacity-60 disabled:cursor-not-allowed min-w-[80px]';
+    const variants = {
+        primary: 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500',
+        secondary: 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus:ring-gray-500',
+    };
+    
+    return (
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            className={`${baseStyles} ${variants[variant]}`}
+        >
+            {children}
+        </button>
+    );
+};
 
 export default function PostManagement() {
-    const { accessToken, logout } = useContext(AuthContext);
-    const navigate = useNavigate();
+    const { accessToken } = useContext(AuthContext);
     const queryClient = useQueryClient();
 
     // const [posts, setPosts] = useState([]);
@@ -21,9 +38,9 @@ export default function PostManagement() {
     const [query, setQuery] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [status, setStatus] = useState('ALL');
+    const [requestStatus, setRequestStatus] = useState('ALL'); // 승인상태
+    const [requestType, setRequestType] = useState('ALL');     // 요청유형
     const [title, setTitle] = useState('');
-
     const [page, setPage] = useState(1);
     const [size, setSize] = useState(20);
 
@@ -35,18 +52,17 @@ export default function PostManagement() {
     // <<<< useQuery 훅으로 데이터 페칭 로직 통합
     const {
         data,
-        isLoading: isInitialLoading, // 쿼리가 데이터가 없고 처음 로드될 때 (true)
-        isFetching,                // 쿼리가 어떤 이유로든 데이터를 가져오는 중일 때 (true)
-        isError: hasError,         // 쿼리 에러 발생 여부 (true)
-        error: queryError,         // 쿼리 에러 객체
-        refetch                    // 쿼리를 수동으로 다시 실행하는 함수
+        isLoading: isInitialLoading,
+        isFetching,
+        isError: hasError,
+        error: queryError,
     } = useQuery({
         queryKey: [
             'posts',
-            { page, size, searchType, query, startDate, endDate, status, title }
+            { page, size, searchType, query, startDate, endDate, requestStatus, requestType, title }
         ],
         queryFn: async ({ queryKey, signal }) => {
-            const [_key, filters] = queryKey;
+            const [, filters] = queryKey;
             if (!accessToken) {
                 return { posts: [], total: 0 };
             }
@@ -60,24 +76,13 @@ export default function PostManagement() {
     // <<<< useQuery에서 받은 데이터와 상태를 컴포넌트에서 사용하기 편리하게 재정의
     const posts = data?.posts || [];
     const total = data?.total || 0;
-    const isLoading = isInitialLoading || isFetching; // <<<< 수정: `isInitialLoading`과 `isFetching`을 조합하여 로딩 상태 정의
+    const isLoading = isInitialLoading || isFetching;
     const error = hasError ? (queryError?.message || '알 수 없는 오류가 발생했습니다.') : '';
-
-    // <<<< 기존 useEffect에서 불필요한 setPosts/setTotal/setLoading 호출 제거
-    useEffect(() => {
-        // accessToken이 null이 되면 useQuery의 enabled 옵션에 의해 API 호출이 중단되고
-        // posts와 total은 data 객체에서 자동으로 []와 0으로 처리됩니다.
-        if (!accessToken) {
-            // 여기에 setPosts/setTotal/setLoading을 직접 호출할 필요가 없습니다.
-            // UI는 isLoading과 posts, total 값에 따라 자동으로 업데이트됩니다.
-        }
-        // 이 useEffect는 accessToken이 변경될 때 useQuery가 다시 실행되도록 트리거하는 역할을 합니다.
-    }, [accessToken]);
 
     useEffect(() => {
         if (!accessToken) return;
 
-        const allSearchFieldsEmpty = !query.trim() && !title.trim() && !startDate && !endDate && status === 'ALL';
+        const allSearchFieldsEmpty = !query.trim() && !title.trim() && !startDate && !endDate && requestStatus === 'ALL' && requestType === 'ALL';
 
         if (debounceTimeoutRef.current) {
             clearTimeout(debounceTimeoutRef.current);
@@ -91,11 +96,12 @@ export default function PostManagement() {
                 query: query.trim(),
                 startDate,
                 endDate,
-                status,
+                requestStatus,
+                requestType,
                 title: title.trim(),
             };
             if (allSearchFieldsEmpty) {
-                queryClient.invalidateQueries(['posts', { page: 1, size, searchType, query: '', startDate: '', endDate: '', status: 'ALL', title: '' }]);
+                queryClient.invalidateQueries(['posts', { page: 1, size, searchType, query: '', startDate: '', endDate: '', requestStatus: 'ALL', requestType: 'ALL', title: '' }]);
             } else {
                 queryClient.invalidateQueries(['posts', currentQueryKeyFilters]);
             }
@@ -106,11 +112,10 @@ export default function PostManagement() {
                 clearTimeout(debounceTimeoutRef.current);
             }
         };
-    }, [query, searchType, startDate, endDate, status, title, accessToken, page, size]);
+    }, [query, searchType, startDate, endDate, requestStatus, requestType, title, accessToken, queryClient, page, size]);
 
     // <<<< 모달 제어를 위한 핸들러
     const handleRowClick = (post) => {
-        console.log('게시물 클릭됨:', post.postNo);
         setSelectedPost(post);
         setIsDetailModalOpen(true);
     };
@@ -121,13 +126,13 @@ export default function PostManagement() {
     };
 
     const handleStatusChange = (postNo, newStatus) => {
-        queryClient.invalidateQueries(['posts']); // 'posts' 쿼리 전체를 무효화하여 데이터를 다시 가져옴
-        handleModalClose(); // 모달 닫기
+        queryClient.invalidateQueries(['posts']);
+        handleModalClose();
     };
 
     // 검색/리셋/페이징 핸들러: 상태만 업데이트하고 useQuery가 변경을 감지하여 API 호출
     const handleSearchClick = () => { setPage(1); };
-    const handleReset = () => { setQuery(''); setStartDate(''); setEndDate(''); setStatus('ALL'); setTitle(''); setPage(1); };
+    const handleReset = () => { setQuery(''); setStartDate(''); setEndDate(''); setRequestStatus('ALL'); setRequestType('ALL'); setTitle(''); setPage(1); };
     const handlePrev = () => { if (page <= 1) return; setPage(page - 1); };
     const handleNext = () => {
         const maxPage = Math.max(1, Math.ceil((total ?? 0) / size));
@@ -139,63 +144,116 @@ export default function PostManagement() {
         <div className="flex flex-col h-full min-h-[calc(100vh-4rem)]">
             {/* 상단 검색영역 */}
             <div className="p-4 bg-white shadow-sm">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
-                    <div>
-                        <h1 className="text-xl font-semibold mb-1">게시물관리</h1>
-                        <div className="text-sm text-gray-500">전체: {total ?? '-' }건</div>
+                <div className="flex flex-col gap-3">
+                    {/* Title row */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <h1 className="text-lg font-semibold whitespace-nowrap">게시물관리</h1>
+                            <div className="text-sm text-gray-500">전체: {total ?? '-'}건</div>
+                        </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 w-full max-w-4xl">
-                        <select
-                            value={searchType}
-                            onChange={(e) => setSearchType(e.target.value)}
-                            className="w-36 px-3 py-2 border rounded"
-                        >
-                            <option value="postNo">게시물번호</option>
-                            <option value="userNo">사용자번호</option>
-                        </select>
+                    {/* Search filters row - aligned to match table */}
+                    <div className="bg-white rounded shadow overflow-hidden">
+                        <div className="p-3">
+                            <div className="grid grid-cols-1 lg:grid-cols-10 gap-2 w-full items-end">
+                                {/* Search type */}
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">검색유형</label>
+                                    <select
+                                        value={searchType}
+                                        onChange={(e) => setSearchType(e.target.value)}
+                                        className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    >
+                                        <option value="postNo">번호</option>
+                                        <option value="userNo">사용자</option>
+                                        <option value="title">제목</option>
+                                    </select>
+                                </div>
 
-                        <input
-                            type="search"
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            placeholder={`${searchType === 'postNo' ? '게시물번호' : '사용자번호'} 검색`}
-                            className="flex-1 min-w-0 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-                        />
+                                {/* Search input */}
+                                <div className="lg:col-span-2">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">검색어</label>
+                                    <input
+                                        type="search"
+                                        value={searchType === 'title' ? title : query}
+                                        onChange={(e) => {
+                                            if (searchType === 'title') {
+                                                setTitle(e.target.value);
+                                                setQuery('');
+                                            } else {
+                                                setQuery(e.target.value);
+                                                setTitle('');
+                                            }
+                                        }}
+                                        placeholder={`${searchType === 'postNo' ? '번호' : searchType === 'userNo' ? '사용자번호' : '제목'} 입력`}
+                                        className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    />
+                                </div>
 
-                        <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            placeholder="제목 검색"
-                            className="flex-1 min-w-0 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-                        />
+                                {/* Request Type */}
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">요청유형</label>
+                                    <select 
+                                        value={requestType} 
+                                        onChange={(e) => setRequestType(e.target.value)} 
+                                        className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    >
+                                        <option value="ALL">전체</option>
+                                        <option value="CREATE">등록</option>
+                                        <option value="UPDATE">수정</option>
+                                        <option value="DELETE">삭제</option>
+                                    </select>
+                                </div>
 
-                        <input
-                            type="date"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
-                            className="px-3 py-2 border rounded"
-                            aria-label="시작일자"
-                        />
-                        <div className="px-1">~</div>
-                        <input
-                            type="date"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
-                            className="px-3 py-2 border rounded"
-                            aria-label="종료일자"
-                        />
+                                {/* Request Status */}
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">승인상태</label>
+                                    <select 
+                                        value={requestStatus} 
+                                        onChange={(e) => setRequestStatus(e.target.value)} 
+                                        className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    >
+                                        <option value="ALL">전체</option>
+                                        <option value="PENDING">대기</option>
+                                        <option value="APPROVED">승인</option>
+                                        <option value="REJECTED">거절</option>
+                                    </select>
+                                </div>
 
-                        <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-36 px-3 py-2 border rounded">
-                            <option value="ALL">전체상태</option>
-                            <option value="PUBLISHED">게시됨</option>
-                            <option value="DRAFT">임시저장</option>
-                            <option value="DELETED">삭제</option>
-                        </select>
+                                {/* Start Date */}
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">시작일</label>
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        className="w-full px-1 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    />
+                                </div>
 
-                        <button onClick={handleSearchClick} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">검색</button>
-                        <button onClick={handleReset} className="px-3 py-2 border rounded text-sm">초기화</button>
+                                {/* End Date */}
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">종료일</label>
+                                    <input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        className="w-full px-1 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    />
+                                </div>
+
+                                {/* Action buttons - using remaining columns */}
+                                <div className="lg:col-span-3 flex justify-end gap-2">
+                                    <Button variant="primary" onClick={handleSearchClick}>
+                                        검색
+                                    </Button>
+                                    <Button variant="secondary" onClick={handleReset}>
+                                        초기화
+                                    </Button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -288,7 +346,6 @@ export default function PostManagement() {
 }
 
 function getPostKey(p) {
-    // Math.random() 대신 유일한 ID 사용을 권장합니다.
     return p.postNo || p.id || p._id || `temp-${Math.random().toString(36).slice(2,9)}`;
 }
 
