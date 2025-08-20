@@ -13,7 +13,7 @@ import { ToastContainer } from "react-toastify";
 import Asset from "./pages/asset/Asset.jsx";
 import RoleSelectionPage from "./pages/role/RoleSelectionPage";
 import AdminLogin from "./pages/admin/login/AdminLogin";
-import UserManagement from "./pages/admin/UserManagement";
+import UserManagement from "./pages/admin/userManagement/UserManagement";
 import MyPage from "./pages/myPage/MyPage.jsx";
 import MyInvestments from "./pages/myPage/MyInvestments.jsx";
 import MyFavorites from "./pages/myPage/MyFavorites.jsx";
