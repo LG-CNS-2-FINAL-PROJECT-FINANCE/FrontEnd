@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
 function InvestmentCard({ project }) {
+    console.log('[InvestmentCard] project prop:', project);
     const ddayValue = Number(project.dday);
     const { themeColors } = useTheme();
 

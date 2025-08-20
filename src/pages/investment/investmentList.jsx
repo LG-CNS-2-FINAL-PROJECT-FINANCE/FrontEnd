@@ -26,7 +26,7 @@ const calculateDday = (ddayNum) => {
 
     if (ddayNum < 0) return '마감';
     if (ddayNum === 0) return '오늘 마감';
-    return `D-${ddayNum}`;
+    return `${ddayNum}`;
 };
 
 
