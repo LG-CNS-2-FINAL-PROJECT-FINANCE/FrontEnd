@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import useScrollLock from '../../../component/useScrollLock';
+import { useTheme } from '../../../context/ThemeContext';
 
 function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitReport }) {
     const [selectedType, setSelectedType] = useState(''); // 선택된 신고 유형
     const [reportContent, setReportContent] = useState(''); // 신고 내용
+    const { themeColors } = useTheme();
 
     useScrollLock(isOpen);
     // 모달이 열려있지 않으면 아무것도 렌더링하지 않음
@@ -95,7 +97,7 @@ function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitRepor
                                 className={`
                                     py-2 px-4 rounded-full border transition-colors
                                     ${selectedType === type.value
-                                    ? 'bg-red-500 text-white border-red-500'
+                                    ? `${themeColors.primaryBg} text-white ${themeColors.primaryBorder}`
                                     : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'}
                                 `}
                                 onClick={() => handleTypeSelect(type.value)}
@@ -110,7 +112,7 @@ function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitRepor
                 <div className="mb-6">
                     <h3 className="text-lg font-bold mb-3">신고 내용</h3>
                     <textarea
-                        className="w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-400"
+                        className={`w-full p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-${themeColors.primary.replace('-500', '-400')}`}
                         rows="5"
                         placeholder="상세한 신고 내용을 입력해주세요."
                         value={reportContent}
@@ -131,8 +133,8 @@ function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitRepor
                         className={`
                             py-2 px-4 rounded-md font-semibold transition-colors
                             ${isSubmitEnabled
-                            ? 'bg-red-500 text-white hover:bg-red-600'
-                            : 'bg-red-300 text-gray-100 cursor-not-allowed'}
+                            ? `${themeColors.primaryBg} text-white hover:${themeColors.primaryHover}`
+                            : `${themeColors.primaryBg} opacity-50 text-gray-100 cursor-not-allowed`}
                         `}
                         disabled={!isSubmitEnabled}
                     >

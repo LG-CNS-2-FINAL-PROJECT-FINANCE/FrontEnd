@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import TiltedCard from "../investment/InvestmentComponent/TiltedCard";
+import TiltedCard from "../investment/investment_component/TiltedCard";
+import { useTheme } from "../../context/ThemeContext";
 
 function RoleSelectionPage() {
   const navigate = useNavigate();
   const [currentRole, setCurrentRole] = useState("");
+  const { updateRole } = useTheme();
 
   useEffect(() => {
     const token = localStorage.getItem("jwtToken");
@@ -38,16 +40,14 @@ function RoleSelectionPage() {
     token.role = selectedRole;
     localStorage.setItem("jwtToken", JSON.stringify(token));
 
+    // 테마 업데이트
+    updateRole(selectedRole);
+
     alert(`역할이 ${selectedRole}으로 변경되었습니다.`);
     setCurrentRole(selectedRole);
 
-    if (selectedRole === "투자자") {
-      navigate("/investment");
-    } else if (selectedRole === "창작자") {
-      navigate("/creation");
-    } else {
-      navigate("/");
-    }
+    // 모든 역할이 investment로 이동
+    navigate("/investment");
   };
 
   return (
