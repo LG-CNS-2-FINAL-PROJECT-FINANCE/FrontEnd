@@ -14,22 +14,21 @@ import Asset from "./pages/asset/Asset.jsx";
 import RoleSelectionPage from "./pages/role/RoleSelectionPage";
 import AdminLogin from "./pages/admin/login/AdminLogin";
 import UserManagement from "./pages/admin/UserManagement";
-import MyPage from "./pages/mypage/MyPage.jsx";
-import MyInvestments from "./pages/mypage/MyInvestments.jsx";
-import MyFavorites from "./pages/mypage/MyFavorites.jsx";
-import AccountManagement from "./pages/mypage/AccountManagement.jsx";
-import EditInfo from "./pages/mypage/EditInfo.jsx";
-import MyReports from "./pages/mypage/MyReports.jsx";
-import ReportManagement from "./pages/admin/ReportManagement";
-import PostManagement from "./pages/admin/postManagement/PostManagement";
-import Aml from "./pages/admin/Aml";
-import FraudDetection from "./pages/admin/FraudDetection";
+import MyPage from "./pages/myPage/MyPage.jsx";
+import MyInvestments from "./pages/myPage/MyInvestments.jsx";
+import MyFavorites from "./pages/myPage/MyFavorites.jsx";
+import AccountManagement from "./pages/myPage/AccountManagement.jsx";
+import EditInfo from "./pages/myPage/EditInfo.jsx";
+import MyReports from "./pages/myPage/MyReports.jsx";
+import ReportManagement from "./pages/admin/ReportManagement.jsx";
+import PostManagement from "./pages/admin/postManagement/PostManagement.jsx";
+import Aml from "./pages/admin/Aml.jsx";
+import FraudDetection from "./pages/admin/FraudDetection.jsx";
 import Setting from "./pages/admin/Setting";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import ProductRegistration from "./pages/product/ProductRegistration.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
-
-
+import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
 
 function App() {
   return (
@@ -54,38 +53,47 @@ function App() {
               <Route path="investment/:id" element={<InvestmentDetail />} />
 
               {/*Product Registration*/}
-              {<Route path="/product-registration" element={<ProductRegistration />} />}
+              {
+                <Route
+                  path="/product-registration"
+                  element={<ProductRegistration />}
+                />
+              }
 
               {/*Market*/}
               <Route path="/market" element={<Market />} />
               <Route path="/market/:id" element={<MarketDetail />} />
-              
+
               {/*MyPage*/}
               <Route path="/my-profile" element={<MyPage />} />
               <Route path="/my-investments" element={<MyInvestments />} />
               <Route path="/my-favorites" element={<MyFavorites />} />
-              <Route path="/account-management" element={<AccountManagement />} />
+              <Route
+                path="/account-management"
+                element={<AccountManagement />}
+              />
               <Route path="/edit-info" element={<EditInfo />} />
               <Route path="/my-reports" element={<MyReports />} />
 
               {/*Asset*/}
               <Route path="/asset" element={<Asset />} />
-                
-             </Route>
+            </Route>
 
-          {/*관리자 로그인 페이지*/}
-          {/*얘는 헤더가 없음*/}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          {/*관리자 페이지 헤더*/}
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="user" element={<UserManagement />}></Route>
-            <Route path="reports" element={<ReportManagement />}></Route>
-            <Route path="posts" element={<PostManagement />}></Route>
-            <Route path="aml" element={<Aml />}></Route>
-            <Route path="frauddetection" element={<FraudDetection />}></Route>
-            <Route path="settings" element={<Setting />}></Route>
-            <Route path="systemmonitoring" element={<SystemMonitoring />}></Route>            
-
+            {/*관리자 로그인 페이지*/}
+            {/*얘는 헤더가 없음*/}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            {/*관리자 페이지 헤더*/}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route path="user" element={<UserManagement />}></Route>
+              <Route path="reports" element={<ReportManagement />}></Route>
+              <Route path="posts" element={<PostManagement />}></Route>
+              <Route path="aml" element={<Aml />}></Route>
+              <Route path="frauddetection" element={<FraudDetection />}></Route>
+              <Route path="settings" element={<Setting />}></Route>
+              <Route
+                path="systemmonitoring"
+                element={<SystemMonitoring />}
+              ></Route>
             </Route>
           </Routes>
         </div>
