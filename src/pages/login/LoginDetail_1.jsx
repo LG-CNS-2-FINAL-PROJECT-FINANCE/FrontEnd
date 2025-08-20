@@ -1,8 +1,15 @@
 import { RiKakaoTalkFill } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
 
 function LoginDetail_1() {
-  const navigate = useNavigate();
+  const kakaoParams = {
+    client_id: "b4b2d8c256a781c939214bc2360fef37",
+    redirect_uri: "http://127.0.0.1:3000/login/kakaoConfirm",
+    response_type: "code",
+  };
+  const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?${new URLSearchParams(
+    kakaoParams
+  ).toString()}`;
+
   return (
     <div className="w-[100%] h-screen flex items-center justify-center bg-white">
       {/* 왼쪽: 이미지 영역 */}
@@ -31,17 +38,17 @@ function LoginDetail_1() {
         {/* 로고 */}
         <img src="/assets/logo.png" alt="logo" className="w-[400px] mb-8" />
         {/* 카카오 로그인 버튼 */}
-        <button className="w-[100%] flex items-center bg-[#FEE500] hover:bg-yellow-400 transition px-8 py-4 rounded-xl shadow text-lg font-bold">
+        <a
+          href={kakaoAuthUrl}
+          className="w-[100%] flex items-center bg-[#FEE500] hover:bg-yellow-400 transition px-8 py-4 rounded-xl shadow text-lg font-bold"
+        >
           <div className="flex items-center w-full">
             <RiKakaoTalkFill className="text-4xl text-black" />
-            <div
-              className="w-full flex justify-center"
-              onClick={() => navigate("/login/2")}
-            >
+            <div className="w-full flex justify-center">
               <span className="text-2xl">카카오 로그인</span>
             </div>
           </div>
-        </button>
+        </a>
       </div>
     </div>
   );

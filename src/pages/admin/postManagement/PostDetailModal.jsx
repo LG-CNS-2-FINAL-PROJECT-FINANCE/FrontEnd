@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { privateApi as api } from '../../../api/axiosInstance';
 import dayjs from 'dayjs';
 
@@ -52,7 +52,6 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
     const [visible, setVisible] = useState(false); // for enter/exit animation
     const modalRef = useRef(null);
 
-    // Open animations and focus management
     useEffect(() => {
         if (open) {
             setVisible(true);
@@ -102,16 +101,23 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
         setIsUpdating(true);
         setUpdateError('');
         try {
-            const endpoint = actionType === 'approve' ? '/product/request/approve' : '/product/request/reject';
-            const payload = { postNo: post.postNo };
+            const endpoint = actionType === 'approve' ?
+                '/product/request/approve' :
+                '/product/request/reject';
+
+            const payload = { requestId: post.requestId };
+
             await api.post(endpoint, payload);
-            onStatusChange(post.postNo, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
-            onClose();
+
+            onStatusChange(post.requestId, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
         } catch (e) {
             console.error('게시물 상태 업데이트 실패:', e);
             setUpdateError(e?.response?.data?.message || '상태 업데이트에 실패했습니다. 다시 시도해주세요.');
         } finally {
             setIsUpdating(false);
+            if (!updateError) {
+                onClose();
+            }
         }
     };
 
@@ -173,6 +179,7 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
                         )}
 
                         <div className="grid grid-cols-1 gap-4 text-sm text-gray-700 sm:grid-cols-2">
+                            <Field label="게시물번호" value={post.requestId} />
                             <Field label="제목" value={post.title} className="sm:col-span-2" />
                             <Field label="시작일자" value={formatDate(post.startDate)} />
                             <Field label="종료일자" value={formatDate(post.endDate)} />
