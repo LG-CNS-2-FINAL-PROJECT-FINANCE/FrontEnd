@@ -1,20 +1,40 @@
-import { jwtDecode } from "jwt-decode";
+import { privateApi, publicApi } from "./axiosInstance.js";
 
-import instance from "./axiosInstance";
-
-export const login = async ({ email, password }) => {
-  console.log("Login API 호출");
-  console.log("Email :" + email);
-  console.log("Password :" + password);
+export const kakaologin = async (code) => {
+  console.log("Kakao login API 호출");
+  console.log("Code:", code);
   try {
-    const response = await instance.post(
-      "/login",
+    const response = await publicApi.post(
+      `/user/auth/login?code=${code.code}`,
       {
-        email,
-        password,
-      },
-      { headers: { "Content-Type": "application/json" } }
+        headers: { "Content-Type": "application/json" },
+      }
     );
+    const { accessToken, refreshToken } = response.data;
+    console.log("Kakao login 성공:", response.data);
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
+
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const getMe = async () => {
+  try {
+    const response = await privateApi.get(`/user`);
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const registerUserInfo = async (userInfo) => {
+  try {
+    const response = await privateApi.post("/user/auth/register", userInfo, {
+      headers: { "Content-Type": "application/json" },
+    });
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error;

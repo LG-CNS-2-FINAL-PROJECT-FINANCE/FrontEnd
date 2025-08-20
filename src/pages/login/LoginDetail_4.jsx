@@ -11,13 +11,13 @@ function LoginDetail_4() {
   const [gender, setGender] = useState(null);
   const [error, setError] = useState(false);
   const location = useLocation();
-  const { name, nickname } = location.state || {};
+  const { userName, nickname } = location.state || {};
   const handleNext = () => {
     if (!gender) {
       setError(true);
     } else {
       setError(false);
-      navigate("/login/5", { state: { gender, name, nickname } });
+      navigate("/login/5", { state: { gender, userName, nickname } });
     }
   };
 
@@ -37,24 +37,24 @@ function LoginDetail_4() {
 
         <div className="flex space-x-4">
           <motion.div
-            onClick={() => setGender("male")}
+            onClick={() => setGender("MALE")}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <IoManOutline
               className={`text-[300px] ${
-                gender === "male" ? "text-red-500" : "text-black"
+                gender === "MALE" ? "text-red-500" : "text-black"
               }`}
             />
           </motion.div>
           <motion.div
-            onClick={() => setGender("female")}
+            onClick={() => setGender("FEMALE")}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <IoWomanOutline
               className={`text-[300px] ${
-                gender === "female" ? "text-red-500" : "text-black"
+                gender === "FEMALE" ? "text-red-500" : "text-black"
               }`}
             />
           </motion.div>

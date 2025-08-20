@@ -45,6 +45,7 @@ function App() {
               <Route index element={<Home />}></Route>
               {/*로그인 페이지*/}
               <Route path="/login/:id" element={<Login />}></Route>
+              <Route path="/login/kakaoConfirm" element={<KakaoConfirm />} />
               {/*역할 선택 페이지*/}
               <Route path="/select-role" element={<RoleSelectionPage />} />
 
@@ -72,7 +73,8 @@ function App() {
                 
              </Route>
 
-          {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
+          {/*관리자 로그인 페이지*/}
+          {/*얘는 헤더가 없음*/}
           <Route path="/admin/login" element={<AdminLogin />} />
           {/*관리자 페이지 헤더*/}
           <Route path="/admin" element={<AdminLayout />}>

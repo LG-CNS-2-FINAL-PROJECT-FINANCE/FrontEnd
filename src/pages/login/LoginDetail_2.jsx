@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { FiArrowRight } from "react-icons/fi";
-import { RiKakaoTalkFill } from "react-icons/ri";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function LoginDetail_2() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
   const [error, setError] = useState(false);
+
+  const [name, setName] = useState("");
+
   const handleNext = () => {
     if (name.trim() === "") {
       // 입력값이 비어 있으면 에러 표시
@@ -14,7 +15,7 @@ function LoginDetail_2() {
     } else {
       // 입력값이 유효하면 다음 페이지로 이동
       setError(false);
-      navigate("/login/3", { state: { name } });
+      navigate("/login/3", { state: { userName: name } });
     }
   };
   return (
