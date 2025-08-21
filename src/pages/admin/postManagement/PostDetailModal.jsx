@@ -32,12 +32,23 @@ const StatusBadge = ({ status = 'PENDING' }) => {
 };
 
 const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children }) => {
-    const base = 'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed';
+    const base = 'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+
+    if (disabled && !loading) {
+        // Disabled state - grey and untouchable
+        return (
+            <button disabled className={`${base} bg-gray-400 text-white cursor-not-allowed opacity-60`}>
+                {children}
+            </button>
+        );
+    }
+
     const styles = {
-        approve: 'bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-600',
-        reject: 'bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-600',
-        secondary: 'border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 focus-visible:ring-gray-400',
+        approve: 'bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-600 disabled:opacity-60 disabled:cursor-not-allowed',
+        reject: 'bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-600 disabled:opacity-60 disabled:cursor-not-allowed',
+        secondary: 'border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 focus-visible:ring-gray-400 disabled:opacity-60 disabled:cursor-not-allowed',
     }[kind];
+
     return (
         <button onClick={onClick} disabled={disabled || loading} className={`${base} ${styles}`}>
             {loading && <Spinner />}
@@ -103,12 +114,24 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
         setUpdateError('');
         try {
             const endpoint = actionType === 'approve' ? '/product/request/approve' : '/product/request/reject';
-            const payload = { postNo: post.postNo };
+
+            // Ensure we have a valid requestId
+            const requestId = post.requestId || post.postNo || post.id;
+            if (!requestId) {
+                throw new Error('Request ID is missing');
+            }
+
+            const payload = { requestId };
+
+            console.log('Sending payload:', payload);
+            console.log('Post object:', post);
+
             await api.post(endpoint, payload);
-            onStatusChange(post.postNo, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
+            onStatusChange(requestId, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
             onClose();
         } catch (e) {
             console.error('게시물 상태 업데이트 실패:', e);
+            console.error('Response data:', e?.response?.data);
             setUpdateError(e?.response?.data?.message || '상태 업데이트에 실패했습니다. 다시 시도해주세요.');
         } finally {
             setIsUpdating(false);
@@ -147,7 +170,7 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
                                 게시물 상세: {post.title || '제목 없음'}
                             </h2>
                             <p id={descId} className="mt-1 text-sm text-gray-500">
-                                게시물 번호 {post.postNo} • 사용자 {post.userNo}
+                                게시물 번호 {post.requestId} • 사용자 {post.userNo}
                             </p>
                         </div>
                         <div className="flex items-center gap-3">
