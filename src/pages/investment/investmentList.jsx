@@ -112,7 +112,7 @@ function InvestmentListPage() {
                                         amount: formatAmount(investment.amount),
                                         dday: calculateDday(investment.deadline),
                                         progress: investment.percent,
-                                        imageUrl: investment.document,
+                                        imageUrl: investment.image,
                                         views: investment.viewCount,
                                         status: investment.state,
                                     }}
@@ -176,7 +176,7 @@ function InvestmentListPage() {
                                     amount: formatAmount(investment.amount),
                                     dday: calculateDday(investment.deadline),
                                     progress: investment.percent,
-                                    imageUrl: investment.document,
+                                    imageUrl: investment.image,
                                     views: investment.viewCount,
                                     status: investment.state,
                                 }}

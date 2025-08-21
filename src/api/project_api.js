@@ -8,16 +8,26 @@ function mapToInvestmentCardData(item) {
         amount: item.amount ?? null,             // 모금액
         startDate: item.startDate ?? null, //시작일
         endDate: item.endDate ?? null, //종료일
-        deadline: item.deadline,      // 마감기간
-        percent: item.percent,    // 달성률
-        document: item.document && item.document.length > 0 ? item.document[0].url : 'default_image.jpg', // 이미지파일
-        viewCount: item.viewCount,          // 조회수
-        state: item.state        // 창작물 상태
+        deadline: item.deadline ?? null,      // 마감기간
+        percent: item.percent ?? null,    // 달성률
+        image: item.image && item.image.length > 0 ? item.image[0].url : 'default_image.jpg', // 이미지파일
+        document: item.document ?? null, //문서 파일
+        viewCount: item.viewCount ?? null,          // 조회수
+        state: item.status ?? null,        // 창작물 상태
+        summary: item.summary ?? null, //요약
+        content: item.content ?? null, //등록 설명
+        minInvestment: item.minInvestment, //최소금액
+        account: item.account, //계좌번호
+        favorites: item.favorites, //좋아요 유무 -> userSeq가 담김
+
+
     };
 }
 
+//investmentList에 사용
 export async function getInvestments(options = {}) {
-    console.log('[project_api] getInvestments 호출됨.');
+    console.log('[project_api] getInvestments 호출됨');
+
     try {
         const { signal, ...restOptions } = options;
         const res = await api.get('/product', { signal, ...restOptions });
@@ -38,6 +48,18 @@ export async function getInvestments(options = {}) {
         return investments;
     } catch (error) {
         console.error('[project_api] getInvestments 오류:', error);
+        throw error;
+    }
+}
+
+//investmentDetail에 사용
+export async function getInvestmentsDetail(option = {}){
+    console.log('[project_api] getInvestmentsDetail 호출됨');
+
+    try{
+
+    } catch (error){
+        console.error('[project_api] getInvestmentsDetail 오류:', error);
         throw error;
     }
 }
