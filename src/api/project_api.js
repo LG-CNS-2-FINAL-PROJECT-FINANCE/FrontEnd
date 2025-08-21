@@ -2,7 +2,7 @@ import { publicApi as api } from './axiosInstance';
 
 function mapToInvestmentCardData(item) {
     return {
-        requestId: item._id ?? item.projectId ?? item.requestId ?? item.id ?? `unique-temp-${Math.random()}`,       // 창작물 번호
+        productId: item._id ?? item.projectId ?? item.requestId ?? item.id ?? `unique-temp-${Math.random()}`,       // 창작물 번호
         userSeq: item.userSeq ?? null,           // 사용자 번호
         title: item.title ?? null,               // 제목
         amount: item.amount ?? null,             // 모금액
@@ -16,9 +16,10 @@ function mapToInvestmentCardData(item) {
         state: item.status ?? null,        // 창작물 상태
         summary: item.summary ?? null, //요약
         content: item.content ?? null, //등록 설명
+        goalAmount: item.goalAmount ?? null, //목표 금액
         minInvestment: item.minInvestment, //최소금액
         account: item.account, //계좌번호
-        favorites: item.favorites, //좋아요 유무 -> userSeq가 담김
+        // favorites: item.favorites, //좋아요 유무 -> userSeq가 담김 현재 사용X
 
 
     };
@@ -53,13 +54,31 @@ export async function getInvestments(options = {}) {
 }
 
 //investmentDetail에 사용
-export async function getInvestmentsDetail(option = {}){
-    console.log('[project_api] getInvestmentsDetail 호출됨');
+export async function getInvestmentsDetail(id, option = {}){
+    console.log(`[project_api] getInvestmentsDetail 호출됨. ID: ${id}`);
 
     try{
+        const res = await api.get(`/product/${id}`, option);
+        const payload = res.data;
+
+        const detail = mapToInvestmentCardData(payload);
+
+        detail.projectNumber = detail.productId;
+        detail.author = detail.userSeq;
+        detail.currentAmount = detail.amount;
+        // detail.minInvestment = detail.minInvestment;
+        detail.targetAmount = detail.goalAmount; // 목표 금액
+        detail.progress = detail.percent; // 진행률
+        detail.description = payload.content; // 상세 설명
+        detail.files = payload.document; // 첨부 파일
+        detail.isFavorite = payload.isFavorite ?? false; // 좋아요 여부
+        detail.isInvested = payload.isInvested ?? false; // 투자 여부
+        detail.tokenPrice = payload.tokenPrice ?? null; // 토큰 가격 -> 이건 고민해봐야함 여기서 불러올지 아니면 다른 곳에서 불러올지
+
+        return detail;
 
     } catch (error){
-        console.error('[project_api] getInvestmentsDetail 오류:', error);
+        console.error('[project_api] getInvestmentsDetail 오류(ID -> ${id}):', error);
         throw error;
     }
 }

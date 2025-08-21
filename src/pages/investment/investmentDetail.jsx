@@ -1,47 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import {useQuery} from "@tanstack/react-query";
 
 import InvestmentSummary from './investment_component/InvestmentSummary';
 import InvestmentProgress from './investment_component/InvestmentProgress';
 import InvestmentDescription from './investment_component/InvestmentDescription';
 import InvestmentFiles from './investment_component/InvestmentFiles';
 
+import {getInvestmentsDetail} from "../../api/project_api";
+
 function InvestmentDetail() {
     const { id } = useParams();
-    const [investment, setInvestment] = useState(null);
-    const [loading, setLoading] = useState(true);
 
-    const dummyReporterId = '나는1번사용잔데용';
+    const dummyReporterId = '나는1번사용잔데용'; //나중에 로그인 정보 받아와야함
 
-    useEffect(() => {
-        const dummyDetail = {
-            id: id,
-            title: `LG CNS 금융 3조 프로젝트 ${id}`,
-            projectNumber: `${id}번`,
-            startDate: '2024.01.15',
-            endDate: '2024.07.15',
-            author: '운영팀',
-            currentAmount: 85000000,
-            minInvestment: 100000,
-            targetAmount: 100000000,
-            progress: 85,
-            imageUrl: `/assets/bull.png`,
-            summary: `이 프로젝트는 ${id}번째 시도로, 혁신적인 기술을 활용하여 미래 금융 시장을 선도하고자 합니다. 초기 투자자들에게 높은 수익률을 제공할 것으로 기대됩니다.`,
-            description: `프로젝트에 대한 자세한 설명이 여기에 들어갑니다.`,
-            files: [ { name: '프로젝트 기획서.pdf', url: '/files/project_plan.pdf' } ],
-            isFavorite: false,
-            isInvested: Math.random() > 0.5,
-            tokenPrice: 10000,
-        };
-        setInvestment(dummyDetail);
-        setLoading(false);
-    }, [id]);
+    const {
+        data: investment,
+        isLoading,
+        isError,
+        error
+    } = useQuery({
+        queryKey: ['investmentDetail', id],
+        queryFn: async ({ signal }) => {
 
-    if (loading) {
+            return getInvestmentsDetail(id, { signal });
+        },
+        enabled: !!id,
+        staleTime: 5 * 60 * 1000, // 5분 동안은 fresh 상태 유지
+        cacheTime: 10 * 60 * 1000, // 캐시에 10분간 보관
+    });
+
+    if (isLoading) {
         return <div className="text-center py-20 text-gray-600">데이터를 불러오는 중입니다...</div>;
     }
 
-    if (!investment) {
+    if (isError) {
+        console.error("InvestmentDetail fetch error:", error);
+        return <div className="text-center py-20 text-red-500">에러 발생: {error?.message || '상세 정보를 불러올 수 없습니다.'}</div>;
+    }
+
+    if (!investment) { // 데이터가 존재하지 않는 경우 (예: ID는 유효했으나 서버에서 404 응답)
         return <div className="text-center py-20 text-red-500">해당 프로젝트를 찾을 수 없습니다.</div>;
     }
 
