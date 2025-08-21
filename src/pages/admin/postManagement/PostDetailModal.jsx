@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { privateApi as api } from '../../../api/axiosInstance';
 import dayjs from 'dayjs';
 
@@ -52,6 +52,7 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
     const [visible, setVisible] = useState(false); // for enter/exit animation
     const modalRef = useRef(null);
 
+    // Open animations and focus management
     useEffect(() => {
         if (open) {
             setVisible(true);
@@ -101,23 +102,16 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
         setIsUpdating(true);
         setUpdateError('');
         try {
-            const endpoint = actionType === 'approve' ?
-                '/product/request/approve' :
-                '/product/request/reject';
-
-            const payload = { requestId: post.requestId };
-
+            const endpoint = actionType === 'approve' ? '/product/request/approve' : '/product/request/reject';
+            const payload = { postNo: post.postNo };
             await api.post(endpoint, payload);
-
-            onStatusChange(post.requestId, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
+            onStatusChange(post.postNo, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
+            onClose();
         } catch (e) {
             console.error('게시물 상태 업데이트 실패:', e);
             setUpdateError(e?.response?.data?.message || '상태 업데이트에 실패했습니다. 다시 시도해주세요.');
         } finally {
             setIsUpdating(false);
-            if (!updateError) {
-                onClose();
-            }
         }
     };
 
@@ -143,9 +137,8 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
                 <div
                     ref={modalRef}
                     onMouseDown={(e) => e.stopPropagation()}
-                    className={`w-full max-w-2xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all duration-200 ${
-                        visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                    }`}
+                    className={`w-full max-w-2xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all duration-200 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+                        }`}
                 >
                     {/* Header */}
                     <div className="flex items-start justify-between gap-3 border-b border-gray-100 px-6 py-5">
@@ -179,7 +172,6 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
                         )}
 
                         <div className="grid grid-cols-1 gap-4 text-sm text-gray-700 sm:grid-cols-2">
-                            <Field label="게시물번호" value={post.requestId} />
                             <Field label="제목" value={post.title} className="sm:col-span-2" />
                             <Field label="시작일자" value={formatDate(post.startDate)} />
                             <Field label="종료일자" value={formatDate(post.endDate)} />
@@ -215,14 +207,14 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
 }
 
 function Field({ label, value, className = '' }) {
-return (
-    <div className={className}>
-    <div className="text-xs font-medium text-gray-500 mb-2">{label}</div>
-    <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-        <div className="text-gray-900 font-medium">{value || '-'}</div>
-    </div>
-    </div>
-);
+    return (
+        <div className={className}>
+            <div className="text-xs font-medium text-gray-500 mb-2">{label}</div>
+            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                <div className="text-gray-900 font-medium">{value || '-'}</div>
+            </div>
+        </div>
+    );
 }
 
 function getFocusable(root) {

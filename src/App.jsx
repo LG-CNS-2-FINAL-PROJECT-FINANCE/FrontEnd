@@ -14,12 +14,12 @@ import Asset from "./pages/asset/Asset.jsx";
 import RoleSelectionPage from "./pages/role/RoleSelectionPage";
 import AdminLogin from "./pages/admin/login/AdminLogin";
 import UserManagement from "./pages/admin/userManagement/UserManagement";
-import MyPage from "./pages/myPage/MyPage.jsx";
-import MyInvestments from "./pages/myPage/MyInvestments.jsx";
-import MyFavorites from "./pages/myPage/MyFavorites.jsx";
-import AccountManagement from "./pages/myPage/AccountManagement.jsx";
-import EditInfo from "./pages/myPage/EditInfo.jsx";
-import MyReports from "./pages/myPage/MyReports.jsx";
+import MyPage from "./pages/mypage/MyPage.jsx";
+import MyInvestments from "./pages/mypage/MyInvestments.jsx";
+import MyFavorites from "./pages/mypage/MyFavorites.jsx";
+import AccountManagement from "./pages/mypage/AccountManagement.jsx";
+import EditInfo from "./pages/mypage/EditInfo.jsx";
+import MyReports from "./pages/mypage/MyReports.jsx";
 import ReportManagement from "./pages/admin/ReportManagement";
 import PostManagement from "./pages/admin/postManagement/PostManagement";
 import Aml from "./pages/admin/Aml";
@@ -28,6 +28,7 @@ import Setting from "./pages/admin/Setting";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import ProductRegistration from "./pages/product/ProductRegistration.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
+import MyProduct from "./pages/mypage/MyProduct.jsx";
 
 
 
@@ -66,11 +67,12 @@ function App() {
               <Route path="/account-management" element={<AccountManagement />} />
               <Route path="/edit-info" element={<EditInfo />} />
               <Route path="/my-reports" element={<MyReports />} />
+              <Route path="/my-product" element={<MyProduct />} />
 
               {/*Asset*/}
               <Route path="/asset" element={<Asset />} />
                 
-             </Route>
+            </Route>
 
           {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
           <Route path="/admin/login" element={<AdminLogin />} />
