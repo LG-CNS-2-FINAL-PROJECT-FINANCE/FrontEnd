@@ -1,12 +1,13 @@
-import React, { createContext, useState, useEffect, useCallback, useRef } from 'react';
+import React, { createContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { privateApi as api } from '../api/axiosInstance';
+import { adminApiSetup } from '../api/admin_api'; //
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [accessToken, setAccessToken] = useState(null);
-    const [refreshToken, setRefreshToken] = useState(null);
-    const [user, setUser] = useState(null);
+    const [accessToken, setAccessTokenState] = useState(null);
+    const [refreshToken, setRefreshTokenState] = useState(null);
+    const [user, setUserState] = useState(null);
     const [loading, setLoading] = useState(true);
 
     const tokenRef = useRef(null);
@@ -14,28 +15,20 @@ export function AuthProvider({ children }) {
     const TOKEN_KEY_ACCESS = 'ACCESS_TOKEN';
     const TOKEN_KEY_REFRESH = 'REFRESH_TOKEN';
 
-    useEffect(() => {
-        const savedAccess = localStorage.getItem(TOKEN_KEY_ACCESS);
-        const savedRefresh = localStorage.getItem(TOKEN_KEY_REFRESH);
-        if (savedAccess) {
-            setAccessToken(savedAccess);
-            tokenRef.current = savedAccess;
-            api.defaults.headers.common['Authorization'] = `Bearer ${savedAccess}`;
-            console.log('초기 토큰 복원:', savedAccess);
-        }
-        if (savedRefresh) setRefreshToken(savedRefresh);
-        setLoading(false);
-    }, []);
+    const getAccessToken = useCallback(() => tokenRef.current, []);
+    const getRefreshToken = useCallback(() => localStorage.getItem(TOKEN_KEY_REFRESH) || refreshToken, [refreshToken]);
+
 
     const setTokens = useCallback((newAccess, newRefresh) => {
         if (newAccess) {
-            setAccessToken(newAccess);
+            setAccessTokenState(newAccess);
             tokenRef.current = newAccess;
             localStorage.setItem(TOKEN_KEY_ACCESS, newAccess);
+
             api.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
             console.log('setTokens: access set', newAccess);
         } else {
-            setAccessToken(null);
+            setAccessTokenState(null);
             tokenRef.current = null;
             localStorage.removeItem(TOKEN_KEY_ACCESS);
             if (api.defaults?.headers?.common) delete api.defaults.headers.common['Authorization'];
@@ -43,36 +36,35 @@ export function AuthProvider({ children }) {
         }
 
         if (newRefresh) {
-            setRefreshToken(newRefresh);
+            setRefreshTokenState(newRefresh);
             localStorage.setItem(TOKEN_KEY_REFRESH, newRefresh);
         } else {
-            setRefreshToken(null);
+            setRefreshTokenState(null);
             localStorage.removeItem(TOKEN_KEY_REFRESH);
         }
-    }, []);
+    }, [refreshToken]);
 
     const logout = useCallback(async () => {
-        const tokenFromRef = tokenRef.current;
-        const tokenFromStorage = localStorage.getItem(TOKEN_KEY_ACCESS);
-        const token = tokenFromRef || tokenFromStorage || null;
-
-        console.log('로그아웃 요청, token=', token);
-
+        console.log('로그아웃 요청');
         try {
-            await api.post('/user/auth/logout', {}, {
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
-                withCredentials: true,
-            });
+            const currentAccessToken = tokenRef.current;
+            if (currentAccessToken) {
+                await api.post('/user/auth/logout', {}, {
+                    headers: { Authorization: `Bearer ${currentAccessToken}` },
+                    withCredentials: true,
+                });
+            }
         } catch (e) {
-            console.warn('서버 로그아웃 실패', e?.response?.status, e?.response?.data);
+            console.warn('서버 로그아웃 실패:', e?.response?.status, e?.response?.data);
         } finally {
             setTokens(null, null);
-            setUser(null);
-            if (api.defaults?.headers?.common) delete api.defaults.headers.common['Authorization'];
+            setUserState(null);
+            console.log('로그아웃 완료: 클라이언트 상태 정리');
         }
     }, [setTokens]);
 
-    const login = async ({ adminId, password }) => {
+
+    const login = useCallback(async ({ adminId, password }) => {
         try {
             const res = await api.post('/user/auth/admin/login', { adminId, password }, { withCredentials: true });
             console.log('login res.status=', res.status);
@@ -81,22 +73,55 @@ export function AuthProvider({ children }) {
 
             const headerToken = res.headers?.authorization?.replace(/^Bearer\s+/i, '') || null;
             const { accessToken: a, refreshToken: r, user: u } = res.data || {};
+
             const finalAccess = a || headerToken;
-            console.log('extracted accessToken=', finalAccess);
 
             setTokens(finalAccess, r);
-            if (u) setUser(u);
+            setUserState(u);
+
             return res;
         } catch (err) {
             console.error('로그인 실패', err);
             throw err;
         }
-    };
+    }, [setTokens]);
+
+
+    useEffect(() => {
+        const savedAccess = localStorage.getItem(TOKEN_KEY_ACCESS);
+        const savedRefresh = localStorage.getItem(TOKEN_KEY_REFRESH);
+
+
+        setTokens(savedAccess, savedRefresh);
+
+
+        setLoading(false);
+
+        const ejectInterceptors = adminApiSetup(getAccessToken, getRefreshToken, setTokens, logout);
+
+        // cleanup: 컴포넌트 언마운트 시 인터셉터 해제
+        return () => {
+            console.log('[AuthContext] 언마운트 시 인터셉터 해제');
+            ejectInterceptors();
+        };
+    }, []);
+
+
+    const contextValue = useMemo(() => ({
+        accessToken,
+        refreshToken,
+        user,
+        setUser: setUserState,
+        loading,
+        setTokens,
+        login,
+        logout,
+        getAccessToken,
+        getRefreshToken,
+    }), [accessToken, refreshToken, user, loading, setTokens, login, logout, getAccessToken, getRefreshToken, setUserState]);
 
     return (
-        <AuthContext.Provider value={{
-            accessToken, refreshToken, user, setUser, setTokens, logout, loading
-        }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );
