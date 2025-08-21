@@ -1,66 +1,43 @@
-import { privateApi as api } from './axiosInstance';
+import { publicApi as api } from './axiosInstance';
 
-function mapToUiPost(item) {
+function mapToInvestmentCardData(item) {
     return {
-        requestId: item.project_id ?? item.requestId ?? item.id ?? null,
-        userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,
-        startDate: item.start_date ?? item.startDate ?? null,
-        endDate: item.end_date ?? item.endDate ?? null,
-        status: item.status ?? item.postStatus ?? null,
-        type: item.type ?? null,
-        title: item.title ?? null,
-        summary: item.summary ?? null,
+        requestId: item._id ?? item.project_id ?? item.requestId ?? item.id ?? `unique-temp-${Math.random()}`,       // 창작물 번호
+        userSeq: item.userSeq ?? null,           // 사용자 번호
+        title: item.title ?? null,               // 제목
+        amount: item.amount ?? null,             // 모금액
+        startDate: item.startDate ?? null, //시작일
+        endDate: item.endDate ?? null, //종료일
+        deadline: item.deadline,      // 마감기간
+        percent: item.percent,    // 달성률
+        document: item.document && item.document.length > 0 ? item.document[0].url : 'default_image.jpg', // 이미지파일
+        viewCount: item.viewCount,          // 조회수
+        state: item.state        // 창작물 상태
     };
 }
 
-export async function getPosts({
-                                   page = 1,
-                                   size = 20,
-                                   type,
-                                   q,
-                                   startDate,
-                                   endDate,
-                                   status,
-                                   signal,
-                                   title,
-                               } = {}) {
+export async function getInvestments(options = {}) {
+    console.log('[project_api] getInvestments 호출됨.');
+    try {
+        const { signal, ...restOptions } = options;
+        const res = await api.get('/product', { signal, ...restOptions });
 
-    console.log('[project_api] getPosts 호출됨. 원본 파라미터:', { page, size, type, q, startDate, endDate, status, title});
+        const payload = res.data;
 
-    const params = { page, size };
-    if (type) {
-        params.type = type;
-        params.q = q;
+        let list = [];
+        if (Array.isArray(payload)) { // 서버가 직접 배열을 반환하는 경우
+            list = payload;
+        } else if (payload.posts && Array.isArray(payload.posts)) { // 서버가 { posts: [] } 형태로 반환하는 경우
+            list = payload.posts;
+        } else if (payload.data && Array.isArray(payload.data)) { // 서버가 { data: [] } 형태로 반환하는 경우
+            list = payload.data;
+        }
+        // 다른 페이로드 구조가 있다면 여기에 추가
+
+        const investments = list.map(mapToInvestmentCardData);
+        return investments;
+    } catch (error) {
+        console.error('[project_api] getInvestments 오류:', error);
+        throw error;
     }
-    if (startDate) params.startDate = startDate;
-    if (endDate) params.endDate = endDate;
-    if (status && status !== 'ALL') params.status = status;
-    if (title) params.title = title;
-
-    console.log('[project_api] 서버로 전송될 최종 쿼리 파라미터:', params);
-
-    const res = await api.get('/product/request', { params, signal });
-    const payload = res.data;
-
-    let list = [];
-    let total = 0;
-
-    if (Array.isArray(payload)) {
-        list = payload;
-        total = payload.length;
-    } else if (payload.posts && Array.isArray(payload.posts)) {
-        list = payload.posts;
-        total = payload.total ?? payload.count ?? list.length;
-    } else if (payload.data && Array.isArray(payload.data)) {
-        list = payload.data;
-        total = payload.total ?? list.length;
-    } else {
-        list = [];
-        total = 0;
-    }
-
-    const posts = list.map(mapToUiPost);
-    return { posts, total, page, size };
 }
-
-export default { getPosts };

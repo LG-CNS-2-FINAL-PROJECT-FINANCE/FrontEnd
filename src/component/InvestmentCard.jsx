@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
 function InvestmentCard({ project }) {
+    console.log('[InvestmentCard] project prop:', project);
     const ddayValue = Number(project.dday);
     const { themeColors } = useTheme();
 
@@ -21,7 +22,10 @@ function InvestmentCard({ project }) {
             </div>
 
             <div className="p-4">
-                <div className="font-bold text-lg mb-1 truncate">{project.name}</div>
+                <div className="flex justify-between items-center text-lg mb-1">
+                    <div className="font-bold truncate min-w-0">{project.name}</div>
+                    {/*<div className="flex-shrink-0 ml-2 text-sm">{project.views}</div>*/} {/*조회수*/}
+                </div>
                 <div className="text-sm text-gray-700 mb-2">{project.amount} 유치중</div>
 
                 <div className="text-sm font-medium mb-3">
