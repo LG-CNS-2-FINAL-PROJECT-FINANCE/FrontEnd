@@ -105,14 +105,14 @@ function InvestmentListPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                             {deadlineApproachingInvestments.map(investment => (
                                 <InvestmentCard
-                                    key={investment.requestId}
+                                    key={investment.productId}
                                     project={{
-                                        id: investment.requestId,
+                                        id: investment.productId,
                                         name: investment.title,
                                         amount: formatAmount(investment.amount),
                                         dday: calculateDday(investment.deadline),
                                         progress: investment.percent,
-                                        imageUrl: investment.document,
+                                        imageUrl: investment.image,
                                         views: investment.viewCount,
                                         status: investment.state,
                                     }}
@@ -169,14 +169,14 @@ function InvestmentListPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {displayedInvestments.map(investment => (
                             <InvestmentCard
-                                key={investment.requestId}
+                                key={investment.productId}
                                 project={{
-                                    id: investment.requestId,
+                                    id: investment.productId,
                                     name: investment.title,
                                     amount: formatAmount(investment.amount),
                                     dday: calculateDday(investment.deadline),
                                     progress: investment.percent,
-                                    imageUrl: investment.document,
+                                    imageUrl: investment.image,
                                     views: investment.viewCount,
                                     status: investment.state,
                                 }}
