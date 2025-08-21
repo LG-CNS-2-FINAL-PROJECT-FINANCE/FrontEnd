@@ -2,7 +2,7 @@ import { publicApi as api } from './axiosInstance';
 
 function mapToInvestmentCardData(item) {
     return {
-        requestId: item._id ?? item.project_id ?? item.requestId ?? item.id ?? `unique-temp-${Math.random()}`,       // 창작물 번호
+        requestId: item._id ?? item.projectId ?? item.requestId ?? item.id ?? `unique-temp-${Math.random()}`,       // 창작물 번호
         userSeq: item.userSeq ?? null,           // 사용자 번호
         title: item.title ?? null,               // 제목
         amount: item.amount ?? null,             // 모금액

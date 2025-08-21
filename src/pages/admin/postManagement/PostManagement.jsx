@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
-import { getPosts } from "../../../api/admin_project_api";
-import dayjs from "dayjs";
-import { AuthContext } from "../../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useState, useRef, useContext, useMemo } from 'react';
+import { getPosts } from '../../../api/admin_project_api';
+import dayjs from 'dayjs';
+import { AuthContext } from '../../../context/AuthContext';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import PostDetailModal from '../postManagement/PostDetailModal';
 
 // 재사용 버튼
 const Button = ({ variant = 'primary', onClick, children, disabled = false }) => {
