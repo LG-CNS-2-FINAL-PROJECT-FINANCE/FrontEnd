@@ -4,10 +4,10 @@ import { AuthContext } from "../../context/AuthContext";
 
 function AdminHeader() {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  const { accessToken, user } = useContext(AuthContext);
 
   const handleLogoClick = () => {
-    if (user) navigate("/admin/user");
+    if (accessToken) navigate("/admin/user");
     else navigate("/admin/login");
   };
 
