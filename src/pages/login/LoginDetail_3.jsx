@@ -41,7 +41,7 @@ function LoginDetail_3() {
         </div>
 
         {/* 입력 필드 */}
-        <div className="flex items-center">
+        <div className="flex items-center justify-center">
           <input
             type="text"
             placeholder="닉네임을 입력하세요"

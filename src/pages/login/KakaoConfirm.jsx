@@ -3,7 +3,8 @@ import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { kakaologin } from "../../api/user_api"; // 카카오 로그인 API 함수
+import { getMe, kakaologin } from "../../api/user_api"; // 카카오 로그인 API 함수
+import useUser from "../../lib/useUser";
 
 export default function KakaoConfirm() {
   const { search } = useLocation();
@@ -12,6 +13,7 @@ export default function KakaoConfirm() {
 
   const params = new URLSearchParams(search);
   const code = params.get("code"); // 코드 가져오기
+  const { user } = useUser();
 
   const mutation = useMutation({
     mutationFn: kakaologin,
@@ -20,19 +22,21 @@ export default function KakaoConfirm() {
         position: "bottom-right",
       });
       // 로그인 후 사용자 정보 새로고침
-      await queryClient.refetchQueries({ queryKey: ["me"] });
+      const result = await queryClient.fetchQuery({
+        queryKey: ["me"],
+        queryFn: getMe,
+      });
       // 새로고침된 user 데이터 확인
-      const user = queryClient.getQueryData(["me"]);
-
-      if (user?.nickName === null || user?.nickName === undefined) {
-        // nickName이 없으면 추가 정보 입력 페이지로 이동
-        navigate("/login/2", { replace: true, state: {} });
+      console.log(result.nickname);
+      if (result?.nickname === null || result?.nickname === undefined) {
+        navigate("/login/2", { replace: true });
       } else {
-        // nickName 있으면 홈으로 이동
+        // nickname 있으면 홈으로 이동
         navigate("/", { replace: true });
       }
     },
-    onError: () => {
+    onError: (error) => {
+      console.log("error", error);
       toast.error("Login failed 😭 Please check your Kakao account", {
         position: "bottom-right",
       });

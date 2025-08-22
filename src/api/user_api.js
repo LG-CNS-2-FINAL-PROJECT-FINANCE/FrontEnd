@@ -10,11 +10,19 @@ export const kakaologin = async (code) => {
         headers: { "Content-Type": "application/json" },
       }
     );
-    const { accessToken, refreshToken } = response.data;
+    const {
+      accessToken,
+      refreshToken,
+      accessTokenExpiresAt,
+      refreshTokenExpiresAt,
+    } = response.data;
     console.log("Kakao login 성공:", response.data);
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-
+    if (accessToken) localStorage.setItem("accessToken", accessToken);
+    if (accessTokenExpiresAt)
+      localStorage.setItem("accessTokenExpiresAt", accessTokenExpiresAt);
+    if (refreshTokenExpiresAt)
+      localStorage.setItem("refreshTokenExpiresAt", refreshTokenExpiresAt);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error;
@@ -26,6 +34,7 @@ export const getMe = async () => {
     const response = await privateApi.get(`/user`);
     return response.data;
   } catch (error) {
+    console.log(error);
     throw error.response ? error.response.data : error;
   }
 };
@@ -34,6 +43,32 @@ export const registerUserInfo = async (userInfo) => {
   try {
     const response = await privateApi.post("/user/auth/register", userInfo, {
       headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const logout = async () => {
+  try {
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const response = await privateApi.post("/user/auth/logout", {
+      accessToken,
+      refreshToken,
+    });
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const selectRole = async (role) => {
+  try {
+    const response = await privateApi.post("/user/auth/role", null, {
+      params: { role },
     });
     return response.data;
   } catch (error) {

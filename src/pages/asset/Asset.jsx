@@ -1,25 +1,17 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import AssetHome from "./AssetHome";
 import MyAsset from "./MyAsset";
+import useUser from "../../lib/useUser";
 
 function Asset() {
-  const [showAssetHome, setShowAssetHome] = useState(true);
+  const { user } = useUser();
+  const [showAssetHome, setShowAssetHome] = useState();
 
   const toggleComponent = () => {
     setShowAssetHome((prev) => !prev);
   };
 
-  return (
-    <div>
-      <button
-        onClick={toggleComponent}
-        className="bg-blue-500 text-white px-4 py-2 rounded"
-      >
-        TOGGLE
-      </button>
-      {showAssetHome ? <AssetHome /> : <MyAsset />}
-    </div>
-  );
+  return <div>{showAssetHome ? <AssetHome /> : <MyAsset />}</div>;
 }
 
 export default Asset;

@@ -5,7 +5,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 function LoginDetail_2() {
   const navigate = useNavigate();
   const [error, setError] = useState(false);
-
   const [name, setName] = useState("");
 
   const handleNext = () => {

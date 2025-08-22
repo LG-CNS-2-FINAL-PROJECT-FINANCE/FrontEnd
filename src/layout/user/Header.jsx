@@ -1,56 +1,29 @@
 import { useNavigate } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { FaUser } from "react-icons/fa";
+import { LuUserRound } from "react-icons/lu";
 import useUser from "../../lib/useUser";
 import { useTheme } from "../../context/ThemeContext";
-
-// import { jwtDecode } from "jwt-decode";
 
 function Header() {
   const navigate = useNavigate();
   const { userLoading, user, isLoggedIn } = useUser();
   const { role: themeRole, themeColors } = useTheme();
 
-  const [isLogin, setIsLogin] = useState(false);
-  const [userRole, setUserRole] = useState("");
-
+  const [userRole, setUserRole] = useState(isLoggedIn ? user?.role : "");
+  // 사용자/로그인 상태 변경 시 동기화
   useEffect(() => {
-    const token = localStorage.getItem("jwtToken");
-    if (token) {
-      try {
-        const decodedToken = JSON.parse(token); // 임시 JSON.stringify로 저장된 토큰이므로 JSON.parse 사용
-        const roleFromToken = decodedToken.role || "";
-        setUserRole(roleFromToken);
-        setIsLogin(true);
-
-        // 테스트를 위해 주석 처리
-        // if (isLogin && !roleFromToken) {
-        //     navigate('/select-role');
-        // }
-      } catch (error) {
-        console.error("토큰 디코딩/파싱 오류:", error);
-        setIsLogin(false);
-        setUserRole("");
-        localStorage.removeItem("jwtToken");
-        // navigate('/login/1');
-      }
-    } else {
-      setIsLogin(false);
-      setUserRole("");
-      // navigate('/login/1');
-    }
-  }, [isLogin, navigate, themeRole]); // themeRole을 dependency에 추가
+    setUserRole(isLoggedIn ? user?.role ?? "" : "");
+  }, [isLoggedIn, user?.role]);
+  const roleLabel =
+    userRole === "CREATOR" ? "창작자" : userRole === "USER" ? "투자자" : "";
 
   // 테스트를 위한 임시 로그인/로그아웃
   const toggleLoginStatus = () => {
-    if (isLogin) {
-      localStorage.removeItem("jwtToken");
-      setIsLogin(false);
+    if (isLoggedIn) {
       setUserRole(""); // 로그아웃 시 역할 초기화
       navigate("/login/1");
     } else {
-      localStorage.setItem("jwtToken", JSON.stringify({}));
-      setIsLogin(true);
+      setUserRole("USER");
       navigate("/select-role");
     }
   };
@@ -62,7 +35,7 @@ function Header() {
 
   return (
     <div className="flex justify-between items-center w-full bg-white py-2 px-[10%]">
-      <div className="flex items-center space-x-6">
+      <div className="flex items-end space-x-8">
         <div>
           <img
             src="/assets/logo.png"
@@ -73,9 +46,9 @@ function Header() {
         </div>
 
         <>
-          <div>
+          <div className="flex">
             <span
-              className="hover:cursor-pointer"
+              className="hover:cursor-pointer font-bold"
               onClick={() => navigate("/asset")}
             >
               자산 조회
@@ -83,7 +56,7 @@ function Header() {
           </div>
           <div>
             <span
-              className="hover:cursor-pointer"
+              className="hover:cursor-pointer font-bold"
               onClick={() => navigate("/investment")}
             >
               투자 상품
@@ -91,7 +64,7 @@ function Header() {
           </div>
           <div>
             <span
-              className="hover:cursor-pointer"
+              className="hover:cursor-pointer font-bold"
               onClick={() => navigate("/market")}
             >
               토큰 거래
@@ -100,47 +73,54 @@ function Header() {
         </>
       </div>
       <div className="flex items-center space-x-4">
-        {!isLogin ? (
-          <button
-            className="bg-red-500 px-5 py-3 rounded-full text-amber-50"
-            onClick={() => navigate("/login/1")}
-          >
-            로그인
-          </button>
+        {!isLoggedIn ? (
+          <></>
         ) : (
           <div>
             <button
               className={
-                userRole === "투자자"
-                  ? "bg-red-500 px-5 py-3 rounded-full text-amber-50"
-                  : userRole === "창작자"
-                  ? "bg-blue-600 px-5 py-3 rounded-full text-amber-50"
-                  : "bg-gray-400 px-5 py-3 rounded-full text-gray-700 hover:bg-gray-500"
+                userRole === "USER"
+                  ? "bg-red-500 px-3 py-2 rounded-xl text-amber-50 hover:bg-red-700"
+                  : userRole === "CREATOR"
+                  ? "bg-blue-500 px-3 py-2 rounded-xl text-amber-50 hover:bg-blue-700"
+                  : "bg-gray-400 px-3 py-2 rounded-xl text-gray-700 hover:bg-gray-500"
               }
               onClick={handleRoleSelectionRedirect}
             >
-              {userRole || "역할 선택"}
+              {roleLabel || "역할 선택"}
             </button>
           </div>
         )}
 
-        {!isLogin ? (
-          <div>
-            <FaUser
-              className="w-10 h-10 hover:cursor-pointer"
-              onClick={() => navigate("/login/1")}
+        {userLoading ? (
+          // ✅ 로딩 중일 때
+          <div className="flex items-center justify-center w-12 h-12">
+            <span className="text-sm text-gray-400 animate-pulse">
+              Loading...
+            </span>
+          </div>
+        ) : !isLoggedIn ? (
+          // ✅ 로그인 안 한 사용자
+          <div
+            className="group flex items-center rounded-full border-1 border-gray-300 p-1 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => navigate("/login/1")}
+          >
+            <LuUserRound
+              className="w-10 h-10 text-gray-400 group-hover:text-red-500 transition-colors"
+              aria-label="로그인"
             />
           </div>
         ) : (
+          // ✅ 로그인 한 사용자
           <div>
-            {userRole === "투자자" ? (
+            {userRole === "USER" ? (
               <img
                 src="/assets/bull.png"
                 alt="투자자 아이콘"
                 className="w-12 h-12 hover:cursor-pointer"
                 onClick={() => navigate("/my-profile")}
               />
-            ) : userRole === "창작자" ? (
+            ) : userRole === "CREATOR" ? (
               <img
                 src="/assets/pig.png"
                 alt="창작자 아이콘"
@@ -148,20 +128,13 @@ function Header() {
                 onClick={() => navigate("/my-profile")}
               />
             ) : (
-              <FaUser
-                className="w-12 h-12 hover:cursor-pointer"
-                onClick={() => navigate("/my-profile")}
+              <LuUserRound
+                className="w-10 h-10 text-gray-400 hover:text-gray-600 transition-colors hover:cursor-pointer"
+                onClick={() => navigate("/login/1")}
               />
             )}
           </div>
         )}
-        {/* 로그인 테스트용 버튼 */}
-        <button
-          className="bg-gray-400 px-5 py-3 rounded-full text-white"
-          onClick={toggleLoginStatus}
-        >
-          {isLogin ? "로그아웃 (테스트)" : "로그인 (테스트)"}
-        </button>
       </div>
     </div>
   );
