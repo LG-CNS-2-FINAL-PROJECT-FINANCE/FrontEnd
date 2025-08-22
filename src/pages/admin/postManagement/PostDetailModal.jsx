@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
 import { privateApi as api } from '../../../api/axiosInstance';
 import dayjs from 'dayjs';
 
@@ -18,12 +18,12 @@ const XIcon = ({ className = 'w-5 h-5' }) => (
 
 const StatusBadge = ({ status = 'PENDING' }) => {
     const map = {
-        APPROVED: 'bg-green-100 text-green-700 ring-green-600/20',
-        REJECTED: 'bg-red-100 text-red-700 ring-red-600/20',
+        APPROVED: 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
+        REJECTED: 'bg-rose-100 text-rose-700 ring-rose-600/20',
         PENDING: 'bg-amber-100 text-amber-800 ring-amber-600/20',
     };
     const label = status;
-    const cls = map[status] || 'bg-gray-100 text-gray-700 ring-gray-600/20';
+    const cls = map[status] || 'bg-slate-100 text-slate-700 ring-slate-600/20';
     return (
         <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${cls}`}>
             {label}
@@ -31,27 +31,31 @@ const StatusBadge = ({ status = 'PENDING' }) => {
     );
 };
 
-const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children }) => {
-    const base = 'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
-
-    if (disabled && !loading) {
-        // Disabled state - grey and untouchable
-        return (
-            <button disabled className={`${base} bg-gray-400 text-white cursor-not-allowed opacity-60`}>
-                {children}
-            </button>
-        );
-    }
-
-    const styles = {
-        approve: 'bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-600 disabled:opacity-60 disabled:cursor-not-allowed',
-        reject: 'bg-rose-600 text-white hover:bg-rose-700 focus-visible:ring-rose-600 disabled:opacity-60 disabled:cursor-not-allowed',
-        secondary: 'border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 focus-visible:ring-gray-400 disabled:opacity-60 disabled:cursor-not-allowed',
-    }[kind];
+const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children, icon }) => {
+    const variants = {
+        approve: disabled || loading
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-emerald-600 text-white hover:bg-emerald-700',
+        reject: disabled || loading
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : 'bg-rose-600 text-white hover:bg-rose-700',
+        secondary: disabled || loading
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300'
+            : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50',
+    };
 
     return (
-        <button onClick={onClick} disabled={disabled || loading} className={`${base} ${styles}`}>
+        <button
+            onClick={disabled || loading ? undefined : onClick}
+            disabled={disabled || loading}
+            className={`
+                px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200
+                flex items-center gap-2 min-w-[100px] justify-center
+                ${variants[kind]}
+            `}
+        >
             {loading && <Spinner />}
+            {icon && <span>{icon}</span>}
             {children}
         </button>
     );
@@ -60,50 +64,6 @@ const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children
 export default function PostDetailModal({ open, onClose, post, onStatusChange }) {
     const [isUpdating, setIsUpdating] = useState(false);
     const [updateError, setUpdateError] = useState('');
-    const [visible, setVisible] = useState(false); // for enter/exit animation
-    const modalRef = useRef(null);
-
-    // Open animations and focus management
-    useEffect(() => {
-        if (open) {
-            setVisible(true);
-            // focus first focusable element after mount
-            setTimeout(() => {
-                const focusables = getFocusable(modalRef.current);
-                focusables[0]?.focus();
-            }, 0);
-        } else {
-            setVisible(false);
-        }
-    }, [open]);
-
-    // Keyboard handling: ESC close and focus trap
-    const handleKeyDown = useCallback((e) => {
-        if (e.key === 'Escape') {
-            e.stopPropagation();
-            onClose();
-            return;
-        }
-        if (e.key === 'Tab' && modalRef.current) {
-            const focusables = getFocusable(modalRef.current);
-            if (focusables.length === 0) return;
-            const first = focusables[0];
-            const last = focusables[focusables.length - 1];
-            if (e.shiftKey && document.activeElement === first) {
-                e.preventDefault();
-                last.focus();
-            } else if (!e.shiftKey && document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-            }
-        }
-    }, [onClose]);
-
-    useEffect(() => {
-        if (!open) return;
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [open, handleKeyDown]);
 
     if (!open || !post) return null;
 
@@ -147,81 +107,101 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
     const descId = 'post-detail-desc';
 
     return (
-        <div className="fixed inset-0 z-50" aria-labelledby={titleId} aria-describedby={descId} role="dialog" aria-modal="true">
-            {/* Backdrop */}
-            <div
-                className={`absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Muted backdrop */}
+            <div 
+                className="absolute inset-0 bg-slate-700/60 transition-opacity duration-300"
                 onClick={closeOnBackdrop}
             />
-
-            {/* Panel container to center */}
-            <div className="absolute inset-0 flex items-center justify-center p-4" onMouseDown={closeOnBackdrop}>
-                {/* Panel */}
-                <div
-                    ref={modalRef}
-                    onMouseDown={(e) => e.stopPropagation()}
-                    className={`w-full max-w-2xl transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all duration-200 ${visible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
-                        }`}
-                >
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-3 border-b border-gray-100 px-6 py-5">
-                        <div className="min-w-0">
-                            <h2 id={titleId} className="truncate text-lg font-semibold text-gray-900">
-                                게시물 상세: {post.title || '제목 없음'}
-                            </h2>
-                            <p id={descId} className="mt-1 text-sm text-gray-500">
-                                게시물 번호 {post.requestId} • 사용자 {post.userNo}
-                            </p>
+            
+            {/* Main Modal */}
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100">
+                
+                {/* Header with red background */}
+                <div className="bg-red-500 p-6 rounded-t-2xl text-white">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div>
+                                <h2 className="text-xl font-bold mb-1">
+                                    게시물 상세
+                                </h2>
+                                <p className="text-rose-100 text-sm">
+                                    {post.title || '제목 없음'}
+                                </p>
+                            </div>
                         </div>
                         <div className="flex items-center gap-3">
                             <StatusBadge status={post.status} />
                             <button
-                                type="button"
                                 onClick={onClose}
-                                className="rounded-md p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
-                                aria-label="닫기"
+                                className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center transition-colors"
                             >
-                                <XIcon />
+                                <span className="text-lg">×</span>
                             </button>
                         </div>
                     </div>
+                </div>
 
-                    {/* Body */}
-                    <div className="max-h-[70vh] overflow-y-auto px-6 py-5">
-                        {updateError && (
-                            <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700" role="alert">
-                                {updateError}
+                {/* Content */}
+                <div className="p-6">
+                    {/* Notification Messages */}
+                    {updateError && (
+                        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-center gap-2">
+                            <span className="text-lg">⚠️</span>
+                            {updateError}
+                        </div>
+                    )}
+
+                    {/* Post Information Card */}
+                    <div className="bg-slate-50 p-5 rounded-xl mb-6 border border-slate-200">
+                        <div className="mb-4">
+                            <h3 className="text-lg font-semibold text-slate-900 mb-2">게시물 정보</h3>
+                            <div className="text-sm text-slate-500 space-y-1">
+                                <div>게시물 번호: {post.requestId}</div>
+                                <div>사용자: {post.userNo}</div>
                             </div>
-                        )}
-
-                        <div className="grid grid-cols-1 gap-4 text-sm text-gray-700 sm:grid-cols-2">
-                            <Field label="제목" value={post.title} className="sm:col-span-2" />
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <Field label="제목" value={post.title} className="col-span-2" />
                             <Field label="시작일자" value={formatDate(post.startDate)} />
                             <Field label="종료일자" value={formatDate(post.endDate)} />
                             <Field label="게시물상태" value={post.status} />
-                            <Field label="요약" value={post.summary || '요약 없음'} className="sm:col-span-2" />
+                            <Field label="요약" value={post.summary || '요약 없음'} className="col-span-2" />
                         </div>
                     </div>
 
-                    {/* Footer */}
-                    <div className="flex flex-col-reverse items-stretch gap-2 border-t border-gray-100 bg-gray-50 px-6 py-4 sm:flex-row sm:items-center sm:justify-end">
-                        <ActionButton
-                            kind="approve"
-                            onClick={() => handleAction('approve')}
-                            disabled={isActionDisabled || isUpdating}
-                            loading={isUpdating}
-                        >
-                            승인
-                        </ActionButton>
-                        <ActionButton
-                            kind="reject"
-                            onClick={() => handleAction('reject')}
-                            disabled={isActionDisabled || isUpdating}
-                            loading={isUpdating}
-                        >
-                            거절
-                        </ActionButton>
-                        <ActionButton kind="secondary" onClick={onClose} disabled={isUpdating}>닫기</ActionButton>
+                    {/* Action Buttons */}
+                    <div className="space-y-4">
+                        <div className="flex flex-wrap gap-3 justify-center">
+                            <ActionButton
+                                kind="approve"
+                                onClick={() => handleAction('approve')}
+                                disabled={isActionDisabled || isUpdating}
+                                loading={isUpdating}
+                            >
+                                승인
+                            </ActionButton>
+                            
+                            <ActionButton
+                                kind="reject"
+                                onClick={() => handleAction('reject')}
+                                disabled={isActionDisabled || isUpdating}
+                                loading={isUpdating}
+                            >
+                                거절
+                            </ActionButton>
+                        </div>
+                        
+                        <div className="pt-4 border-t border-slate-200 flex justify-end">
+                            <ActionButton 
+                                kind="secondary" 
+                                onClick={onClose} 
+                                disabled={isUpdating}
+                            >
+                                닫기
+                            </ActionButton>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -232,26 +212,13 @@ export default function PostDetailModal({ open, onClose, post, onStatusChange })
 function Field({ label, value, className = '' }) {
     return (
         <div className={className}>
-            <div className="text-xs font-medium text-gray-500 mb-2">{label}</div>
-            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                <div className="text-gray-900 font-medium">{value || '-'}</div>
+            <div className="space-y-1">
+                <div className="text-slate-500 font-medium">{label}</div>
+                <div className="text-slate-900 bg-white px-3 py-2 rounded-lg border border-slate-200">
+                    {value || '-'}
+                </div>
             </div>
         </div>
-    );
-}
-
-function getFocusable(root) {
-    if (!root) return [];
-    const selectors = [
-        'a[href]',
-        'button:not([disabled])',
-        'textarea:not([disabled])',
-        'input:not([disabled])',
-        'select:not([disabled])',
-        '[tabindex]:not([tabindex="-1"])',
-    ];
-    return Array.from(root.querySelectorAll(selectors.join(','))).filter(
-        (el) => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden')
     );
 }
 
