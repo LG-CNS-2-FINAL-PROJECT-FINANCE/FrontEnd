@@ -7,6 +7,9 @@ function AssetDepositModal({ isOpen, onClose, onConfirm }) {
 
   // 화면에 보이는 값(콤마 포함)
   const [priceStr, setPriceStr] = useState("");
+  const MAX_AMOUNT = 11_000_000_000; // 최대 10억
+  const MAX_DIGITS = String(MAX_AMOUNT).length;
+
 
   if (!isOpen) return null;
 
@@ -17,14 +20,30 @@ function AssetDepositModal({ isOpen, onClose, onConfirm }) {
   const formatNumber = (digits) => digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   const handlePriceChange = (e) => {
-    // 숫자만 남기고 나머지 제거
-    const onlyDigits = e.target.value.replace(/[^\d]/g, "");
-    // 빈값은 그대로 빈문자열 유지
-    if (onlyDigits === "") {
+    // 숫자만 추출
+    let onlyDigits = e.target.value.replace(/[^\d]/g, "");
+
+    // 자리수 제한 (콤마 제외 순수 숫자 기준)
+    if (onlyDigits.length > MAX_DIGITS) {
+      onlyDigits = onlyDigits.slice(0, MAX_DIGITS);
+    }
+
+    // 값 숫자로
+    let numeric = Number(onlyDigits);
+
+    // 0 또는 빈 문자열
+    if (!onlyDigits) {
       setPriceStr("");
       return;
     }
-    // 콤마 포맷 적용
+
+    // 최대값 초과 시 무시(현재 값 유지) 또는 clamp
+    if (numeric > MAX_AMOUNT) {
+      // 1) 무시 → 그냥 return (입력 불가)
+      return;
+      // 2) clamp 원하면 위 return 지우고 numeric = MAX_AMOUNT; onlyDigits = String(MAX_AMOUNT);
+    }
+
     setPriceStr(formatNumber(onlyDigits));
   };
 
@@ -56,14 +75,13 @@ function AssetDepositModal({ isOpen, onClose, onConfirm }) {
         <hr className="mb-6" />
 
         <div className="mb-4">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mt-2">
             <div className="flex gap-2 items-center text-gray-600">
-              <span>실명 계좌</span>
+              <span>최대 입금 가능</span>
               <CiCircleQuestion />
             </div>
-            <span className="text-gray-500">100012641093</span>
+            <span className="text-gray-500">9,999,999,999원</span>
           </div>
-
           <input
             type="text" // number 대신 text로 변경(콤마 표시용)
             inputMode="numeric" // 모바일에서 숫자 키패드

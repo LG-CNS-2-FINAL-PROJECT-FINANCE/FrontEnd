@@ -11,6 +11,7 @@ export default function useUser() {
     enabled: hasToken,
     retry: false,
   });
+  
   return {
     userLoading: hasToken ? isLoading : false,
     user: data,

@@ -1,6 +1,49 @@
 import CardSwap, { Card } from "./CardSwap";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createMyAccount,createMyWallet } from "../../api/asset_api";
+import { toast } from "react-toastify";
 
 function AssetHome() {
+  const queryClient = useQueryClient();
+  const accountMutation = useMutation({
+    mutationFn: createMyAccount,
+    onSuccess: async () => {
+      toast.success("계좌가 생성되었습니다! 🎉", {
+        position: "bottom-right",
+      });
+      // account 캐시 최신화
+      await queryClient.refetchQueries({ queryKey: ["account"] });
+    },
+    onError: (err) => {
+      const msg =
+        err?.response?.data?.message ||
+        "계좌 생성에 실패했어요. 다시 시도해 주세요.😢";
+      toast.error(msg, { position: "bottom-right" });
+    },
+  });
+  const walletMutation = useMutation({
+    mutationFn: createMyWallet,
+    onSuccess: async() => {
+      toast.success("지갑이 생성되었습니다! 🎉", {
+        position: "bottom-right",
+      });
+      // wallet 캐시 최신화
+      await queryClient.refetchQueries({ queryKey: ["wallet"] });
+    },
+    onError: (err) => {
+      const msg =
+        err?.response?.data?.message ||
+        "지갑 생성에 실패했어요. 다시 시도해 주세요.😢";
+      toast.error(msg, { position: "bottom-right" });
+    },
+  });
+
+  const handleClick = () => {
+    // 계좌 생성 로직
+    console.log("계좌 및 지갑 생성");
+    accountMutation.mutate();
+    walletMutation.mutate();
+  };
   return (
     <div className="relative rounded-lg h-screen flex items-center justify-center">
       {/* CardSwap 컴포넌트 */}
@@ -41,8 +84,8 @@ function AssetHome() {
         <p className="text-lg text-gray-500 mb-6">
           쪼개몰에서 쉽고 간단하고 안전하게 시작하세요.
         </p>
-        <button className="bg-red-500 text-white px-6 py-3 rounded-lg font-bold">
-          계좌 생성하기
+        <button onClick={handleClick} className="bg-red-500 text-white px-6 py-3 rounded-lg font-bold">
+          계좌 및 지갑 생성하기
         </button>
       </div>
     </div>

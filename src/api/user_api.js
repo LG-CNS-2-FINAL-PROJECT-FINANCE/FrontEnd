@@ -1,8 +1,6 @@
 import { privateApi, publicApi } from "./axiosInstance.js";
 
 export const kakaologin = async (code) => {
-  console.log("Kakao login API 호출");
-  console.log("Code:", code);
   try {
     const response = await publicApi.post(
       `/user/auth/login?code=${code.code}`,
@@ -31,7 +29,7 @@ export const kakaologin = async (code) => {
 
 export const getMe = async () => {
   try {
-    const response = await privateApi.get(`/user`);
+    const response = await privateApi.get(`/user/info`);
     return response.data;
   } catch (error) {
     console.log(error);
@@ -41,7 +39,7 @@ export const getMe = async () => {
 
 export const registerUserInfo = async (userInfo) => {
   try {
-    const response = await privateApi.post("/user/auth/register", userInfo, {
+    const response = await privateApi.post("/user/register", userInfo, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;
@@ -67,7 +65,7 @@ export const logout = async () => {
 
 export const selectRole = async (role) => {
   try {
-    const response = await privateApi.post("/user/auth/role", null, {
+    const response = await privateApi.post("/user/role", null, {
       params: { role },
     });
     return response.data;

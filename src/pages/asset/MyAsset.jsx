@@ -5,7 +5,10 @@ import AssetWithdrawModal from "./modals/AssetWithdrawModal";
 import { toast } from "react-toastify";
 import AssetCheckModal from "./modals/AssetCheckModal";
 
-function MyAsset() {
+function MyAsset({ account, wallet }) {
+
+  console.log("MyAsset account:", account);
+  console.log("MyAsset wallet:", wallet);
   const transactions = [
     {
       date: "07/15/2024",
@@ -285,6 +288,7 @@ function MyAsset() {
   };
 
   const notify = () => toast("Copied to clipboard!");
+  const formatNumber = (digits) => digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
   return (
     <div className="mt-8 mb-16">
@@ -297,10 +301,10 @@ function MyAsset() {
         <div className="flex-col items-center gap-2">
           <span className="text-gray-500 text-sm">계좌 번호</span>
           <div className="flex items-center gap-2">
-            <p className="text-md">1234567890</p>
+            <p className="text-md">{account.bankNumber}</p>
             <button
               onClick={() => {
-                copyToClipboard("1234567890");
+                copyToClipboard(account.bankNumber);
                 notify();
               }}
               className="text-gray-400 hover:text-gray-600"
@@ -312,10 +316,10 @@ function MyAsset() {
         <div className="flex-col items-center gap-2">
           <span className="text-gray-500 text-sm">지갑 번호</span>
           <div className="flex items-center gap-2">
-            <p className="text-md">9876543210</p>
+            <p className="text-md">{wallet}</p>
             <button
               onClick={() => {
-                copyToClipboard("9876543210");
+                copyToClipboard(wallet);
                 notify();
               }}
               className="text-gray-400 hover:text-gray-600"
@@ -362,7 +366,7 @@ function MyAsset() {
               <span className="text-gray-300">|</span>
               <div className="text-center">
                 <span className="text-gray-500 text-sm">잔액</span>
-                <p className="text-3xl font-bold">1,412,413,000원</p>
+                <p className="text-3xl font-bold">{formatNumber(account.deposit.toString())} 원</p>
               </div>
               <span className="text-gray-300">|</span>
               <div className="text-center">

@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import useScrollLock from "../../../component/useScrollLock";
 import { CiCircleQuestion } from "react-icons/ci";
+import { useQueryClient } from "@tanstack/react-query";
 
 function AssetWithdrawModal({ isOpen, onClose, onConfirm }) {
   useScrollLock(isOpen);
-
-  // ...existing code...
+  const queryClient = useQueryClient();
+  const account = queryClient.getQueryData(["account"]);
+  const maxWithdraw = useMemo(
+      () => Number(account?.deposit || 0),
+      [account]
+    );
   // 콤마 포함 문자열 상태로 관리
   const [priceStr, setPriceStr] = useState("");
 
@@ -20,19 +25,29 @@ function AssetWithdrawModal({ isOpen, onClose, onConfirm }) {
 
   // 숫자만 유지하면서 콤마 적용
   const handlePriceChange = (e) => {
-    const onlyDigits = e.target.value.replace(/[^\d]/g, "");
+    let onlyDigits = e.target.value.replace(/[^\d]/g, "");
     if (onlyDigits === "") {
       setPriceStr("");
       return;
     }
+
+    let numeric = Number(onlyDigits);
+
+    // 최대 금액 초과 시 최대값으로 클램프
+    if (numeric > maxWithdraw) {
+      numeric = maxWithdraw;
+      onlyDigits = String(maxWithdraw);
+    }
     setPriceStr(formatNumber(onlyDigits));
   };
 
-  // 제출 시 콤마 제거 후 숫자로 변환
+  const numericAmount = Number(priceStr.replaceAll(",", "") || 0);
+  const isMax = numericAmount === maxWithdraw && numericAmount > 0;
+  const isZero = !numericAmount || numericAmount <= 0;
+
   const handleSubmit = () => {
-    const amount = Number(priceStr.replaceAll(",", ""));
-    if (!amount || amount <= 0) return;
-    onConfirm(amount); // 부모에서 다음 단계 처리
+    if (isZero || numericAmount > maxWithdraw) return;
+    onConfirm(numericAmount);
   };
 
   return (
@@ -67,7 +82,7 @@ function AssetWithdrawModal({ isOpen, onClose, onConfirm }) {
               <span>출금 가능</span>
               <CiCircleQuestion />
             </div>
-            <span className="text-gray-500">12,000,000</span>
+            <span className="text-gray-500">{formatNumber(String(account.deposit))} 원 </span>
           </div>
 
           <input
