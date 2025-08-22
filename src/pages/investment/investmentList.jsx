@@ -25,7 +25,7 @@ const calculateDday = (ddayNum) => {
     ddayNum = Number(ddayNum);
 
     if (ddayNum < 0) return '마감';
-    if (ddayNum === 0) return '오늘 마감';
+    if (ddayNum === 0) return 0;
     return `${ddayNum}`;
 };
 
@@ -59,7 +59,7 @@ function InvestmentListPage() {
 
         filtered.sort((a, b) => {
             if (currentSort === SORT_OPTIONS.LATEST) {
-                return b.projectId - a.projectId; // requestId가 높을수록 최신
+                return b.projectId - a.projectId; // ProjectId가 높을수록 최신
             } else if (currentSort === SORT_OPTIONS.VIEWS) {
                 return b.viewCount - a.viewCount; // viewCount 기준으로 조회수 높은 순
             } else if (currentSort === SORT_OPTIONS.DEADLINE) {

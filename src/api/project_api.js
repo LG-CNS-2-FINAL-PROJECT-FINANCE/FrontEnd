@@ -11,7 +11,7 @@ function mapToInvestmentCardData(item) {
         endDate: item.endDate ?? null, //종료일
         deadline: item.deadline ?? null,      // 마감기간
         percent: item.percent ?? null,    // 달성률
-        DefaultImageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image[0] : 'default_image.jpg', // 이미지파일 첫 번째 파일
+        DefaultImageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image[0] : 'bull.png', // 이미지파일 첫 번째 파일
         imageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image : [], // 이미지파일 모든 파일
         document: item.document ?? null, //문서 파일
         viewCount: item.viewCount ?? null,          // 조회수

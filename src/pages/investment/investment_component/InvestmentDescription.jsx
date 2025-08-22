@@ -36,7 +36,7 @@ function InvestmentDescription({ imageUrl, summary, description }) {
             {hasImages ? (
                 <div className="relative w-full mb-6">
                     <img
-                        src={currentImageSrc.startsWith('http') ? currentImageSrc : `/assets/${currentImageSrc}`}
+                        src={currentImageSrc.startsWith('http') ? currentImageSrc : `/${currentImageSrc}`}
                         alt="프로젝트 이미지"
                         className="w-full rounded-lg max-h-96 object-contain mx-auto"
                     />
