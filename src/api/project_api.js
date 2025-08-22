@@ -1,66 +1,84 @@
-import { privateApi as api } from './axiosInstance';
+import { publicApi as api } from './axiosInstance';
 
-function mapToUiPost(item) {
+function mapToInvestmentCardData(item) {
     return {
-        requestId: item.project_id ?? item.requestId ?? item.id ?? null,
-        userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,
-        startDate: item.start_date ?? item.startDate ?? null,
-        endDate: item.end_date ?? item.endDate ?? null,
-        status: item.status ?? item.postStatus ?? null,
-        type: item.type ?? null,
-        title: item.title ?? null,
-        summary: item.summary ?? null,
+        productId: item._id ?? item.projectId ?? item.requestId ?? item.id ?? `unique-temp-${Math.random()}`,       // 창작물 번호
+        userSeq: item.userSeq ?? null,           // 사용자 번호
+        title: item.title ?? null,               // 제목
+        amount: item.amount ?? null,             // 모금액
+        startDate: item.startDate ?? null, //시작일
+        endDate: item.endDate ?? null, //종료일
+        deadline: item.deadline ?? null,      // 마감기간
+        percent: item.percent ?? null,    // 달성률
+        image: item.image && item.image.length > 0 ? item.image[0].url : 'default_image.jpg', // 이미지파일
+        document: item.document ?? null, //문서 파일
+        viewCount: item.viewCount ?? null,          // 조회수
+        state: item.status ?? null,        // 창작물 상태
+        summary: item.summary ?? null, //요약
+        content: item.content ?? null, //등록 설명
+        goalAmount: item.goalAmount ?? null, //목표 금액
+        minInvestment: item.minInvestment, //최소금액
+        account: item.account, //계좌번호
+        // favorites: item.favorites, //좋아요 유무 -> userSeq가 담김 현재 사용X
+
+
     };
 }
 
-export async function getPosts({
-                                   page = 1,
-                                   size = 20,
-                                   type,
-                                   q,
-                                   startDate,
-                                   endDate,
-                                   status,
-                                   signal,
-                                   title,
-                               } = {}) {
+//investmentList에 사용
+export async function getInvestments(options = {}) {
+    console.log('[project_api] getInvestments 호출됨');
 
-    console.log('[project_api] getPosts 호출됨. 원본 파라미터:', { page, size, type, q, startDate, endDate, status, title});
+    try {
+        const { signal, ...restOptions } = options;
+        const res = await api.get('/product', { signal, ...restOptions });
 
-    const params = { page, size };
-    if (type) {
-        params.type = type;
-        params.q = q;
+        const payload = res.data;
+
+        let list = [];
+        if (Array.isArray(payload)) { // 서버가 직접 배열을 반환하는 경우
+            list = payload;
+        } else if (payload.posts && Array.isArray(payload.posts)) { // 서버가 { posts: [] } 형태로 반환하는 경우
+            list = payload.posts;
+        } else if (payload.data && Array.isArray(payload.data)) { // 서버가 { data: [] } 형태로 반환하는 경우
+            list = payload.data;
+        }
+        // 다른 페이로드 구조가 있다면 여기에 추가
+
+        const investments = list.map(mapToInvestmentCardData);
+        return investments;
+    } catch (error) {
+        console.error('[project_api] getInvestments 오류:', error);
+        throw error;
     }
-    if (startDate) params.startDate = startDate;
-    if (endDate) params.endDate = endDate;
-    if (status && status !== 'ALL') params.status = status;
-    if (title) params.title = title;
-
-    console.log('[project_api] 서버로 전송될 최종 쿼리 파라미터:', params);
-
-    const res = await api.get('/product/request', { params, signal });
-    const payload = res.data;
-
-    let list = [];
-    let total = 0;
-
-    if (Array.isArray(payload)) {
-        list = payload;
-        total = payload.length;
-    } else if (payload.posts && Array.isArray(payload.posts)) {
-        list = payload.posts;
-        total = payload.total ?? payload.count ?? list.length;
-    } else if (payload.data && Array.isArray(payload.data)) {
-        list = payload.data;
-        total = payload.total ?? list.length;
-    } else {
-        list = [];
-        total = 0;
-    }
-
-    const posts = list.map(mapToUiPost);
-    return { posts, total, page, size };
 }
 
-export default { getPosts };
+//investmentDetail에 사용
+export async function getInvestmentsDetail(id, option = {}){
+    console.log(`[project_api] getInvestmentsDetail 호출됨. ID: ${id}`);
+
+    try{
+        const res = await api.get(`/product/${id}`, option);
+        const payload = res.data;
+
+        const detail = mapToInvestmentCardData(payload);
+
+        detail.projectNumber = detail.productId;
+        detail.author = detail.userSeq;
+        detail.currentAmount = detail.amount;
+        // detail.minInvestment = detail.minInvestment;
+        detail.targetAmount = detail.goalAmount; // 목표 금액
+        detail.progress = detail.percent; // 진행률
+        detail.description = payload.content; // 상세 설명
+        detail.files = payload.document; // 첨부 파일
+        detail.isFavorite = payload.isFavorite ?? false; // 좋아요 여부
+        detail.isInvested = payload.isInvested ?? false; // 투자 여부
+        detail.tokenPrice = payload.tokenPrice ?? null; // 토큰 가격 -> 이건 고민해봐야함 여기서 불러올지 아니면 다른 곳에서 불러올지
+
+        return detail;
+
+    } catch (error){
+        console.error('[project_api] getInvestmentsDetail 오류(ID -> ${id}):', error);
+        throw error;
+    }
+}

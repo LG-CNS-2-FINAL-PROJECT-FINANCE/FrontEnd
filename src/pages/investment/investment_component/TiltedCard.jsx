@@ -8,24 +8,24 @@ const springValues = {
 };
 
 export default function TiltedCard({
-                                       imageSrc,
-                                       altText = "Tilted card image",
-                                       captionText = "",
-                                       containerHeight = "300px",
-                                       containerWidth = "100%",
-                                       imageHeight = "300px",
-                                       imageWidth = "300px",
-                                       scaleOnHover = 1.1,
-                                       rotateAmplitude = 14,
-                                       showMobileWarning = true,
-                                       showTooltip = true,
-                                       overlayContent = null,
-                                       displayOverlayContent = false,
-                                       onClick,
-                                       isDisabled = false,
-                                       children,
-                                       nonTiltingContent = null,
-                                   }) {
+                                    imageSrc,
+                                    altText = "Tilted card image",
+                                    captionText = "",
+                                    containerHeight = "300px",
+                                    containerWidth = "100%",
+                                    imageHeight = "300px",
+                                    imageWidth = "300px",
+                                    scaleOnHover = 1.1,
+                                    rotateAmplitude = 14,
+                                    showMobileWarning = true,
+                                    showTooltip = true,
+                                    overlayContent = null,
+                                    displayOverlayContent = false,
+                                    onClick,
+                                    isDisabled = false,
+                                    children,
+                                    nonTiltingContent = null,
+                                }) {
     const ref = useRef(null);
     const x = useMotionValue(0);
     const y = useMotionValue(0);

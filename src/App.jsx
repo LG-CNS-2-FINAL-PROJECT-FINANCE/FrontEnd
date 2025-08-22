@@ -14,6 +14,13 @@ import Asset from "./pages/asset/Asset.jsx";
 import RoleSelectionPage from "./pages/role/RoleSelectionPage";
 import AdminLogin from "./pages/admin/login/AdminLogin";
 import UserManagement from "./pages/admin/userManagement/UserManagement";
+import MyPage from "./pages/mypage/MyPage.jsx";
+import MyInvestments from "./pages/mypage/MyInvestments.jsx";
+import MyFavorites from "./pages/mypage/MyFavorites.jsx";
+import AccountManagement from "./pages/mypage/AccountManagement.jsx";
+import EditInfo from "./pages/mypage/EditInfo.jsx";
+import MyReports from "./pages/mypage/MyReports.jsx";
+import MyEditRequest from "./pages/mypage/MyEditRequest.jsx";
 import ReportManagement from "./pages/admin/ReportManagement";
 import PostManagement from "./pages/admin/postManagement/PostManagement";
 import Aml from "./pages/admin/Aml";
@@ -22,6 +29,7 @@ import Setting from "./pages/admin/Setting";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import ProductRegistration from "./pages/product/ProductRegistration.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
+import MyProduct from "./pages/mypage/MyProduct.jsx";
 import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
 import MyPage from "./pages/mypage/MyPage.jsx";
 import MyInvestments from "./pages/mypage/MyInvestments.jsx";
@@ -29,6 +37,8 @@ import MyFavorites from "./pages/mypage/MyFavorites.jsx";
 import AccountManagement from "./pages/mypage/AccountManagement.jsx";
 import EditInfo from "./pages/mypage/EditInfo.jsx";
 import MyReports from "./pages/mypage/MyReports.jsx";
+
+
 
 
 function App() {
@@ -45,7 +55,7 @@ function App() {
               <Route index element={<Home />}></Route>
               {/*로그인 페이지*/}
               <Route path="/login/:id" element={<Login />}></Route>
-              <Route path="/login/kakaoConfirm" element={<KakaoConfirm />} />
+              <Route path="/login/kakaoConfirm" element={<KakaoConfirm />}></Route>
               {/*역할 선택 페이지*/}
               <Route path="/select-role" element={<RoleSelectionPage />} />
 
@@ -54,12 +64,7 @@ function App() {
               <Route path="investment/:id" element={<InvestmentDetail />} />
 
               {/*Product Registration*/}
-              {
-                <Route
-                  path="/product-registration"
-                  element={<ProductRegistration />}
-                />
-              }
+              {<Route path="/product-registration" element={<ProductRegistration />} />}
 
               {/*Market*/}
               <Route path="/market" element={<Market />} />
@@ -69,19 +74,18 @@ function App() {
               <Route path="/my-profile" element={<MyPage />} />
               <Route path="/my-investments" element={<MyInvestments />} />
               <Route path="/my-favorites" element={<MyFavorites />} />
-              <Route
-                path="/account-management"
-                element={<AccountManagement />}
-              />
+              <Route path="/account-management" element={<AccountManagement />} />
               <Route path="/edit-info" element={<EditInfo />} />
               <Route path="/my-reports" element={<MyReports />} />
+              <Route path="/my-edit-request" element={<MyEditRequest />} />
+              <Route path="/my-product" element={<MyProduct />} />
 
               {/*Asset*/}
               <Route path="/asset" element={<Asset />} />
+
             </Route>
 
-            {/*관리자 로그인 페이지*/}
-            {/*얘는 헤더가 없음*/}
+            {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
             <Route path="/admin/login" element={<AdminLogin />} />
             {/*관리자 페이지 헤더*/}
             <Route path="/admin" element={<AdminLayout />}>
@@ -91,10 +95,8 @@ function App() {
               <Route path="aml" element={<Aml />}></Route>
               <Route path="frauddetection" element={<FraudDetection />}></Route>
               <Route path="settings" element={<Setting />}></Route>
-              <Route
-                path="systemmonitoring"
-                element={<SystemMonitoring />}
-              ></Route>
+              <Route path="systemmonitoring" element={<SystemMonitoring />}></Route>
+
             </Route>
           </Routes>
         </div>

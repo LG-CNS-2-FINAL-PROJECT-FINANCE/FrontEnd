@@ -27,7 +27,7 @@ export default function AdminLogin() {
             const res = await api.post(
                 '/user/auth/admin/login',
                 { adminId: adminId.trim(), password: pw },
-                { withCredentials: true } // 서버가 쿠키를 쓴다면 true로
+                { withCredentials: false } // 서버가 쿠키를 쓴다면 true로
             );
 
             console.log('response status:', res.status);
