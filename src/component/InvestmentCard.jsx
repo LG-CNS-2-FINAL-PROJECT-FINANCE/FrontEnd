@@ -2,20 +2,21 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 
-function InvestmentCard({ project }) {
+function InvestmentCard({ project, imageUrl }) {
     console.log('[InvestmentCard] project prop:', project);
+    console.log('[InvestmentCard] image prop:', imageUrl);
     const ddayValue = Number(project.dday);
     const { themeColors } = useTheme();
 
     return (
         <Link
-            to={`/investment/${project.id}`}
+            to={`/investment/${project.projectId}`}
             className="block bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg hover:scale-105 transition-all duration-300"
         >
             {/* 프로젝트 이미지 (임시) */}
             <div className="w-full h-40 bg-gray-300 flex items-center justify-center text-gray-500 text-sm">
-                {project.imageUrl ? (
-                    <img src={`/assets/${project.imageUrl}`} alt={project.name} className="w-full h-full object-cover" />
+                {imageUrl ? (
+                    <img src={`${imageUrl}`} alt={project.name} className="w-full h-full object-cover" />
                 ) : (
                     "이미지 없음"
                 )}
