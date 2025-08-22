@@ -1,32 +1,37 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TiltedCard from "../investment/investment_component/TiltedCard";
 import { useTheme } from "../../context/ThemeContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { selectRole } from "../../api/user_api";
+import { toast } from "react-toastify";
+import useUser from "../../lib/useUser";
 
 function RoleSelectionPage() {
+  const queryClient = useQueryClient();
+  const { user } = useUser();
   const navigate = useNavigate();
-  const [currentRole, setCurrentRole] = useState("");
+  const [currentRole, setCurrentRole] = useState(user.role || "USER");
   const { updateRole } = useTheme();
 
-  useEffect(() => {
-    const token = localStorage.getItem("jwtToken");
-    if (token) {
-      try {
-        const decodedToken = JSON.parse(token);
-        if (decodedToken.role) {
-          setCurrentRole(decodedToken.role);
-        }
-      } catch (error) {
-        console.error("토큰 디코딩/파싱 오류:", error);
-        localStorage.removeItem("jwtToken");
-        setCurrentRole("");
-      }
-    }
-  }, []);
-
+  const mutation = useMutation({
+    mutationFn: selectRole,
+    currentRole,
+    onSuccess: async () => {
+      // 역할 변경 성공 시 처리
+      toast.success(`역할이 ${currentRole}로 변경되었습니다! 🎉`, {
+        position: "bottom-right",
+      });
+      await queryClient.refetchQueries({ queryKey: ["me"] });
+      setCurrentRole("USER");
+      navigate("/");
+    },
+    onError: (error) => {
+      console.error("역할 변경 오류:", error);
+    },
+  });
   const handleRoleSelect = (selectedRole) => {
     if (selectedRole === currentRole) {
-      alert(`이미 ${selectedRole} 역할입니다.`);
       return;
     }
 
@@ -38,16 +43,11 @@ function RoleSelectionPage() {
     }
 
     token.role = selectedRole;
-    localStorage.setItem("jwtToken", JSON.stringify(token));
 
     // 테마 업데이트
     updateRole(selectedRole);
-
-    alert(`역할이 ${selectedRole}으로 변경되었습니다.`);
     setCurrentRole(selectedRole);
-
-    // 모든 역할이 investment로 이동
-    navigate("/investment");
+    mutation.mutate(selectedRole);
   };
 
   return (
@@ -72,19 +72,19 @@ function RoleSelectionPage() {
             <TiltedCard
               imageSrc="/assets/bull.png"
               altText="투자자"
-              // captionText="투자자" // 툴팁 텍스트
-              containerHeight="320px" // 이미지와 텍스트를 담을 컨테이너 높이
-              containerWidth="100%" // 부모 컨테이너 너비에 맞춤
-              imageHeight="256px" // 이미지 자체의 크기
-              imageWidth="256px" // 이미지 자체의 크기
+              containerHeight="320px"
+              containerWidth="100%"
+              imageHeight="256px"
+              imageWidth="256px"
               rotateAmplitude={12}
               scaleOnHover={1.15}
               showMobileWarning={false}
-              showTooltip={true} // 툴팁 활성화
-              displayOverlayContent={true} // 오버레이 콘텐츠 표시
+              showTooltip={true}
+              displayOverlayContent={true}
               overlayContent={false}
-              onClick={() => handleRoleSelect("투자자")}
-              isDisabled={currentRole === "투자자"}
+              onClick={() => handleRoleSelect("USER")}
+              // ✅ USER 역할일 때 비활성화
+              isDisabled={currentRole === "USER"}
               nonTiltingContent={
                 <span className="font-extrabold text-4xl text-red-500">
                   투자자
@@ -100,7 +100,6 @@ function RoleSelectionPage() {
             <TiltedCard
               imageSrc="/assets/pig.png"
               altText="창작자"
-              // captionText="창작자"
               containerHeight="320px"
               containerWidth="100%"
               imageHeight="256px"
@@ -110,14 +109,10 @@ function RoleSelectionPage() {
               showMobileWarning={false}
               showTooltip={true}
               displayOverlayContent={true}
-              overlayContent={
-                false
-                /*<div className="inset-0 flex flex-col items-end justify-start">
-                                    <span className="font-extrabold mb-2 text-2xl text-blue-500">창작자</span>
-                                </div>*/
-              }
-              onClick={() => handleRoleSelect("창작자")}
-              isDisabled={currentRole === "창작자"}
+              overlayContent={false}
+              onClick={() => handleRoleSelect("CREATOR")}
+              // ✅ CREATOR 역할일 때 비활성화
+              isDisabled={currentRole === "CREATOR"}
               nonTiltingContent={
                 <span className="font-extrabold text-4xl text-blue-500">
                   창작자

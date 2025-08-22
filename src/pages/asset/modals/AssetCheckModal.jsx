@@ -1,3 +1,5 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { depositAccount, withdrawalAccount } from "../../../api/asset_api";
 import useScrollLock from "../../../component/useScrollLock";
 import { toast } from "react-toastify";
 
@@ -9,20 +11,48 @@ function AssetCheckModal({
   type = "입금",
 }) {
   useScrollLock(isOpen);
-  if (!isOpen) return null;
-
+  const queryClient = useQueryClient();
+  const depositMutation = useMutation({
+    mutationFn: depositAccount,
+    onSuccess: async () => {
+      console.log("계좌 입금 성공!");
+      queryClient.refetchQueries({ queryKey: ["account"] });
+    },
+    onError: (err) => {
+      const msg =
+        err?.response?.data?.message ||
+        "계좌 입금에 실패했어요. 다시 시도해 주세요.😢";
+      toast.error(msg, { position: "bottom-right" });
+    },
+  });
+  const withdrawalMutation = useMutation({
+    mutationFn: withdrawalAccount,
+    onSuccess: async() => {
+      console.log("계좌 출금 성공!");
+      queryClient.refetchQueries({ queryKey: ["account"] });
+    },
+    onError: (err) => {
+      const msg =
+        err?.response?.data?.message ||
+        "계좌 출금에 실패했어요. 다시 시도해 주세요.😢";
+      toast.error(msg, { position: "bottom-right" });
+    },
+  });
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
-
+  
   const handleConfirm = () => {
     // 부모에서 모든 모달을 닫도록 위임
     onConfirmAll?.();
-    toast.success(`${type}이 완료되었습니다.`, {
-      style: { backgroundColor: "#fff", color: "#111" },
-      progressStyle: { backgroundColor: "#ef4444" },
-    });
+    // 입금 또는 출금 처리
+    if (type === "입금") {
+      depositMutation.mutate(amount);
+    } else {
+      withdrawalMutation.mutate(amount);
+    }
   };
+  if (!isOpen) return null;
 
   return (
     <div

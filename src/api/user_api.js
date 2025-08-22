@@ -1,8 +1,6 @@
 import { privateApi, publicApi } from "./axiosInstance.js";
 
 export const kakaologin = async (code) => {
-  console.log("Kakao login API 호출");
-  console.log("Code:", code);
   try {
     const response = await publicApi.post(
       `/user/auth/login?code=${code.code}`,
@@ -10,11 +8,19 @@ export const kakaologin = async (code) => {
         headers: { "Content-Type": "application/json" },
       }
     );
-    const { accessToken, refreshToken } = response.data;
+    const {
+      accessToken,
+      refreshToken,
+      accessTokenExpiresAt,
+      refreshTokenExpiresAt,
+    } = response.data;
     console.log("Kakao login 성공:", response.data);
-    localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken);
-
+    if (accessToken) localStorage.setItem("accessToken", accessToken);
+    if (accessTokenExpiresAt)
+      localStorage.setItem("accessTokenExpiresAt", accessTokenExpiresAt);
+    if (refreshTokenExpiresAt)
+      localStorage.setItem("refreshTokenExpiresAt", refreshTokenExpiresAt);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error;
@@ -23,9 +29,10 @@ export const kakaologin = async (code) => {
 
 export const getMe = async () => {
   try {
-    const response = await privateApi.get(`/user`);
+    const response = await privateApi.get(`/user/info`);
     return response.data;
   } catch (error) {
+    console.log(error);
     throw error.response ? error.response.data : error;
   }
 };
@@ -34,6 +41,32 @@ export const registerUserInfo = async (userInfo) => {
   try {
     const response = await privateApi.post("/user/register", userInfo, {
       headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const logout = async () => {
+  try {
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+    const response = await privateApi.post("/user/auth/logout", {
+      accessToken,
+      refreshToken,
+    });
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
+
+export const selectRole = async (role) => {
+  try {
+    const response = await privateApi.post("/user/role", null, {
+      params: { role },
     });
     return response.data;
   } catch (error) {

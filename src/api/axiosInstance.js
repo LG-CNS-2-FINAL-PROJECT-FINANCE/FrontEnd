@@ -5,6 +5,11 @@ import axios from "axios";
 const getAccessToken = () => localStorage.getItem("accessToken");
 const setAccessToken = (t) => localStorage.setItem("accessToken", t);
 const getRefreshToken = () => localStorage.getItem("refreshToken");
+const getAccessTokenExpiresAt = () =>
+  localStorage.getItem("accessTokenExpiresAt");
+const getRefreshTokenExpiresAt = () =>
+  localStorage.getItem("refreshTokenExpiresAt");
+
 const clearTokens = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("refreshToken");
@@ -36,7 +41,6 @@ privateApi.interceptors.request.use((config) => {
   if (at) config.headers.Authorization = `Bearer ${at}`;
   return config;
 });
-
 
 // 5) 401 처리(동시성 제어 + 큐잉)
 let isRefreshing = false;

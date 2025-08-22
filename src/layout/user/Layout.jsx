@@ -12,7 +12,7 @@ function Layout() {
             <main className="flex-grow px-[10%] ">
             <Outlet />
             </main>
-
+            
             <Footer />
         </div>
     );

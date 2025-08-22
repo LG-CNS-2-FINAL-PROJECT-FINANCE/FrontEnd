@@ -11,6 +11,7 @@ function LoginDetail_6() {
   const location = useLocation();
   const queryClient = useQueryClient();
   const { userLoading, user, isLoggedIn } = useUser();
+  console.log(user);
 
   const { userName, nickname, gender, birthDate } = location.state || {};
   console.log("userInfo", { userName, nickname, gender, birthDate });

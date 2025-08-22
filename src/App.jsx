@@ -31,6 +31,13 @@ import ProductRegistration from "./pages/product/ProductRegistration.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import MyProduct from "./pages/mypage/MyProduct.jsx";
 import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
+import MyPage from "./pages/mypage/MyPage.jsx";
+import MyInvestments from "./pages/mypage/MyInvestments.jsx";
+import MyFavorites from "./pages/mypage/MyFavorites.jsx";
+import AccountManagement from "./pages/mypage/AccountManagement.jsx";
+import EditInfo from "./pages/mypage/EditInfo.jsx";
+import MyReports from "./pages/mypage/MyReports.jsx";
+
 
 
 
