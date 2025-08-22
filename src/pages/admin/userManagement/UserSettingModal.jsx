@@ -16,7 +16,7 @@ export default function UserSettingModal({ open, onClose, user, onStatusChange, 
         setIsUpdating(true);
         setError('');
         try {
-            const endpointBase = '/user/auth/';
+            const endpointBase = '/user/';
             const fullEndpoint = endpointBase + actionPath;
             const statusForPayload = actionPath.toUpperCase();
 

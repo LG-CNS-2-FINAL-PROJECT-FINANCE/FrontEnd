@@ -32,7 +32,7 @@ export const getMe = async () => {
 
 export const registerUserInfo = async (userInfo) => {
   try {
-    const response = await privateApi.post("/user/auth/register", userInfo, {
+    const response = await privateApi.post("/user/register", userInfo, {
       headers: { "Content-Type": "application/json" },
     });
     return response.data;

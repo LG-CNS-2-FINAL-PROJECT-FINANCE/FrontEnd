@@ -52,7 +52,7 @@ export default function UserManagement() {
                 params.q = q;
             }
 
-            const res = await api.get('/user/auth', {
+            const res = await api.get('/user/list', {
                 params,
                 signal: abortRef.current?.signal,
             });
