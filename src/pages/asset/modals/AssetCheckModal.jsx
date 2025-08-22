@@ -15,7 +15,9 @@ function AssetCheckModal({
   const depositMutation = useMutation({
     mutationFn: depositAccount,
     onSuccess: async () => {
-      console.log("계좌 입금 성공!");
+      toast.success("계좌 입금 성공! 🎉", {
+        position: "bottom-right",
+      });
       queryClient.refetchQueries({ queryKey: ["account"] });
     },
     onError: (err) => {
@@ -28,7 +30,9 @@ function AssetCheckModal({
   const withdrawalMutation = useMutation({
     mutationFn: withdrawalAccount,
     onSuccess: async() => {
-      console.log("계좌 출금 성공!");
+      toast.success("계좌 출금 성공! 🎉", {
+        position: "bottom-right",
+      });
       queryClient.refetchQueries({ queryKey: ["account"] });
     },
     onError: (err) => {
