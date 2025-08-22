@@ -49,7 +49,7 @@ export function AuthProvider({ children }) {
         try {
             const currentAccessToken = tokenRef.current;
             if (currentAccessToken) {
-                await api.post('/user/auth/logout', {}, {
+                await api.post('/user/logout', {}, {
                     headers: { Authorization: `Bearer ${currentAccessToken}` },
                     withCredentials: true,
                 });

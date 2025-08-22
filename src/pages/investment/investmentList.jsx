@@ -25,7 +25,7 @@ const calculateDday = (ddayNum) => {
     ddayNum = Number(ddayNum);
 
     if (ddayNum < 0) return '마감';
-    if (ddayNum === 0) return '오늘 마감';
+    if (ddayNum === 0) return 0;
     return `${ddayNum}`;
 };
 
@@ -59,7 +59,7 @@ function InvestmentListPage() {
 
         filtered.sort((a, b) => {
             if (currentSort === SORT_OPTIONS.LATEST) {
-                return b.requestId - a.requestId; // requestId가 높을수록 최신
+                return b.projectId - a.projectId; // ProjectId가 높을수록 최신
             } else if (currentSort === SORT_OPTIONS.VIEWS) {
                 return b.viewCount - a.viewCount; // viewCount 기준으로 조회수 높은 순
             } else if (currentSort === SORT_OPTIONS.DEADLINE) {
@@ -105,14 +105,15 @@ function InvestmentListPage() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                             {deadlineApproachingInvestments.map(investment => (
                                 <InvestmentCard
-                                    key={investment.productId}
+                                    key={investment.projectId}
+                                    imageUrl={investment.DefaultImageUrl}
                                     project={{
-                                        id: investment.productId,
+                                        projectId: investment.projectId,
                                         name: investment.title,
                                         amount: formatAmount(investment.amount),
                                         dday: calculateDday(investment.deadline),
                                         progress: investment.percent,
-                                        imageUrl: investment.image,
+                                        // imageUrl: investment.imageUrl,
                                         views: investment.viewCount,
                                         status: investment.state,
                                     }}
@@ -169,14 +170,15 @@ function InvestmentListPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {displayedInvestments.map(investment => (
                             <InvestmentCard
-                                key={investment.productId}
+                                key={investment.projectId}
+                                imageUrl={investment.DefaultImageUrl}
                                 project={{
-                                    id: investment.productId,
+                                    projectId: investment.projectId,
                                     name: investment.title,
                                     amount: formatAmount(investment.amount),
                                     dday: calculateDday(investment.deadline),
                                     progress: investment.percent,
-                                    imageUrl: investment.image,
+                                    // imageUrl: investment.imageUrl,
                                     views: investment.viewCount,
                                     status: investment.state,
                                 }}

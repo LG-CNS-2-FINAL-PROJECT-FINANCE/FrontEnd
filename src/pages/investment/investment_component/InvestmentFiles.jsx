@@ -53,7 +53,7 @@ function InvestmentFiles({ files }) {
                       download={file.name}
                       className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm hover:bg-blue-600 flex items-center"
                   >
-                    <FaDownload className="inline-block mr-1" /> 다운로드
+                    <FaDownload className="inline-block mr-1" /> 상세보기
                   </a>
                 </li>
             );
