@@ -75,3 +75,23 @@ export const withdrawalAccount = async (withdrawal) =>{
     throw error;
   }
 }
+
+export const getAccountAllHistory = async () => {
+  try{
+    const response = await privateApi.get(`/asset/history`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export const getAccountSpecificHistory = async (moneyType) => {
+  try{
+    const response = await privateApi.get(`/asset/history?moneyType=${moneyType}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

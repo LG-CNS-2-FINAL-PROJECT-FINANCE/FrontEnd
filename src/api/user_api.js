@@ -48,16 +48,12 @@ export const registerUserInfo = async (userInfo) => {
   }
 };
 
-export const logout = async () => {
+export const logout = () => {
   try {
-    const accessToken = localStorage.getItem("accessToken");
-    const refreshToken = localStorage.getItem("refreshToken");
-    const response = await privateApi.post("/user/auth/logout", {
-      accessToken,
-      refreshToken,
-    });
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    localStorage.removeItem("accessTokenExpiresAt");
+    localStorage.removeItem("refreshTokenExpiresAt");
   } catch (error) {
     throw error.response ? error.response.data : error;
   }
@@ -68,6 +64,11 @@ export const selectRole = async (role) => {
     const response = await privateApi.post("/user/role", null, {
       params: { role },
     });
+    const { accessToken, refreshToken, accessTokenExpiresAt, refreshTokenExpiresAt } = response.data;
+    if (accessToken) localStorage.setItem("accessToken", accessToken);
+    if (accessTokenExpiresAt) localStorage.setItem("accessTokenExpiresAt", accessTokenExpiresAt);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
+    if (refreshTokenExpiresAt) localStorage.setItem("refreshTokenExpiresAt", refreshTokenExpiresAt);
     return response.data;
   } catch (error) {
     throw error.response ? error.response.data : error;

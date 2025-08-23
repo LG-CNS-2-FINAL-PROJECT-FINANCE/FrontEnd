@@ -4,125 +4,12 @@ import AssetDepositModal from "./modals/AssetDepositModal";
 import AssetWithdrawModal from "./modals/AssetWithdrawModal";
 import { toast } from "react-toastify";
 import AssetCheckModal from "./modals/AssetCheckModal";
+import { getAccountAllHistory } from "../../api/asset_api";
+import { useQuery } from "@tanstack/react-query";
+import { toKSTDateTime } from "../../lib/toKSTDateTime";
+
 
 function MyAsset({ account, wallet }) {
-
-  console.log("MyAsset account:", account);
-  console.log("MyAsset wallet:", wallet);
-  const transactions = [
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/10/2024",
-      amount: "+1,000.00",
-      time: "02:45 PM",
-      balance: "$14,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/05/2024",
-      amount: "+2,000.00",
-      time: "09:15 AM",
-      balance: "$13,500.00",
-      type: "입금",
-    },
-    {
-      date: "06/28/2024",
-      amount: "+800.00",
-      time: "04:00 PM",
-      balance: "$11,500.00",
-      type: "입금",
-    },
-    {
-      date: "06/20/2024",
-      amount: "-1,500.00",
-      time: "11:00 AM",
-      balance: "$12,300.00",
-      type: "출금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-    {
-      date: "07/15/2024",
-      amount: "+500.00",
-      time: "10:30 AM",
-      balance: "$12,500.00",
-      type: "입금",
-    },
-  ];
   const tokenDetails = [
     {
       projectName: "감만유",
@@ -255,6 +142,13 @@ function MyAsset({ account, wallet }) {
       tokenNumber: "wnsghsmsdhkswjsQkfro",
     },
   ];
+  const { data:accountAllHistory, isLoading:accountAllHistoryLoading, isError:accountAllHistoryError } = useQuery({
+    queryKey: ["accountAllHistory"],
+    queryFn: getAccountAllHistory,
+    retry: false,
+  });
+
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // "입금" 또는 "출금"
   const [activeTab, setActiveTab] = useState("계좌 정보");
@@ -430,31 +324,50 @@ function MyAsset({ account, wallet }) {
             <table className="w-full text-sm rounded-lg">
               <thead className="border-b border-gray-200">
                 <tr className="text-gray-500 text-left">
-                  <th className="py-2 font-normal w-1/5">Date</th>
-                  <th className="font-normal w-1/5">Amount</th>
-                  <th className="font-normal w-1/5">Time</th>
-                  <th className="font-normal w-1/5">Resulting Balance</th>
-                  <th className="font-normal w-1/5">Type</th>
+                  <th className="py-2 font-normal">Date</th>
+                  <th className="font-normal">Amount</th>
+                  <th className="font-normal">Time</th>
+                  <th className="font-normal">Type</th>
                 </tr>
               </thead>
               <tbody>
-                {transactions.map((transaction, index) => (
-                  <tr key={index} className="border-b border-gray-100">
-                    <td className="py-4 w-1/5">{transaction.date}</td>
-                    <td
-                      className={`font-bold w-1/5 ${
-                        transaction.amount.startsWith("+")
-                          ? "text-red-500"
-                          : "text-blue-500"
-                      }`}
-                    >
-                      {transaction.amount}
+                {accountAllHistoryLoading ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center">
+                      Loading...
                     </td>
-                    <td className="w-1/5">{transaction.time}</td>
-                    <td className="w-1/5">{transaction.balance}</td>
-                    <td className="text-red-500 w-1/5">{transaction.type}</td>
                   </tr>
-                ))}
+                ) : accountAllHistoryError ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center">
+                      Error loading transaction history
+                    </td>
+                  </tr>
+                ) : (
+                  accountAllHistory.data.map((transaction, index) => {
+                    const {date,time} = toKSTDateTime(transaction.bankTime);
+                    return (
+                      <tr key={index} className="border-b border-gray-100">
+                      <td className="py-4">{date}</td>
+                      <td
+                        className={`font-bold ${
+                          transaction.moneyType === 0
+                            ? "text-red-500"
+                            : "text-blue-500"
+                        }`}
+                      >
+                        {formatNumber(transaction.bankPrice.toString())}
+                      </td>
+                      <td>{time}</td>
+                      <td className={`${
+                          transaction.moneyType === 0
+                            ? "text-red-500"
+                            : "text-blue-500"
+                        }`}>{transaction.moneyType === 0 ? "입금" : "출금"}</td>
+                    </tr>
+                    )
+                  })
+                )}
               </tbody>
             </table>
           </div>

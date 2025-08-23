@@ -4,9 +4,13 @@ import { MdReportGmailerrorred } from "react-icons/md";
 import { MdOutlineLogout } from "react-icons/md";
 import { MdOutlineManageAccounts } from "react-icons/md";
 import { LuUserPen } from "react-icons/lu";
+import { logout } from "../../api/user_api";
+import { useQueryClient } from "@tanstack/react-query";
 
 const EditInfo = () => {
   const navigate = useNavigate();
+
+  const queryClient = useQueryClient();
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -41,24 +45,24 @@ const EditInfo = () => {
             {/* Form Fields */}
             <div className="w-full space-y-4 mt-8">
               <div
-                className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-100"
                 onClick={() => handleNavigation("/edit-info")}
               >
                 회원 정보 수정
                 <LuUserPen className="text-gray-600" size={20} />
               </div>
               <div
-                className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-100"
                 onClick={() => handleNavigation("/my-reports")}
               >
                 신고내역
                 <MdReportGmailerrorred className="text-gray-600" size={20} />
               </div>
-              <div className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center">
+              <div onClick={() => { logout(); queryClient.removeQueries({queryKey:["me"]}); navigate("/login/1"); }} className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-100">
                 로그아웃
                 <MdOutlineLogout className="text-gray-600" size={20} />
               </div>
-              <div className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center">
+              <div className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-100">
                 회원탈퇴
                 <MdOutlineManageAccounts className="text-gray-600" size={20} />
               </div>
