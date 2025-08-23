@@ -4,6 +4,28 @@ import api from "../../../api/admin_api";
 import { AuthContext } from '../../../context/AuthContext';
 import UserSettingModal from './UserSettingModal';
 
+const parseResponseToList = (payload) => {
+    if (!payload) return [];
+    if (Array.isArray(payload)) return payload;
+    if (payload.users) return payload.users;
+    if (payload.user) return payload.user;
+    if (payload.data && Array.isArray(payload.data)) return payload.data;
+    return [];
+};
+
+function mapToUiUser(item) {
+    return {
+        userSeq: item.userSeq ?? item.user_seq ?? item.id ?? null,
+        email: item.email ?? null,
+        nickname: item.nickname ?? null,
+        role: item.role ?? null,
+        age: item.age ?? null,
+        gender: item.gender ?? null,
+        latestAt: item.latestAt ?? item.lastLogin ?? null,
+        status: item.status ?? null,
+    };
+}
+
 export default function UserManagement() {
     const { accessToken, logout, user: authUser } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -21,19 +43,7 @@ export default function UserManagement() {
     const debounceRef = useRef(null);
     const abortRef = useRef(null);
 
-    const parseResponseToList = (payload) => {
-        if (!payload) return [];
-        if (Array.isArray(payload)) return payload;
-        if (payload.users) return payload.users;
-        if (payload.user) return payload.user;
-        if (payload.data && Array.isArray(payload.data)) return payload.data;
-        return [];
-    };
-
-    const fetchUsers = async (q = '') => {
-        console.log('fetchUsers called, accessToken=', accessToken);
-        const headers = { Authorization: `Bearer ${accessToken}` };
-        console.log('request headers will be', headers);
+    const fetchUsers = async (searchText = '') => {
         if (!accessToken) {
             setUsers([]);
             setTotal(0);
@@ -41,20 +51,29 @@ export default function UserManagement() {
             return;
         }
 
-        console.log('fetchUsers called, accessToken=', accessToken);
+        if (abortRef.current) {
+            try { abortRef.current.abort(); } catch (e) { }
+        }
+        const controller = new AbortController();
+        abortRef.current = controller;
 
         setLoading(true);
         setError('');
         try {
             const params = {};
-            if (q) {
-                params.type = searchType;
-                params.q = q;
+            let endpoint = '';
+
+            if (searchText.trim()) {
+                endpoint = '/user/search';
+                params.searchType = searchType;
+                params.search = searchText.trim();
+            } else {
+                endpoint = '/user/list';
             }
 
-            const res = await api.get('/user/list', {
+            const res = await api.get(endpoint, {
                 params,
-                signal: abortRef.current?.signal,
+                signal: controller.signal,
             });
 
             const payload = res.data;
@@ -67,7 +86,6 @@ export default function UserManagement() {
             }
 
             console.error('fetchUsers error', e);
-
             const status = e?.response?.status;
             if (status === 401 || status === 403) {
                 if (logout) { await logout(); }
@@ -88,7 +106,7 @@ export default function UserManagement() {
             setLoading(false);
             return;
         }
-        fetchUsers();
+        fetchUsers('');
         return () => {
             if (abortRef.current) {
                 try { abortRef.current.abort(); } catch (e) {}
@@ -99,9 +117,11 @@ export default function UserManagement() {
     useEffect(() => {
         if (!accessToken) return;
         if (debounceRef.current) clearTimeout(debounceRef.current);
+
         debounceRef.current = setTimeout(() => {
             fetchUsers(query.trim());
         }, 400);
+
         return () => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
@@ -113,8 +133,8 @@ export default function UserManagement() {
 
     const handleReset = () => {
         setQuery('');
-        setSearchType('email'); // 검색 타입도 초기화
-        fetchUsers(''); // 모든 쿼리 파라미터 초기화
+        setSearchType('email');
+        fetchUsers('');
     };
 
     const handleRowClick = (user) => {
@@ -156,7 +176,7 @@ export default function UserManagement() {
                         />
 
                         <button onClick={handleSearchClick} className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">검색</button>
-                        <button onClick={handleReset} className="px-3 py-2 border rounded text-sm">초기화</button> {/* 초기화 버튼 추가 */}
+                        <button onClick={handleReset} className="px-3 py-2 border rounded text-sm">초기화</button>
                     </div>
                 </div>
             </div>
@@ -179,12 +199,15 @@ export default function UserManagement() {
                                 <th className="w-20 px-4 py-2 text-left text-sm font-medium border-b text-white">성별</th>
                                 <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b text-white">마지막 접속일자</th>
                                 <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b text-white">사용자상태</th>
-                                {/* <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b text-white">상태</th> // 이 컬럼은 현재 데이터를 알 수 없어 주석처리 */}
                             </tr>
                             </thead>
 
                             <tbody>
-                            {users.length === 0 && !loading ? (
+                            {loading ? (
+                                <tr>
+                                    <td colSpan="8" className="p-6 text-center text-gray-500">로딩 중입니다...</td>
+                                </tr>
+                            ) : users.length === 0 ? (
                                 <tr>
                                     <td colSpan="8" className="p-6 text-center text-gray-500">표시할 사용자가 없습니다.</td>
                                 </tr>
@@ -220,7 +243,6 @@ export default function UserManagement() {
         </div>
     );
 }
-
 
 function getUserKey(u) {
     return u.userSeq ?? u.id ?? u._id ?? `${u.email}-${u.nickname}`;
