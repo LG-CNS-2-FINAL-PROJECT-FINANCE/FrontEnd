@@ -40,7 +40,7 @@ export default function UserManagement() {
     const [isSettingModalOpen, setIsSettingModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
 
-    const debounceRef = useRef(null);
+    // const debounceRef = useRef(null); //useEffect사용시 활성화
     const abortRef = useRef(null);
 
     const fetchUsers = async (searchText = '') => {
@@ -114,7 +114,8 @@ export default function UserManagement() {
         };
     }, [accessToken]);
 
-    useEffect(() => {
+    //검색할때 바로 변화주려면 사용
+    /*useEffect(() => {
         if (!accessToken) return;
         if (debounceRef.current) clearTimeout(debounceRef.current);
 
@@ -125,7 +126,13 @@ export default function UserManagement() {
         return () => {
             if (debounceRef.current) clearTimeout(debounceRef.current);
         };
-    }, [query, searchType, accessToken]);
+    }, [query, searchType, accessToken]);*/
+
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSearchClick();
+        }
+    };
 
     const handleSearchClick = () => {
         fetchUsers(query.trim());
@@ -171,6 +178,7 @@ export default function UserManagement() {
                             type="search"
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={handleKeyDown}
                             placeholder={`${searchType === 'email' ? '이메일' : '닉네임'}으로 검색`}
                             className="flex-1 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
                         />
