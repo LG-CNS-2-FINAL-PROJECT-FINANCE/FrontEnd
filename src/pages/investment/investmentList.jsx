@@ -25,7 +25,7 @@ const calculateDday = (ddayNum) => {
     ddayNum = Number(ddayNum);
 
     if (ddayNum < 0) return '마감';
-    if (ddayNum === 0) return 0;
+    if (ddayNum === 0) return 'Day';
     return `${ddayNum}`;
 };
 
@@ -116,6 +116,7 @@ function InvestmentListPage() {
                                         // imageUrl: investment.imageUrl,
                                         views: investment.viewCount,
                                         status: investment.state,
+                                        startDate : investment.startDate,
                                     }}
                                 />
                             ))}
@@ -181,6 +182,7 @@ function InvestmentListPage() {
                                     // imageUrl: investment.imageUrl,
                                     views: investment.viewCount,
                                     status: investment.state,
+                                    startDate : investment.startDate,
                                 }}
                             />
                         ))}
