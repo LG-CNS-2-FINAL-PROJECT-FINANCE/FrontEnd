@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { privateApi as api } from '../api/axiosInstance';
+import { privateApi, publicApi } from '../api/axiosInstance';
 import { adminApiSetup } from '../api/admin_api'; //
 
 export const AuthContext = createContext();
@@ -25,13 +25,13 @@ export function AuthProvider({ children }) {
             tokenRef.current = newAccess;
             localStorage.setItem(TOKEN_KEY_ACCESS, newAccess);
 
-            api.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
+            privateApi.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
             console.log('setTokens: access set', newAccess);
         } else {
             setAccessTokenState(null);
             tokenRef.current = null;
             localStorage.removeItem(TOKEN_KEY_ACCESS);
-            if (api.defaults?.headers?.common) delete api.defaults.headers.common['Authorization'];
+            if (privateApi.defaults?.headers?.common) delete privateApi.defaults.headers.common['Authorization'];
             console.log('setTokens: access removed');
         }
 
@@ -49,7 +49,7 @@ export function AuthProvider({ children }) {
         try {
             const currentAccessToken = tokenRef.current;
             if (currentAccessToken) {
-                await api.post('/user/logout', {}, {
+                await privateApi.post('/user/logout', {}, {
                     headers: { Authorization: `Bearer ${currentAccessToken}` },
                     withCredentials: true,
                 });
@@ -66,7 +66,7 @@ export function AuthProvider({ children }) {
 
     const login = useCallback(async ({ adminId, password }) => {
         try {
-            const res = await api.post('/user/auth/admin/login', { adminId, password }, { withCredentials: true });
+            const res = await publicApi.post('/user/auth/admin/login', { adminId, password }, { withCredentials: true });
             console.log('login res.status=', res.status);
             console.log('login res.data=', res.data);
             console.log('login res.headers=', res.headers);
