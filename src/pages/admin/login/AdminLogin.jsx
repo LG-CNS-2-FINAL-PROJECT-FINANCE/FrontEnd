@@ -1,15 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../../context/AuthContext';
-import api from "../../../api/admin_api";
-
 
 export default function AdminLogin() {
-    const { setTokens, setUser } = useContext(AuthContext);
+    const { login, loginLoading, loginError } = useContext(AuthContext);
     const [adminId, setAdminId] = useState('');
     const [pw, setPw] = useState('');
     const [err, setErr] = useState('');
-    const [loading, setLoading] = useState(false);
     const [showPw, setShowPw] = useState(false);
     const navigate = useNavigate();
 
@@ -23,79 +20,14 @@ export default function AdminLogin() {
         }
 
         try {
-            setLoading(true);
-            const res = await api.post(
-                '/user/auth/admin/login',
-                { adminId: adminId.trim(), password: pw },
-                { withCredentials: false } // 서버가 쿠키를 쓴다면 true로
-            );
-
-            console.log('response status:', res.status);
-            console.log('response headers:', res.headers);
-            console.log('response data:', res.data);
-
-            // 응답 데이터/헤더에서 토큰 추출 (안전하게 여러 케이스 처리)
-            const data = res.data;
-            let accessToken = null;
-            let refreshToken = null;
-            let user = null;
-
-            // 바디에 토큰이 있으면 우선 사용
-            if (data && typeof data === 'object') {
-                accessToken = data.accessToken || data.access_token || data.token || null;
-                refreshToken = data.refreshToken || data.refresh_token || null;
-                user = data.user || data.data?.user || null;
-            }
-
-            // 바디에 없으면 Authorization 헤더에서 추출
-            if (!accessToken && res.headers) {
-                const authHeader = res.headers['authorization'] || res.headers?.Authorization;
-                if (authHeader) {
-                    accessToken = authHeader.replace(/^Bearer\s+/i, '');
-                }
-            }
-
-            console.log('extracted accessToken:', accessToken);
-
-            const finalAccess = accessToken; // 바디나 헤더에서 추출한 값
-            const finalRefresh = refreshToken; // 바디에서 추출한 경우
-
-            if (typeof setTokens === 'function') {
-                setTokens(finalAccess, finalRefresh);
-            } else {
-                console.log('직접 저장합니다.')
-                if (finalAccess) {
-                    localStorage.setItem('ACCESS_TOKEN', finalAccess);
-                    api.defaults.headers.common['Authorization'] = `Bearer ${finalAccess}`;
-                }
-                if (finalRefresh) {
-                    localStorage.setItem('REFRESH_TOKEN', finalRefresh);
-                }
-            }
-
-// 사용자 상태 업데이트
-            if (setUser && user) setUser(user);
-
-            // 상태 업데이트
-            /*if (accessToken && setAccessToken) setAccessToken(accessToken);
-            if (setRefreshToken && refreshToken) setRefreshToken(refreshToken);
-            if (setUser && (user || (typeof data === 'string' ? null : data.user))) setUser(user);
-
-            // 전역 axios 기본 헤더에도 넣어두면 이후 요청에 자동 포함
-            if (accessToken) {
-                api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-            }*/
-
-            // 성공 처리
+            await login({ adminId: adminId.trim(), password: pw });
             navigate('/admin/user');
         } catch (error) {
-            console.error(error);
+            console.error('로그인 UI 에러 처리:', error);
             const msg = error?.response?.data?.message;
             if (msg) setErr(msg);
             else if (error?.response?.status === 401) setErr('아이디 또는 비밀번호가 올바르지 않습니다.');
             else setErr('로그인 중 오류가 발생했습니다. 네트워크 상태를 확인하세요.');
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -107,11 +39,14 @@ export default function AdminLogin() {
                 aria-label="관리자 로그인 폼"
             >
                 <div className="flex flex-col items-center mb-8">
-                    {/*<h2 className="text-2xl font-bold">관리자 로그인</h2>*/}
                     <img src="/assets/adminlogo.png" alt="어드민로고" className="w-96 h-52 mb-4" />
                 </div>
 
-                {err && <div className="mb-4 text-red-600 text-sm">{err}</div>}
+                {(err || loginError) && (
+                    <div className="mb-4 text-red-600 text-sm">
+                        {err || (loginError?.response?.data?.message || '로그인 오류가 발생했습니다.')}
+                    </div>
+                )}
 
                 <label className="block mb-2 text-sm font-medium text-gray-700">아이디</label>
                 <input
@@ -147,10 +82,10 @@ export default function AdminLogin() {
 
                 <button
                     type="submit"
-                    disabled={loading}
-                    className={`w-full py-2 rounded text-white ${loading ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-700'}`}
+                    disabled={loginLoading}
+                    className={`w-full py-2 rounded text-white ${loginLoading ? 'bg-gray-400' : 'bg-red-500 hover:bg-red-700'}`}
                 >
-                    {loading ? '로그인 중...' : '로그인'}
+                    {loginLoading ? '로그인 중...' : '로그인'}
                 </button>
 
                 <div className="mt-4 text-sm text-gray-500 text-center">
