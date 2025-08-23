@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useCallback, useRef, useMemo
 import { privateApi, publicApi } from '../api/axiosInstance';
 import { adminApiSetup } from '../api/admin_api';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import {jwtDecode} from "jwt-decode";
 
 export const AuthContext = createContext();
 
@@ -10,6 +11,7 @@ export function AuthProvider({ children }) {
     const [refreshToken, setRefreshTokenState] = useState(null);
     const [user, setUserState] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [role, setRole] = useState(null);
 
     const tokenRef = useRef(null);
 
@@ -25,12 +27,22 @@ export function AuthProvider({ children }) {
             tokenRef.current = newAccess;
             localStorage.setItem(TOKEN_KEY_ACCESS, newAccess);
             privateApi.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
+            try {
+                const decodedToken = jwtDecode(newAccess);
+                const roleFromToken = decodedToken.role || null; // 토큰 페이로드에서 'role' 클레임 추출
+                setRole(roleFromToken);
+                console.log('[AuthContext] 현재 사용자 역할:', roleFromToken);
+            } catch (e) {
+                console.error('[AuthContext] JWT 디코딩 또는 role 추출 오류:', e);
+                setRole(null);
+            }
             console.log('setTokens: access set', newAccess);
         } else {
             setAccessTokenState(null);
             tokenRef.current = null;
             localStorage.removeItem(TOKEN_KEY_ACCESS);
             if (privateApi.defaults?.headers?.common) delete privateApi.defaults.headers.common['Authorization'];
+            setRole(null);
             console.log('setTokens: access removed');
         }
         if (newRefresh) {
@@ -59,7 +71,7 @@ export function AuthProvider({ children }) {
             setUserState(null);
             console.log('로그아웃 완료: 클라이언트 상태 정리');
         }
-    }, [setTokens]); // queryClient도 의존성 배열에 있었으나 주석 제거됨
+    }, [setTokens]);
 
     const loginMutation = useMutation({
         mutationFn: async ({ adminId, password }) => {
@@ -72,11 +84,13 @@ export function AuthProvider({ children }) {
             console.log('loginMutation success res.headers=', res.headers);
 
             const headerToken = res.headers?.authorization?.replace(/^Bearer\s+/i, '') || null;
-            const { accessToken: a, refreshToken: r, user: u } = res.data || {};
+            const { accessToken: a, refreshToken: r, user: u} = res.data || {};
             const finalAccess = a || headerToken;
 
             setTokens(finalAccess, r);
             setUserState(u);
+            console.log('리프레쉬는', r);
+            console.log('유저는', u);
         },
         onError: (error) => {
             console.error('loginMutation error:', error);
@@ -107,6 +121,7 @@ export function AuthProvider({ children }) {
         accessToken,
         refreshToken,
         user,
+        role,
         setUser: setUserState,
         loading,
         setTokens,
