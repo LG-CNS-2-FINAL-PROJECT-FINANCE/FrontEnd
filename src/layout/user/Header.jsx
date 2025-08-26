@@ -1,13 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { LuUserRound } from "react-icons/lu";
 import useUser from "../../lib/useUser";
-import { useTheme } from "../../context/ThemeContext";
 
 function Header() {
   const navigate = useNavigate();
   const { userLoading, user, isLoggedIn } = useUser();
-  const { role: themeRole, themeColors } = useTheme();
 
   const [userRole, setUserRole] = useState(isLoggedIn ? user?.role : "");
   // 사용자/로그인 상태 변경 시 동기화
@@ -17,16 +15,6 @@ function Header() {
   const roleLabel =
     userRole === "CREATOR" ? "창작자" : userRole === "USER" ? "투자자" : "";
 
-  // 테스트를 위한 임시 로그인/로그아웃
-  const toggleLoginStatus = () => {
-    if (isLoggedIn) {
-      setUserRole(""); // 로그아웃 시 역할 초기화
-      navigate("/login/1");
-    } else {
-      setUserRole("USER");
-      navigate("/select-role");
-    }
-  };
 
   // 역할 선택 페이지로 이동
   const handleRoleSelectionRedirect = () => {
@@ -65,14 +53,14 @@ function Header() {
           <div>
             <span
               className="hover:cursor-pointer font-bold"
-              onClick={() => navigate("/market")}
+              onClick={() => navigate(userRole === "CREATOR" ? "/product-registration" : "/market")}
             >
-              토큰 거래
+              {userRole === "CREATOR" ? "상품 등록" : "토큰 거래"}
             </span>
           </div>
         </>
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="flex items-end space-x-4">
         {!isLoggedIn ? (
           <></>
         ) : (
@@ -82,8 +70,8 @@ function Header() {
                 userRole === "USER"
                   ? "bg-red-500 px-3 py-2 rounded-xl text-amber-50 hover:bg-red-700"
                   : userRole === "CREATOR"
-                  ? "bg-blue-500 px-3 py-2 rounded-xl text-amber-50 hover:bg-blue-700"
-                  : "bg-gray-400 px-3 py-2 rounded-xl text-gray-700 hover:bg-gray-500"
+                    ? "bg-blue-500 px-3 py-2 rounded-xl text-amber-50 hover:bg-blue-700"
+                    : "bg-gray-400 px-3 py-2 rounded-xl text-gray-700 hover:bg-gray-500"
               }
               onClick={handleRoleSelectionRedirect}
             >
