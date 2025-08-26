@@ -4,9 +4,10 @@ import AssetDepositModal from "./modals/AssetDepositModal";
 import AssetWithdrawModal from "./modals/AssetWithdrawModal";
 import { toast } from "react-toastify";
 import AssetCheckModal from "./modals/AssetCheckModal";
-import { getAccountAllHistory } from "../../api/asset_api";
+import { getAccountAllHistory, getWalletToken } from "../../api/asset_api";
 import { useQuery } from "@tanstack/react-query";
 import { toKSTDateTime } from "../../lib/toKSTDateTime";
+import { getTokenTradeHistory } from "../../api/market_api";
 
 
 function MyAsset({ account, wallet }) {
@@ -147,7 +148,16 @@ function MyAsset({ account, wallet }) {
     queryFn: getAccountAllHistory,
     retry: false,
   });
-
+const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError } = useQuery({
+    queryKey: ["walletToken"],
+    queryFn: getWalletToken,
+    retry: false,
+  });
+  const { data:walletTokenTradeHistory, isLoading:walletTokenTradeHistoryLoading, isError:walletTokenTradeHistoryError } = useQuery({
+    queryKey: ["walletTokenTradeHistory"],
+    queryFn: getTokenTradeHistory,
+    retry: false,
+  });
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // "입금" 또는 "출금"
@@ -319,7 +329,7 @@ function MyAsset({ account, wallet }) {
           </div>
 
           {/* 거래 기록 */}
-          <h2 className="text-xl font-bold mb-4 mt-12">거래 기록</h2>
+          <h2 className="text-xl font-bold mb-4 mt-12">입출금 내역</h2>
           <div className="border-gray-200 border rounded-lg p-6 overflow-x-auto">
             <table className="w-full text-sm rounded-lg">
               <thead className="border-b border-gray-200">
@@ -347,10 +357,10 @@ function MyAsset({ account, wallet }) {
                   accountAllHistory.data.map((transaction, index) => {
                     const {date,time} = toKSTDateTime(transaction.bankTime);
                     return (
-                      <tr key={index} className="border-b border-gray-100">
-                      <td className="py-4">{date}</td>
+                      <tr key={index} className="w-1/4 border-b border-gray-100">
+                      <td className="w-1/4 py-4">{date}</td>
                       <td
-                        className={`font-bold ${
+                        className={`w-1/4 font-bold ${
                           transaction.moneyType === 0
                             ? "text-red-500"
                             : "text-blue-500"
@@ -358,8 +368,8 @@ function MyAsset({ account, wallet }) {
                       >
                         {formatNumber(transaction.bankPrice.toString())}
                       </td>
-                      <td>{time}</td>
-                      <td className={`${
+                      <td className="w-1/4">{time}</td>
+                      <td className={`w-1/4 ${
                           transaction.moneyType === 0
                             ? "text-red-500"
                             : "text-blue-500"
@@ -377,29 +387,65 @@ function MyAsset({ account, wallet }) {
       {/* 지갑 정보 */}
       {activeTab === "지갑 정보" && (
         <div>
+          <div className="border rounded-lg p-6 px-16 mb-6">
+            <div className="flex justify-around items-center mb-4">
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">토큰 비율</span>
+                <p className="text-3xl font-bold">12,000원</p>
+              </div>
+              <span className="text-gray-300">|</span>
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">토큰 총액</span>
+                <p className="text-3xl font-bold">{formatNumber(account.deposit.toString())}원</p>
+              </div>
+              <span className="text-gray-300">|</span>
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">이번달 수익</span>
+                <p className="text-3xl font-bold">12,000원</p>
+              </div>
+            </div>
+          </div>
           {/* 토큰 내역 */}
           <h2 className="text-xl font-bold mb-4">토큰 내역</h2>
           <div className="border-gray-200 border rounded-lg p-6 overflow-x-auto mb-6">
             <table className="w-full text-sm rounded-lg">
               <thead className="border-b border-gray-200">
                 <tr className="text-gray-500 text-left">
-                  <th className="py-2 font-normal w-1/5">Project Name</th>
+                  <th className="py-2 font-normal w-1/5">Project Id</th>
                   <th className="font-normal w-1/5">Amount</th>
-                  <th className="font-normal w-1/5">Time</th>
-                  <th className="font-normal w-1/5">Date</th>
-                  <th className="font-normal w-1/5">Token Number</th>
+                  <th className="font-normal w-1/5">Price</th>
+                  <th className="font-normal w-1/5">Token Name</th>
                 </tr>
               </thead>
               <tbody>
-                {tokenDetails.map((token, index) => (
-                  <tr key={index} className="border-b border-gray-100">
-                    <td className="py-4 w-1/5">{token.projectName}</td>
-                    <td className="w-1/5">{token.amount}</td>
-                    <td className="w-1/5">{token.time}</td>
-                    <td className="w-1/5">{token.date}</td>
-                    <td className="text-blue-500 w-1/5">{token.tokenNumber}</td>
+                {walletTokenLoading ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center">
+                      Loading...
+                    </td>
                   </tr>
-                ))}
+                ) : walletTokenError ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center">
+                      Error loading wallet tokens
+                    </td>
+                  </tr>
+                ) : !walletToken || walletToken.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center text-gray-400">
+                      보유한 토큰이 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  walletToken.map((token, index) => (
+                    <tr key={index} className="border-b border-gray-100">
+                      <td className="py-4 w-1/5">{token.projectId}</td>
+                      <td className="w-1/5">{token.amount}</td>
+                      <td className="w-1/5">{token.tokenPriceInKRW}</td>
+                      <td className="text-blue-500 w-1/5">{token.tokenName}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -410,31 +456,54 @@ function MyAsset({ account, wallet }) {
             <table className="w-full text-sm rounded-lg">
               <thead className="border-b border-gray-200">
                 <tr className="text-gray-500 text-left">
-                  <th className="py-2 font-normal w-1/5">Project Name</th>
+                  <th className="py-2 font-normal w-1/5">Project Id</th>
                   <th className="font-normal w-1/5">Amount</th>
-                  <th className="font-normal w-1/5">Time</th>
+                  <th className="font-normal w-1/5">Price</th>
                   <th className="font-normal w-1/5">Date</th>
-                  <th className="font-normal w-1/5">Token Number</th>
+                  <th className="font-normal w-1/5">Trade Type</th>
                 </tr>
               </thead>
               <tbody>
-                {tokenMarkets.map((token, index) => (
-                  <tr key={index} className="border-b border-gray-100">
-                    <td className="py-4 w-1/5">{token.projectName}</td>
-                    <td
-                      className={`font-bold w-1/5 ${
-                        token.amount.startsWith("+")
-                          ? "text-red-500"
-                          : "text-blue-500"
-                      }`}
-                    >
-                      {token.amount}
+                {/* projectId; tradeType; tradePrice; tokenQuantity; tradedAt; */}
+                {walletTokenTradeHistoryLoading ? (
+                  <tr>
+                    <td colSpan={5} className="py-4 text-center">
+                      Loading...
                     </td>
-                    <td className="w-1/5">{token.time}</td>
-                    <td className="w-1/5">{token.date}</td>
-                    <td className="text-blue-500 w-1/5">{token.tokenNumber}</td>
                   </tr>
-                ))}
+                ) : walletTokenTradeHistoryError ? (
+                  <tr>
+                    <td colSpan={5} className="py-4 text-center">
+                      Error loading token trade history
+                    </td>
+                  </tr>
+                ) : !walletTokenTradeHistory || walletTokenTradeHistory.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-4 text-center text-gray-400">
+                      거래 기록이 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  walletTokenTradeHistory.map((history, index) => {
+                    const { date, time } = toKSTDateTime(history.tradedAt);
+                    const isBuy = history.tradeType === "BUY" || history.tradeType === "매수";
+                    return (
+                      <tr key={index} className="border-b border-gray-100">
+                        <td className="py-4 w-1/5">{history.projectId}</td>
+                        <td className="font-bold w-1/5">
+                          {history.tokenQuantity}
+                        </td>
+                        <td className="text-blue-500 w-1/5">
+                          {formatNumber(String(history.tradePrice))}
+                        </td>
+                        <td className="w-1/5">{date} {time}</td>
+                        <td className={`w-1/5 font-semibold ${isBuy ? "text-red-500" : "text-green-600"}`}>
+                          {history.tradeType}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
           </div>

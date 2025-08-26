@@ -1,6 +1,5 @@
 import AssetHome from "./AssetHome";
 import MyAsset from "./MyAsset";
-import useUser from "../../lib/useUser";
 import { useQuery } from "@tanstack/react-query";
 import { getMyAccount, getMyWallet } from "../../api/asset_api";
 import { toast } from "react-toastify";
