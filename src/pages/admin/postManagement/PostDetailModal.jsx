@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { privateApi as api } from '../../../api/axiosInstance';
 import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
@@ -102,6 +102,23 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
         staleTime: 5 * 60 * 1000,
         cacheTime: 10 * 60 * 1000,
     });
+
+    useEffect(() => {
+        if (!open) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [open, onClose]);
 
     if (!open || !postId) return null;
 
