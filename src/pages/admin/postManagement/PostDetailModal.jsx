@@ -3,6 +3,7 @@ import { privateApi as api } from '../../../api/axiosInstance';
 import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import { getPostDetailById } from '../../../api/admin_project_api';
+import CopyIcon from '../../../component/CopyIcon';
 
 const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -89,6 +90,7 @@ function Field({ label, value, className = '' }) {
 export default function PostDetailModal({ open, onClose, postId, onStatusChange }) {
     const [isUpdating, setIsUpdating] = useState(false);
     const [updateError, setUpdateError] = useState('');
+    const [copiedMessage, setCopiedMessage] = useState({ show: false, text: '' });
 
     const {
         data: postDetail,
@@ -103,6 +105,14 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
         cacheTime: 10 * 60 * 1000,
     });
 
+    const handleCopy = (text, fieldName) => {
+        setCopiedMessage({ show: true, text: `${fieldName} 복사 완료!` });
+        // 일정 시간 후 메시지 숨김
+        setTimeout(() => {
+            setCopiedMessage({ show: false, text: '' });
+        }, 1500); // 1.5초 후 사라짐
+    };
+
     useEffect(() => {
         if (!open) return;
 
@@ -114,7 +124,7 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
         };
 
         document.addEventListener('keydown', handleKeyDown);
-        
+
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
@@ -233,12 +243,24 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                         </div>
                     )}
 
+                    {copiedMessage.show && (
+                        <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm text-center animate-pulse">
+                            {copiedMessage.text}
+                        </div>
+                    )}
+
                     <div className="bg-slate-50 p-5 rounded-xl mb-6 border border-slate-200">
                         <div className="mb-4">
                             <h3 className="text-lg font-semibold text-slate-900 mb-2">게시물 정보</h3>
                             <div className="text-sm text-slate-500 space-y-1">
-                                <div>게시물 번호: {postDetail.requestId}</div>
-                                <div>사용자: {postDetail.userNo}</div>
+                                <div className="flex items-center">
+                                    <span>게시물 번호: {postDetail.requestId}</span>
+                                    <CopyIcon textToCopy={postDetail.requestId} onCopySuccess={() => handleCopy(postDetail.requestId, '게시물 번호')} />
+                                </div>
+                                <div className="flex items-center">
+                                    <span>사용자: {postDetail.userNo}</span>
+                                    <CopyIcon textToCopy={postDetail.userNo} onCopySuccess={() => handleCopy(postDetail.userNo, '사용자 번호')} />
+                                </div>
                                 {postDetail.goalAmount && <div>목표 금액: {postDetail.goalAmount}</div>}
                                 {postDetail.minInvestment && <div>최저 투자금액: {postDetail.minInvestment}</div>}
                                 {postDetail.adminId && <div>관리자 ID: {postDetail.adminId}</div>}
