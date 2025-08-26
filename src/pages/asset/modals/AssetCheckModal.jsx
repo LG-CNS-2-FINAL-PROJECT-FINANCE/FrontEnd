@@ -19,6 +19,7 @@ function AssetCheckModal({
         position: "bottom-right",
       });
       queryClient.refetchQueries({ queryKey: ["account"] });
+      queryClient.refetchQueries({ queryKey: ["accountAllHistory"] });
     },
     onError: (err) => {
       const msg =
@@ -34,6 +35,7 @@ function AssetCheckModal({
         position: "bottom-right",
       });
       queryClient.refetchQueries({ queryKey: ["account"] });
+      queryClient.refetchQueries({ queryKey: ["accountAllHistory"] });
     },
     onError: (err) => {
       const msg =
