@@ -130,6 +130,18 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
         };
     }, [open, onClose]);
 
+    useEffect(() => {
+        if (open) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [open]);
+
     if (!open || !postId) return null;
 
     if (isLoading) {
