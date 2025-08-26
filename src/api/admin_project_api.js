@@ -14,8 +14,8 @@ function mapToUiPost(item) {
 }
 
 export async function getPosts({
-                                   page = 1,
-                                   size = 10,
+                                   // page = 1,
+                                   // size = 10,
                                    searchBy,
                                    keyword,
                                    requestType,
@@ -27,7 +27,7 @@ export async function getPosts({
 
     console.log('[admin_project_api] getPosts 호출됨. 원본 파라미터:', {  searchBy, keyword, requestType, startDate, endDate, requestStatus});
 
-    const params = {size, page};
+    const params = {};
     if (searchBy && keyword) {
         params.searchBy = searchBy;
         params.keyword = keyword;
@@ -51,7 +51,6 @@ export async function getPosts({
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
 
-    console.log('[admin_project_api] 서버로 전송될 최종 쿼리 파라미터:', params);
     console.log(`[admin_project_api] 요청될 전체 URL: ${api.defaults.baseURL}/product/search/admin?${new URLSearchParams(params).toString()}`);
 
     const res = await api.get('/product/search/admin', { params, signal });
@@ -79,7 +78,7 @@ export async function getPosts({
     }
 
     const posts = list.map(mapToUiPost);
-    return { posts, total, page, size };
+    return { posts, total };
 }
 
 export async function getPostsList({ page=1, size=10, signal } = {}) {
@@ -114,5 +113,5 @@ export async function getPostsList({ page=1, size=10, signal } = {}) {
     }
 
     const posts = list.map(mapToUiPost);
-    return { posts, total, page, size};
+    return { posts, total};
 }
