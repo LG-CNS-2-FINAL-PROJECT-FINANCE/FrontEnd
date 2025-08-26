@@ -15,32 +15,48 @@ function mapToUiPost(item) {
 
 export async function getPosts({
                                    page = 1,
-                                   size = 20,
-                                   type,
-                                   q,
+                                   size = 10,
+                                   searchBy,
+                                   keyword,
+                                   requestType,
+                                   requestStatus,
                                    startDate,
                                    endDate,
-                                   status,
                                    signal,
-                                   title,
                                } = {}) {
 
-    console.log('[admin_project_api] getPosts 호출됨. 원본 파라미터:', { page, size, type, q, startDate, endDate, status, title});
+    console.log('[admin_project_api] getPosts 호출됨. 원본 파라미터:', {  searchBy, keyword, requestType, startDate, endDate, requestStatus});
 
-    const params = { page, size };
-    if (type) {
-        params.type = type;
-        params.q = q;
+    const params = {size, page};
+    if (searchBy && keyword) {
+        params.searchBy = searchBy;
+        params.keyword = keyword;
     }
+
+    if (requestType && requestType !== 'ALL') {
+        params.type = requestType;
+    }
+
+    if (requestStatus && requestStatus !== 'ALL') {
+        params.status = {
+            'APPROVED': 'APPROVED',
+            'REJECTED': 'REJECTED',
+            'PENDING': 'PENDING',
+        }[requestStatus];
+        if (!params.status) {
+            console.warn(`[admin_project_api] Unknown status for API mapping: ${requestStatus}`);
+        }
+    }
+
     if (startDate) params.startDate = startDate;
     if (endDate) params.endDate = endDate;
-    if (status && status !== 'ALL') params.status = status;
-    if (title) params.title = title;
 
     console.log('[admin_project_api] 서버로 전송될 최종 쿼리 파라미터:', params);
+    console.log(`[admin_project_api] 요청될 전체 URL: ${api.defaults.baseURL}/product/search/admin?${new URLSearchParams(params).toString()}`);
 
-    const res = await api.get('/product/request', { params, signal });
+    const res = await api.get('/product/search/admin', { params, signal });
     const payload = res.data;
+    console.log("현재 getPosts 매소드 get요청 작동", res);
 
     let list = [];
     let total = 0;
@@ -48,7 +64,45 @@ export async function getPosts({
     if (Array.isArray(payload)) {
         list = payload;
         total = payload.length;
+    } else if (payload.content && Array.isArray(payload.content)) {
+        list = payload.content;
+        total = payload.totalElements ?? payload.total ?? payload.size ?? payload.count ?? list.length;
     } else if (payload.posts && Array.isArray(payload.posts)) {
+        list = payload.posts;
+        total = payload.total ?? payload.count ?? list.length;
+    } else if (payload.data && Array.isArray(payload.data)) {
+        list = payload.data;
+        total = payload.total ?? list.length;
+    } else { // 5. 그 외의 경우
+        list = [];
+        total = 0;
+    }
+
+    const posts = list.map(mapToUiPost);
+    return { posts, total, page, size };
+}
+
+export async function getPostsList({ page=1, size=10, signal } = {}) {
+    console.log('[admin_project_api] getPostsList 호출됨. 원본 파라미터:', { page, size });
+
+    const params = { page, size };
+
+    const res = await api.get('/product/request', { params, signal });
+    const payload = res.data;
+
+    console.log("현재 getPostsList 매소드 get요청 작동", res);
+
+    let list = [];
+    let total = 0;
+
+    if (Array.isArray(payload)) {
+        list = payload;
+        total = payload.length;
+    } else if (payload.content && Array.isArray(payload.content)) {
+        list = payload.content;
+        total = payload.totalElements ?? payload.total ?? payload.size ?? payload.count ?? list.length;
+    }
+    else if (payload.posts && Array.isArray(payload.posts)) {
         list = payload.posts;
         total = payload.total ?? payload.count ?? list.length;
     } else if (payload.data && Array.isArray(payload.data)) {
@@ -60,5 +114,5 @@ export async function getPosts({
     }
 
     const posts = list.map(mapToUiPost);
-    return { posts, total, page, size };
+    return { posts, total, page, size};
 }
