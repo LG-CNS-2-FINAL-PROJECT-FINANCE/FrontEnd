@@ -115,3 +115,43 @@ export async function getPostsList({ page=1, size=10, signal } = {}) {
     const posts = list.map(mapToUiPost);
     return { posts, total};
 }
+
+function mapToPostDetail(item) {
+    return {
+        requestId: item.requestId ?? item.id ?? item.projectId ?? null, //요청번호
+        userNo: item.userSeq ?? item.user_seq ?? item.userId ?? null, //작성자id
+        projectId: item.projectId ?? null, //창작물 번호
+        title: item.title ?? null, //제목
+        summary: item.summary ?? null, //요약
+        startDate: item.startDate ?? item.start_date ?? null, //시작일
+        endDate: item.endDate ?? item.end_date ?? null, //마감일
+        goalAmount: item.goalAmount ?? null, //목표금액
+        minInvestment: item.minInvestment ?? null, //최저투자금액
+        files: item.document && Array.isArray(item.document) ? item.document.map(url => ({ name: url.split('/').pop(), url: url })) : [], //파일
+        updateStopReason: item.reason ?? null, //사유 (update, stop)
+        type: item.type ?? null, //창작물 유형
+        status: item.status ?? item.postStatus ?? null, //창작물 상태 (status) - APPROVED, PENDING, REJECTED
+        adminId: item.adminId ?? null, //관리자ID
+        rejectReason: item.rejectReason ?? null, //사유 (reject)
+
+        content: item.content ?? null, // 상세 설명
+        viewCount: item.viewCount ?? null, // 조회수
+        amount: item.amount ?? null, // 현재 모금액
+    };
+}
+
+export async function getPostDetailById(requestId, signal) {
+    console.log(`[admin_project_api] getPostDetailById 호출됨. requestId: ${requestId}`);
+    try {
+        const res = await api.get(`/product/request/${requestId}`, { signal });
+        const payload = res.data; // 상세 정보는 content 필드 없이 단일 객체로 올 것으로 예상
+
+        // 받은 payload를 mapToPostDetail을 통해 프론트엔드에서 사용하기 쉽게 매핑
+        const postDetail = mapToPostDetail(payload);
+        return postDetail;
+
+    } catch (error) {
+        console.error(`[admin_project_api] getPostDetailById 오류 (requestId: ${requestId}):`, error);
+        throw error;
+    }
+}

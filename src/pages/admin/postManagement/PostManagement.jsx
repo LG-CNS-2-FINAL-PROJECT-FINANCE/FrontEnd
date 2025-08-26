@@ -352,7 +352,7 @@ export default function PostManagement() {
                 <PostDetailModal
                     open={isDetailModalOpen}
                     onClose={handleModalClose}
-                    post={selectedPost}
+                    postId={selectedPost.requestId}
                     onStatusChange={handleStatusChange} // (requestId, newStatus) 시그니처 유지
                 />
             )}
