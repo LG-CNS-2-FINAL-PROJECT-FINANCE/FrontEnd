@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext, useMemo } from 'react';
-import { getPosts } from '../../../api/admin_project_api';
+import {  getPosts, getPostsList } from '../../../api/admin_project_api';
 import dayjs from 'dayjs';
 import { AuthContext } from '../../../context/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -23,34 +23,42 @@ export default function PostManagement() {
     const { accessToken } = useContext(AuthContext);
     const queryClient = useQueryClient();
 
-    // 검색 상태
-    const [searchType, setSearchType] = useState('requestId');
-    const [query, setQuery] = useState('');
-    const [title, setTitle] = useState('');
+    const [searchBy, setSearchBy] = useState('TITLE');     //(title/userSeq)
+    const [keyword, setKeyword] = useState('');           // (검색어)
+    const [requestType, setRequestType] = useState('ALL'); //(CREATE/UPDATE/DELETE)
+    const [requestStatus, setRequestStatus] = useState('ALL'); //(APPROVE/PENDING/DECLINE)
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [requestStatus, setRequestStatus] = useState('ALL'); // PENDING/APPROVED/REJECTED/ALL
-    const [requestType, setRequestType] = useState('ALL');     // CREATE/UPDATE/DELETE/ALL
     const [page, setPage] = useState(1);
-    const [size, setSize] = useState(20);
+    const [size, setSize] = useState(10);
+
+    const [submittedFilters, setSubmittedFilters] = useState({});
 
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedPost, setSelectedPost] = useState(null);
 
-    const debounceRef = useRef(null);
+    const currentFilters = useMemo(() => {
+        return {
+            searchBy,
+            keyword: keyword.trim(),
+            requestType,
+            requestStatus,
+            startDate,
+            endDate,
+            page,
+            size,
+        };
+    }, [searchBy, keyword, requestType, requestStatus, startDate, endDate, page, size]);
 
-    // 화면에서 사용하는 "현재 필터 객체" (queryKey에 그대로 활용)
-    const currentFilters = useMemo(() => ({
-        page,
-        size,
-        searchType,                       // 'requestId' | 'userNo' | 'title' 그대로 전달
-        query: searchType === 'title' ? '' : query.trim(), // title 검색이 아닐 때만 query 사용
-        title: searchType === 'title' ? title.trim() : '', // title 검색일 때만 title 사용
-        startDate,
-        endDate,
-        requestStatus,
-        requestType,
-    }), [page, size, searchType, query, title, startDate, endDate, requestStatus, requestType]);
+    const isSearchActive = useMemo(() => {
+        return (
+            (currentFilters.keyword && currentFilters.keyword !== '') ||
+            (currentFilters.requestType && currentFilters.requestType !== 'ALL') ||
+            (currentFilters.requestStatus && currentFilters.requestStatus !== 'ALL') ||
+            (currentFilters.startDate && currentFilters.startDate !== '') ||
+            (currentFilters.endDate && currentFilters.endDate !== '')
+        );
+    }, [currentFilters]);
 
     const {
         data,
@@ -59,69 +67,100 @@ export default function PostManagement() {
         isError,
         error: queryError,
     } = useQuery({
-        queryKey: ['posts', currentFilters],
+        queryKey: ['posts', submittedFilters],
         queryFn: async ({ queryKey, signal }) => {
             const [, filters] = queryKey;
             if (!accessToken) return { posts: [], total: 0 };
 
-            // 서버는 requestId라는 정확한 키를 계속 사용
-            // - searchType이 'requestId'면 query에 담긴 값으로 requestId 검색
-            // - searchType이 'userNo'면 query를 userNo 검색값으로 사용
-            // - searchType이 'title'이면 title 필드로 검색
-            return getPosts({ ...filters, signal });
+            const isSearchActive = (
+                (filters.keyword && filters.keyword !== '') ||
+                (filters.requestType && filters.requestType !== 'ALL') ||
+                (filters.requestStatus && filters.requestStatus !== 'ALL') ||
+                (filters.startDate && filters.startDate !== '') ||
+                (filters.endDate && filters.endDate !== '')
+            );
+
+            if (isSearchActive) {
+                console.log('[PostManagement] Fetching with getAdminPostsSearch:', filters);
+                return getPosts({ ...filters, signal });
+            } else {
+                console.log('[PostManagement] Fetching with getPostsList (no search terms):', filters.page, filters.size);
+                return getPostsList({ page: filters.page, size: filters.size, signal });
+            }
         },
         enabled: !!accessToken,
         keepPreviousData: true,
+        staleTime: 5 * 60 * 1000,
     });
 
     const posts = data?.posts || [];
     const total = data?.total ?? 0;
+    // const pages = data?.page ?? 1;
     const isLoading = isInitialLoading || isFetching;
     const error = isError ? (queryError?.message || '알 수 없는 오류가 발생했습니다.') : '';
 
-    // 검색 파라미터 변경 시 디바운스 후 쿼리 무효화
     useEffect(() => {
-        if (!accessToken) return;
-        if (debounceRef.current) clearTimeout(debounceRef.current);
-        debounceRef.current = setTimeout(() => {
-            queryClient.invalidateQueries(['posts']); // queryKey가 currentFilters로 구분되므로 이 정도로 충분
-        }, 300);
-        return () => debounceRef.current && clearTimeout(debounceRef.current);
-    }, [currentFilters, accessToken, queryClient]);
+        if (accessToken) {
+            setSubmittedFilters({ // 초기 상태와 일치하도록 설정
+                page: 1,
+                size: 10, // size 초기값
+                searchBy: 'TITLE',
+                keyword: '',
+                requestType: 'ALL',
+                requestStatus: 'ALL',
+                startDate: '',
+                endDate: '',
+            });
+        }
+    }, [accessToken]);
 
-    // 행 클릭 → 상세 모달
-    const handleRowClick = (post) => {
-        // Allow clicking to view details, but buttons will be disabled in modal
-        setSelectedPost(post);
-        setIsDetailModalOpen(true);
-    };
-    const handleModalClose = () => {
-        setIsDetailModalOpen(false);
-        setSelectedPost(null);
-    };
-    const handleStatusChange = (requestId, newStatus) => {
-        // 상태 변경 후 목록 새로고침
-        queryClient.invalidateQueries(['posts']);
-        handleModalClose();
-    };
+    const handleRowClick = (post) => { setSelectedPost(post); setIsDetailModalOpen(true); };
+    const handleModalClose = () => { setIsDetailModalOpen(false); setSelectedPost(null); };
+    const handleStatusChange = (requestId, newStatus) => { queryClient.invalidateQueries(['posts']); handleModalClose(); };
 
     // 버튼 액션
-    const handleSearchClick = () => setPage(1);
+    const handleSearchClick = () => {
+        setPage(1);
+        setSubmittedFilters({
+            page: 1, // 새로운 검색 시 페이지는 항상 1
+            size: size, // 현재 선택된 size 유지
+            searchBy,
+            keyword: keyword.trim(),
+            requestType,
+            requestStatus,
+            startDate,
+            endDate,
+        });
+    }
     const handleReset = () => {
-        setSearchType('requestId');
-        setQuery('');
-        setTitle('');
+        setSearchBy('TITLE');
+        setKeyword('');
+        setRequestType('ALL');
+        setRequestStatus('ALL');
         setStartDate('');
         setEndDate('');
-        setRequestStatus('ALL');
-        setRequestType('ALL');
         setPage(1);
-        setSize(20);
+        setSize(10);
+
+        setSubmittedFilters({
+            page: 1,
+            size: 10,
+            searchBy: 'TITLE',
+            keyword: '',
+            requestType: 'ALL',
+            requestStatus: 'ALL',
+            startDate: '',
+            endDate: '',
+        });
     };
-    const handlePrev = () => { if (page > 1) setPage(page - 1); };
+    const handlePageChange = (newPage) => {
+        setPage(newPage);
+        setSubmittedFilters(prev => ({ ...prev, page: newPage }));
+    };
+    const handlePrev = () => { if (page > 1) handlePageChange(page - 1); };
     const handleNext = () => {
         const maxPage = Math.max(1, Math.ceil((total ?? 0) / size));
-        if (page < maxPage) setPage(page + 1);
+        if (page < maxPage) handlePageChange(page + 1);
     };
 
     return (
@@ -145,35 +184,25 @@ export default function PostManagement() {
                                 <div className="lg:col-span-1">
                                     <label className="block text-xs font-medium text-gray-700 mb-1">검색유형</label>
                                     <select
-                                        value={searchType}
-                                        onChange={(e) => setSearchType(e.target.value)}
+                                        value={searchBy}
+                                        onChange={(e) => setSearchBy(e.target.value)}
                                         className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
                                     >
-                                        <option value="requestId">게시물번호</option>
-                                        <option value="userNo">사용자번호</option>
-                                        <option value="title">제목</option>
+                                        {/*<option value="requestId">게시물번호</option>*/}
+                                        <option value="USER_SEQ">사용자번호</option>
+                                        <option value="TITLE">제목</option>
                                     </select>
                                 </div>
 
-                                {/* 검색어 (하나의 인풋으로 관리: title vs query) */}
                                 <div className="lg:col-span-2">
                                     <label className="block text-xs font-medium text-gray-700 mb-1">검색어</label>
                                     <input
                                         type="search"
-                                        value={searchType === 'title' ? title : query}
-                                        onChange={(e) => {
-                                            const v = e.target.value;
-                                            if (searchType === 'title') {
-                                                setTitle(v);
-                                                setQuery('');        // 혼동 방지: 다른 쪽은 비움
-                                            } else {
-                                                setQuery(v);
-                                                setTitle('');        // 혼동 방지
-                                            }
-                                        }}
+                                        value={keyword}
+                                        onChange={(e) => setKeyword(e.target.value)}
                                         placeholder={
-                                            searchType === 'requestId' ? '게시물번호 입력'
-                                                : searchType === 'userNo' ? '사용자번호 입력'
+                                            searchBy === 'requestId' ? '게시물번호 입력'
+                                                : searchBy === 'userNo' ? '사용자번호 입력'
                                                     : '제목 입력'
                                         }
                                         className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
@@ -191,7 +220,7 @@ export default function PostManagement() {
                                         <option value="ALL">전체</option>
                                         <option value="CREATE">등록</option>
                                         <option value="UPDATE">수정</option>
-                                        <option value="DELETE">삭제</option>
+                                        <option value="STOP">정지</option>
                                     </select>
                                 </div>
 
@@ -249,18 +278,18 @@ export default function PostManagement() {
                             {isLoading ? '로딩 중...' : error ? `에러: ${error}` : `검색결과: ${posts.length}건`}
                         </div>
                         <div className="flex items-center gap-2">
-                            <button onClick={handlePrev} disabled={page <= 1 || isLoading} className="px-2 py-1 border rounded">이전</button>
-                            <span className="text-sm"> {page} </span>
-                            <button onClick={handleNext} disabled={isLoading || (total !== null && page >= Math.ceil(total / size))} className="px-2 py-1 border rounded">다음</button>
-                            <select
+                            {/*<button onClick={handlePrev} disabled={page <= 1 || isLoading} className="px-2 py-1 border rounded">이전</button>*/}
+                            {/*<span className="text-sm"> {page} </span>*/}
+                            {/*<button onClick={handleNext} disabled={isLoading || (total !== null && page >= Math.ceil(total / size))} className="px-2 py-1 border rounded">다음</button>*/}
+                            {/*<select
                                 value={size}
-                                onChange={(e) => { setSize(Number(e.target.value)); setPage(1); }}
+                                onChange={(e) => { setSize(Number(e.target.value)); handlePageChange(1); }}
                                 className="ml-2 px-2 py-1 border rounded"
                             >
                                 <option value={10}>10</option>
                                 <option value={20}>20</option>
                                 <option value={50}>50</option>
-                            </select>
+                            </select>*/}
                         </div>
                     </div>
 
