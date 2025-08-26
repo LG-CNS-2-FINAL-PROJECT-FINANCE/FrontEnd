@@ -221,7 +221,8 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                 onClick={closeOnBackdrop}
             />
 
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100">
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100
+             max-h-[90vh] overflow-y-auto scrollbar-hide">
 
                 <div className="bg-red-500 p-6 rounded-t-2xl text-white">
                     <div className="flex items-center justify-between">
