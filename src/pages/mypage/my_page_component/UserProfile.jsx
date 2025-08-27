@@ -2,9 +2,12 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MdOutlineEmail } from "react-icons/md";
 import { IoCalendarNumberSharp } from "react-icons/io5";
+import useUser from "../../../lib/useUser";
 
 const UserProfile = () => {
     const navigate = useNavigate();
+
+    const { user } = useUser();
 
     const handleAccountManagement = () => {
         navigate('/account-management');
@@ -24,7 +27,7 @@ const UserProfile = () => {
                 style={{ top: '340px' }}
             >
                 <div className="font-bold text-lg text-gray-800">
-                    Nickname
+                    {user?.nickname}
                 </div>
             </div>
             
@@ -47,13 +50,16 @@ const UserProfile = () => {
                 {/* Email */}
                 <div className="flex items-center mb-3">
                     <MdOutlineEmail className="text-gray-600 mr-2" size={16} />
-                    <span className="text-sm text-gray-700">email</span>
+                    <span
+                        className="text-sm text-gray-700 truncate w-[120px]"
+                        title={user?.email}
+                    >{user?.email}</span>
                 </div>
                 
                 {/* Age */}
                 <div className="flex items-center">
                     <IoCalendarNumberSharp className="text-gray-600 mr-2" size={16} />
-                    <span className="text-sm text-gray-700">age</span>
+                    <span className="text-sm text-gray-700" title={user?.age}>{user?.age}</span>
                 </div>
             </div>
         </div>
