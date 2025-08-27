@@ -59,7 +59,7 @@ const UserProfile = () => {
                 {/* Age */}
                 <div className="flex items-center">
                     <IoCalendarNumberSharp className="text-gray-600 mr-2" size={16} />
-                    <span className="text-sm text-gray-700" title={user?.age}>{user?.age}</span>
+                    <span className="text-sm text-gray-700" title={user?.birthDate}>{user?.birthDate}</span>
                 </div>
             </div>
         </div>

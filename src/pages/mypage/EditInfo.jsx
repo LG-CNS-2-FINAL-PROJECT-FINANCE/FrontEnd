@@ -65,8 +65,8 @@ const AccountManagement = () => {
                     <div className="flex flex-col items-center space-y-6">
                         {/* Bull Image */}
                         <img
-                            src="/assets/bull.png"
-                            alt="Bull"
+                            src={user?.role === "CREATOR" ? "/assets/pig.png" : "/assets/bull.png"}
+                            alt={user?.role === "CREATOR" ? "Pig" : "Bull"}
                             className="object-cover rounded-full shadow-lg"
                             style={{ width: '120px', height: '120px' }}
                         />

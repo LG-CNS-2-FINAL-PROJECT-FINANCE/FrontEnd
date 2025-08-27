@@ -6,6 +6,7 @@ import { MdOutlineManageAccounts } from "react-icons/md";
 import { LuUserPen } from "react-icons/lu";
 import { logout } from "../../api/user_api";
 import { useQueryClient } from "@tanstack/react-query";
+import useUser from "../../lib/useUser";
 
 const EditInfo = () => {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ const EditInfo = () => {
   const handleNavigation = (path) => {
     navigate(path);
   };
+
+  const { user } = useUser();
 
   return (
     <div className="flex min-h-screen relative">
@@ -33,14 +36,14 @@ const EditInfo = () => {
           <div className="flex flex-col items-center space-y-6">
             {/* Bull Image */}
             <img
-              src="/assets/bull.png"
-              alt="Bull"
+                src={user?.role === "CREATOR" ? "/assets/pig.png" : "/assets/bull.png"}
+                alt={user?.role === "CREATOR" ? "Pig" : "Bull"}
               className="object-cover rounded-full shadow-lg"
               style={{ width: "120px", height: "120px" }}
             />
 
             {/* Nickname Display */}
-            <div className="text-xl font-bold text-gray-800">Nickname</div>
+            <div className="text-xl font-bold text-gray-800">{user?.nickname}</div>
 
             {/* Form Fields */}
             <div className="w-full space-y-4 mt-8">
