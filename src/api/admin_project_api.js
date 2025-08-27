@@ -155,3 +155,23 @@ export async function getPostDetailById(requestId, signal) {
         throw error;
     }
 }
+
+//게시물 숨김처리
+export async function togglePostHoldStatus(projectId, adminId, holdReason) {
+    console.log(`[admin_project_api] togglePostHoldStatus 호출됨. ProjectId: ${projectId}, AdminId: ${adminId}`);
+
+    const payload = {
+        // adminId: adminId,
+        holdReason: holdReason
+    };
+
+    try {
+        const res = await api.post(`/product/request/hold/toggle/${projectId}`, payload);
+        console.log(`[admin_project_api] togglePostHoldStatus 응답:`, res.data);
+        return res.data;
+
+    } catch (error) {
+        console.error(`[admin_project_api] togglePostHoldStatus 오류 (ProjectId: ${projectId}):`, error);
+        throw error;
+    }
+}
