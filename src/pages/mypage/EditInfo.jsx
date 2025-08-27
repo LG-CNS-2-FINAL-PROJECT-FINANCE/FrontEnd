@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UserProfile from './my_page_component/UserProfile';
 import useUser from "../../lib/useUser";
 import { toast } from "react-toastify";
@@ -35,11 +35,18 @@ const AccountManagement = () => {
             setFormData({nickname: ""});
             toast.success("닉네임이 수정되었습니다!");
 
+            window.location.reload();
         } catch (err) {
             console.error("❌ 닉네임 수정 실패:", err);
             toast.error("닉네임 수정에 실패했습니다.");
         }
     };
+
+    useEffect(() => {
+        if (user?.nickname) {
+            setFormData({ nickname: user.nickname });
+        }
+    }, [user]);
 
     return (
         <div className="flex min-h-screen relative">
@@ -81,7 +88,7 @@ const AccountManagement = () => {
                                 </div>
                                 <input
                                     type="text"
-                                    value={user?.email}
+                                    value={user?.email ?? ""}
                                     readOnly
                                     className="px-1 w-full py-2 border-b border-gray-300 bg-gray-100 text-gray-900 cursor-not-allowed"
                                 />
@@ -96,10 +103,10 @@ const AccountManagement = () => {
                                     <input
                                         type="text"
                                         name="nickname"
-                                        value={formData.nickname}
+                                        value={formData.nickname ?? ""}
                                         onChange={handleInputChange}
                                         className="w-full border-b border-gray-300 focus:border-blue-500 outline-none py-2 bg-transparent"
-                                        placeholder={user?.nickname}
+                                        placeholder="닉네임을 입력해주세요."
                                     />
                                     <button
                                         onClick={handleEditNickname}
@@ -142,7 +149,7 @@ const AccountManagement = () => {
                                 </div>
                                 <input
                                     type="text"
-                                    value={user?.birthDate}
+                                    value={user?.birthDate ?? ""}
                                     readOnly
                                     className="px-1 w-full py-2 border-b border-gray-300 bg-gray-100 text-gray-900 cursor-not-allowed">
 
