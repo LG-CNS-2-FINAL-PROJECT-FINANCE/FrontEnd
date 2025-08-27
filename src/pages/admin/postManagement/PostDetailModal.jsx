@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { privateApi as api } from '../../../api/axiosInstance';
 import dayjs from 'dayjs';
 import { useQuery } from '@tanstack/react-query';
 import { getPostDetailById } from '../../../api/admin_project_api';
 import CopyIcon from '../../../component/CopyIcon';
+import PostHoldModal from './PostHoldModal';
+import {AuthContext} from "../../../context/AuthContext";
 
 const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -91,6 +93,10 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
     const [isUpdating, setIsUpdating] = useState(false);
     const [updateError, setUpdateError] = useState('');
     const [copiedMessage, setCopiedMessage] = useState({ show: false, text: '' });
+    const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
+
+    const { user: authUser } = useContext(AuthContext); //로그인한 사용자 정보를 가져오기 위해서 사용함
+    console.log('지금 authcontext 정보 가져오는중?', authUser)
 
     const {
         data: postDetail,
@@ -211,6 +217,17 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
         if (e.target === e.currentTarget) onClose();
     };
 
+    const handleOpenHoldModal = () => {
+        setIsHoldModalOpen(true);
+    };
+
+    const handleCloseHoldModal = () => {
+        setIsHoldModalOpen(false);
+        onClose();
+        onStatusChange();
+    };
+
+
     const titleId = 'post-detail-title';
     const descId = 'post-detail-desc';
 
@@ -264,7 +281,15 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
 
                     <div className="bg-slate-50 p-5 rounded-xl mb-6 border border-slate-200">
                         <div className="mb-4">
-                            <h3 className="text-lg font-semibold text-slate-900 mb-2">게시물 정보</h3>
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-slate-900">게시물 정보</h3>
+                                <button
+                                    onClick={handleOpenHoldModal}
+                                    className="px-3 py-1 bg-slate-200 text-slate-700 rounded-md text-sm hover:bg-slate-300 transition-colors"
+                                >
+                                    숨김 처리
+                                </button>
+                            </div>
                             <div className="text-sm text-slate-500 space-y-1">
                                 <div className="flex items-center">
                                     <span>게시물 번호: {postDetail.requestId}</span>
@@ -330,6 +355,15 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                     </div>
                 </div>
             </div>
+            {isHoldModalOpen && (
+                <PostHoldModal
+                    open={isHoldModalOpen}
+                    onClose={handleCloseHoldModal}
+                    projectId={postDetail.requestId}
+                    adminId={authUser}
+                    onUpdate={onStatusChange}
+                />
+            )}
         </div>
     );
 }
