@@ -14,9 +14,9 @@ const UserProfile = () => {
     };
     return (
         <div className="w-[220px] relative bg-white min-h-screen">
-            <img 
-                src="/assets/bull.png" 
-                alt="Bull" 
+            <img
+                src={user?.role === "CREATOR" ? "/assets/pig.png" : "/assets/bull.png"}
+                alt={user?.role === "CREATOR" ? "Pig" : "Bull"}
                 className="absolute object-cover rounded-full shadow-lg"
                 style={{ left: '30px', top: '150px', width: '170px', height: '170px' }}
             />
