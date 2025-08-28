@@ -112,7 +112,7 @@ export default function TradeHistory({ projectId, myTradeDoneHistory, myTradeYet
                     type="button"
                     className="p-1 rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
                     onClick={() => {
-                     mutation.mutate({orderId: item.orderId });
+                      mutation.mutate({ orderId: item.orderId });
                     }}
                     title="주문 취소"
                   >
