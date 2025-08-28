@@ -31,6 +31,7 @@ import ProductRegistration from "./pages/product/ProductRegistration.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import MyProduct from "./pages/mypage/MyProduct.jsx";
 import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 

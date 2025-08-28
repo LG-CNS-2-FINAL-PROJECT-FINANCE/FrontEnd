@@ -2,10 +2,10 @@ import React from "react";
 import { FaFilePdf, FaFileExcel, FaDownload } from "react-icons/fa"; // 파일 타입에 따른 아이콘
 
 function InvestmentFiles({ files }) {
-    const getFileIcon = (fileName) => {
-        if (!fileName || typeof fileName !== 'string') {
-          return <FaDownload className="text-gray-500" />;
-        }
+  const getFileIcon = (fileName) => {
+    if (!fileName || typeof fileName !== 'string') {
+      return <FaDownload className="text-gray-500" />;
+    }
 
         const lowerCaseFileName = fileName.toLowerCase();
 

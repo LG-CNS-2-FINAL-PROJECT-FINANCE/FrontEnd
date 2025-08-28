@@ -49,7 +49,7 @@ export const createMyWallet = async () => {
 export const depositAccount = async (deposit) =>{
   console.log("deposit: ", deposit);
   try {
-    const response = await privateApi.post(`/asset/account/deposit`, { deposit }, {
+    const response = await privateApi.post(`/asset/account/deposit`, { "price":deposit }, {
       headers: {
         "Content-Type": "application/json",
       },

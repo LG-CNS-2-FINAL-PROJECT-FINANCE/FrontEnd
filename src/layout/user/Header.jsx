@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { LuUserRound } from "react-icons/lu";
 import useUser from "../../lib/useUser";
+import { useTheme } from "../../context/ThemeContext";
+import { useQueryClient } from "@tanstack/react-query";
 
 function Header() {
   const navigate = useNavigate();
