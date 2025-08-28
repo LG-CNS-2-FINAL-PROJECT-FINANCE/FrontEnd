@@ -354,19 +354,18 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
                 ) : (
                   walletTokenTradeHistory.map((history, index) => {
                     const { date, time } = toKSTDateTime(history.tradedAt);
-                    const isBuy = history.tradeType === "BUY" || history.tradeType === "매수";
                     return (
                       <tr key={index} className="border-b border-gray-100">
                         <td className="py-4 w-1/5">{history.projectId}</td>
-                        <td className="font-bold w-1/5">
+                        <td className=" w-1/5">
                           {history.tokenQuantity}
                         </td>
-                        <td className="text-blue-500 w-1/5">
+                        <td className={`py-4 font-semibold ${history.tradeType===1 ? "text-red-500" : "text-blue-500"} w-1/5`}>
                           {formatNumber(String(history.tradePrice))}
                         </td>
                         <td className="w-1/5">{date} {time}</td>
-                        <td className={`w-1/5 font-semibold ${isBuy ? "text-red-500" : "text-green-600"}`}>
-                          {history.tradeType}
+                        <td className={`w-1/5 font-semibold text-${history.tradeType===1?"red-500":"blue-500"}  `}>
+                          {history.tradeType===0?"매도":"매수"}
                         </td>
                       </tr>
                     );

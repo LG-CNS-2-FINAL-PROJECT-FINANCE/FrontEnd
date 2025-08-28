@@ -65,7 +65,7 @@ export const getTokenTradeSellHistory = async (projectId) => {
 
 export const deleteTokenTrade = async (data) => {
   try {
-    const response = await privateApi.post(`/market/trade/delete`, { data });
+    const response = await privateApi.post(`/market/trade/order/delete`, { data });
     return response.data;
   } catch (error) {
     console.error(error);
