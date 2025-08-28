@@ -74,8 +74,12 @@ function InvestmentCard({ project, imageUrl, disableNavigation }) {
                 )}
 
                 <div className="flex justify-between text-xs text-gray-600 mt-1">
-                    <div>{project.type} 요청</div>
-                    <div>{project.status}</div>
+                    {project.type !== null && (
+                        <div>{project.type}</div>
+                    )}
+                    {project.status !== null && (
+                        <div>{project.status}</div>
+                    )}
                 </div>
             </div>
         </div>

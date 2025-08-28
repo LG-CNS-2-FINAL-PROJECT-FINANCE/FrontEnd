@@ -5,7 +5,7 @@ function mapToMyInvestment(item) {
     const product = {};
 
     return {
-        requestId : item.product.requestId ?? null,
+        // requestId : item.product.requestId ?? null,
         projectId: item.product.projectId ?? null, //프로젝트아이디
         title: item.product.title ?? null, //제목
         amount: item.product.amount ?? null, //투자금

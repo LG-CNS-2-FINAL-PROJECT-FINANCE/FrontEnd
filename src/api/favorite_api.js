@@ -14,6 +14,7 @@ function mapToMyFavorite(item){
         endDate: item.endDate ?? null, //마감일
         content: item.content ?? null, //본문
         summary: item.summary ?? null, //요약
+        type: item.type ?? null,
     }
 
 }
