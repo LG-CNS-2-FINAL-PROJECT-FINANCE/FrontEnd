@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { IoIosAdd } from "react-icons/io";
 import InvestmentCard from '../../../component/InvestmentCard';
 import useUser from "../../../lib/useUser";
-import { getInvestments } from '../../../api/project_api';
 import { getMyInvestmentList } from '../../../api/myPage_api';
 import { useQuery } from "@tanstack/react-query";
 
@@ -126,14 +125,17 @@ const InvestmentPreview = ({}) => {
                     <div
                         className="border border-gray-200 rounded-lg p-6 relative w-full"
                     >
+                        <button
+                            className="absolute top-4 right-6 cursor-pointer transition-colors duration-200 hover:text-gray-800"
+                            onClick={handleMoreClick}
+                        >
+                            <IoIosAdd className="text-2xl text-gray-600" />
+                        </button>
+                        {/*갯수 제한 둘 때 아래 사용*/}
+                        {/*
                         {displayedInvestments.length > 5 && (
-                            <button
-                                className="absolute top-4 right-6 cursor-pointer transition-colors duration-200 hover:text-gray-800"
-                                onClick={handleMoreClick}
-                            >
-                                <IoIosAdd className="text-2xl text-gray-600" />
-                            </button>
-                        )}
+
+                        )}*/}
 
                         <div className="grid grid-cols-4">
                             {displayedInvestments.map((investment) => (
