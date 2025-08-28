@@ -2,18 +2,18 @@ import { privateApi as api } from './axiosInstance';
 
 function mapToMyInvestment(item) {
 
-    const product = item.product || {};
+    const product = {};
 
     return {
-        projectId: product.projectId ?? null, //프로젝트아이디
-        title: product.title ?? null, //제목
-        amount: product.amount ?? null, //투자금
-        deadline: product.deadline ?? null, // 마감 기한
-        progress: product.percent ?? null, //퍼센트
+        projectId: item.product.projectId ?? null, //프로젝트아이디
+        title: item.product.title ?? null, //제목
+        amount: item.product.amount ?? null, //투자금
+        deadline: item.product.deadline ?? null, // 마감 기한
+        progress: item.product.percent ?? null, //퍼센트
         // views: item.viewCount ?? null, //조회수
         // status: item.status ?? null, // 상태
         // startDate: item.startDate ?? null, //시작일
-        endDate: product.endDate ?? null, //마감일
+        endDate: item.product.endDate ?? null, //마감일
         // account: item.account ?? null, //계좌
 
         investedPrice : item.investedPrice, // 투자금
