@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { privateApi as api } from '../../../api/axiosInstance';
 import dayjs from 'dayjs';
+import { useQuery } from '@tanstack/react-query';
+import { getPostDetailById } from '../../../api/admin_project_api';
+import CopyIcon from '../../../component/CopyIcon';
+import PostHoldModal from './PostHoldModal';
+import {AuthContext} from "../../../context/AuthContext";
 
-// Small UI helpers
 const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -12,7 +16,7 @@ const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
 
 const XIcon = ({ className = 'w-5 h-5' }) => (
     <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 10 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 10 0 01-1.414-1.414L8.586 10 4.293 5.707a1 10 0 010-1.414z" clipRule="evenodd" />
     </svg>
 );
 
@@ -61,152 +65,15 @@ const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children
     );
 };
 
-export default function PostDetailModal({ open, onClose, post, onStatusChange }) {
-    const [isUpdating, setIsUpdating] = useState(false);
-    const [updateError, setUpdateError] = useState('');
-
-    if (!open || !post) return null;
-
-    const isActionDisabled = post.status === 'APPROVED' || post.status === 'REJECTED';
-
-    const handleAction = async (actionType) => {
-        setIsUpdating(true);
-        setUpdateError('');
-        try {
-            const endpoint = actionType === 'approve' ? '/product/request/approve' : '/product/request/reject';
-
-            // Ensure we have a valid requestId
-            const requestId = post.requestId || post.postNo || post.id;
-            if (!requestId) {
-                throw new Error('Request ID is missing');
-            }
-
-            const payload = { requestId };
-
-            console.log('Sending payload:', payload);
-            console.log('Post object:', post);
-
-            await api.post(endpoint, payload);
-            onStatusChange(requestId, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
-            onClose();
-        } catch (e) {
-            console.error('게시물 상태 업데이트 실패:', e);
-            console.error('Response data:', e?.response?.data);
-            setUpdateError(e?.response?.data?.message || '상태 업데이트에 실패했습니다. 다시 시도해주세요.');
-        } finally {
-            setIsUpdating(false);
-        }
-    };
-
-    const closeOnBackdrop = (e) => {
-        // close only when clicking the backdrop, not the panel
-        if (e.target === e.currentTarget) onClose();
-    };
-
-    const titleId = 'post-detail-title';
-    const descId = 'post-detail-desc';
-
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Muted backdrop */}
-            <div 
-                className="absolute inset-0 bg-slate-700/60 transition-opacity duration-300"
-                onClick={closeOnBackdrop}
-            />
-            
-            {/* Main Modal */}
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100">
-                
-                {/* Header with red background */}
-                <div className="bg-red-500 p-6 rounded-t-2xl text-white">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div>
-                                <h2 className="text-xl font-bold mb-1">
-                                    게시물 상세
-                                </h2>
-                                <p className="text-rose-100 text-sm">
-                                    {post.title || '제목 없음'}
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            <StatusBadge status={post.status} />
-                            <button
-                                onClick={onClose}
-                                className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center transition-colors"
-                            >
-                                <span className="text-lg">×</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-6">
-                    {/* Notification Messages */}
-                    {updateError && (
-                        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-center gap-2">
-                            <span className="text-lg">⚠️</span>
-                            {updateError}
-                        </div>
-                    )}
-
-                    {/* Post Information Card */}
-                    <div className="bg-slate-50 p-5 rounded-xl mb-6 border border-slate-200">
-                        <div className="mb-4">
-                            <h3 className="text-lg font-semibold text-slate-900 mb-2">게시물 정보</h3>
-                            <div className="text-sm text-slate-500 space-y-1">
-                                <div>게시물 번호: {post.requestId}</div>
-                                <div>사용자: {post.userNo}</div>
-                            </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                            <Field label="제목" value={post.title} className="col-span-2" />
-                            <Field label="시작일자" value={formatDate(post.startDate)} />
-                            <Field label="종료일자" value={formatDate(post.endDate)} />
-                            <Field label="게시물상태" value={post.status} />
-                            <Field label="요약" value={post.summary || '요약 없음'} className="col-span-2" />
-                        </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="space-y-4">
-                        <div className="flex flex-wrap gap-3 justify-center">
-                            <ActionButton
-                                kind="approve"
-                                onClick={() => handleAction('approve')}
-                                disabled={isActionDisabled || isUpdating}
-                                loading={isUpdating}
-                            >
-                                승인
-                            </ActionButton>
-                            
-                            <ActionButton
-                                kind="reject"
-                                onClick={() => handleAction('reject')}
-                                disabled={isActionDisabled || isUpdating}
-                                loading={isUpdating}
-                            >
-                                거절
-                            </ActionButton>
-                        </div>
-                        
-                        <div className="pt-4 border-t border-slate-200 flex justify-end">
-                            <ActionButton 
-                                kind="secondary" 
-                                onClick={onClose} 
-                                disabled={isUpdating}
-                            >
-                                닫기
-                            </ActionButton>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
+function formatDate(d) {
+    if (!d) return null;
+    try {
+        const date = typeof d === 'number' ? new Date(d) : new Date(d);
+        if (isNaN(date.getTime())) return d;
+        return dayjs(date).format('YYYY-MM-DD');
+    } catch {
+        return d;
+    }
 }
 
 function Field({ label, value, className = '' }) {
@@ -222,13 +89,281 @@ function Field({ label, value, className = '' }) {
     );
 }
 
-function formatDate(d) {
-    if (!d) return null;
-    try {
-        const date = typeof d === 'number' ? new Date(d) : new Date(d);
-        if (isNaN(date.getTime())) return d;
-        return dayjs(date).format('YYYY-MM-DD');
-    } catch {
-        return d;
+export default function PostDetailModal({ open, onClose, postId, onStatusChange }) {
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [updateError, setUpdateError] = useState('');
+    const [copiedMessage, setCopiedMessage] = useState({ show: false, text: '' });
+    const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
+
+    const { user: authUser } = useContext(AuthContext); //로그인한 사용자 정보를 가져오기 위해서 사용함
+    console.log('지금 authcontext 정보 가져오는중?', authUser)
+
+    const {
+        data: postDetail,
+        isLoading,
+        isError,
+        error: queryError,
+    } = useQuery({
+        queryKey: ['postDetail', postId],
+        queryFn: async ({ signal }) => getPostDetailById(postId, signal),
+        enabled: !!postId,
+        staleTime: 5 * 60 * 1000,
+        cacheTime: 10 * 60 * 1000,
+    });
+
+    const handleCopy = (text, fieldName) => {
+        setCopiedMessage({ show: true, text: `${fieldName} 복사 완료!` });
+        // 일정 시간 후 메시지 숨김
+        setTimeout(() => {
+            setCopiedMessage({ show: false, text: '' });
+        }, 1500); // 1.5초 후 사라짐
+    };
+
+    useEffect(() => {
+        if (!open) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                onClose();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [open, onClose]);
+
+    useEffect(() => {
+        if (open) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [open]);
+
+    if (!open || !postId) return null;
+
+    if (isLoading) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-700/60">
+                <Spinner className="w-8 h-8 text-white" />
+                <p className="ml-2 text-white">데이터 로딩 중...</p>
+            </div>
+        );
     }
+
+    if (isError) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-700/60">
+                <div className="bg-white p-6 rounded-2xl shadow-xl">
+                    <p className="text-rose-600">오류 발생: {queryError?.message || '상세 정보를 불러올 수 없습니다.'}</p>
+                    <button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-200 rounded-lg">닫기</button>
+                </div>
+            </div>
+        );
+    }
+
+    if (!postDetail) {
+        return (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-700/60">
+                <div className="bg-white p-6 rounded-2xl shadow-xl">
+                    <p className="text-rose-600">해당 게시물을 찾을 수 없습니다.</p>
+                    <button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-200 rounded-lg">닫기</button>
+                </div>
+            </div>
+        );
+    }
+
+    const isActionDisabled = postDetail.status === 'APPROVED' || postDetail.status === 'REJECTED';
+
+    const handleAction = async (actionType) => {
+        setIsUpdating(true);
+        setUpdateError('');
+        try {
+            const endpoint = actionType === 'approve' ? '/product/request/approve' : '/product/request/reject';
+
+            const requestId = postDetail.requestId;
+            if (!requestId) {
+                throw new Error('Request ID is missing');
+            }
+
+            const payload = { requestId };
+
+            console.log('Sending payload:', payload);
+            console.log('Post detail object:', postDetail);
+
+            const api_instance = api;
+            await api_instance.post(endpoint, payload);
+
+            onStatusChange(requestId, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
+            onClose();
+        } catch (e) {
+            console.error('게시물 상태 업데이트 실패:', e);
+            console.error('Response data:', e?.response?.data);
+            setUpdateError(e?.response?.data?.message || '상태 업데이트에 실패했습니다. 다시 시도해주세요.');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const closeOnBackdrop = (e) => {
+        if (e.target === e.currentTarget) onClose();
+    };
+
+    const handleOpenHoldModal = () => {
+        setIsHoldModalOpen(true);
+    };
+
+    const handleCloseHoldModal = () => {
+        setIsHoldModalOpen(false);
+        onClose();
+        onStatusChange();
+    };
+
+
+    const titleId = 'post-detail-title';
+    const descId = 'post-detail-desc';
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+                className="absolute inset-0 bg-slate-700/60 transition-opacity duration-300"
+                onClick={closeOnBackdrop}
+            />
+
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100
+             max-h-[90vh] overflow-y-auto scrollbar-hide">
+
+                <div className="bg-red-500 p-6 rounded-t-2xl text-white">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div>
+                                <h2 className="text-xl font-bold mb-1" id={titleId}>
+                                    게시물 상세
+                                </h2>
+                                <p className="text-rose-100 text-sm">
+                                    {postDetail.title || '제목 없음'}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <StatusBadge status={postDetail.status} />
+                            <button
+                                onClick={onClose}
+                                className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-400 flex items-center justify-center transition-colors"
+                            >
+                                <span className="text-lg">×</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-6">
+                    {updateError && (
+                        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-center gap-2">
+                            <span className="text-lg">⚠️</span>
+                            {updateError}
+                        </div>
+                    )}
+
+                    {copiedMessage.show && (
+                        <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm text-center animate-pulse">
+                            {copiedMessage.text}
+                        </div>
+                    )}
+
+                    <div className="bg-slate-50 p-5 rounded-xl mb-6 border border-slate-200">
+                        <div className="mb-4">
+                            <div className="flex justify-between items-center mb-4">
+                                <h3 className="text-lg font-semibold text-slate-900">게시물 정보</h3>
+                                <button
+                                    onClick={handleOpenHoldModal}
+                                    className="px-3 py-1 bg-slate-200 text-slate-700 rounded-md text-sm hover:bg-slate-300 transition-colors"
+                                >
+                                    숨김 처리
+                                </button>
+                            </div>
+                            <div className="text-sm text-slate-500 space-y-1">
+                                <div className="flex items-center">
+                                    <span>게시물 번호: {postDetail.requestId}</span>
+                                    <CopyIcon textToCopy={postDetail.requestId} onCopySuccess={() => handleCopy(postDetail.requestId, '게시물 번호')} />
+                                </div>
+                                <div className="flex items-center">
+                                    <span>사용자: {postDetail.userNo}</span>
+                                    <CopyIcon textToCopy={postDetail.userNo} onCopySuccess={() => handleCopy(postDetail.userNo, '사용자 번호')} />
+                                </div>
+                                {postDetail.goalAmount && <div>목표 금액: {postDetail.goalAmount}</div>}
+                                {postDetail.minInvestment && <div>최저 투자금액: {postDetail.minInvestment}</div>}
+                                {postDetail.adminId && <div>관리자 ID: {postDetail.adminId}</div>}
+                                {postDetail.updateStopReason && <div>정지/수정 사유: {postDetail.updateStopReason}</div>}
+                                {postDetail.rejectReason && <div>거절 사유: {postDetail.rejectReason}</div>}
+                                {postDetail.files && postDetail.files.length > 0 && (
+                                    <div>첨부 파일: {postDetail.files.map(file => (
+                                        <a key={file.url} href={file.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">{file.name}</a>
+                                    ))}</div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                            <Field label="제목" value={postDetail.title} className="col-span-2" />
+                            <Field label="시작일자" value={formatDate(postDetail.startDate)} />
+                            <Field label="종료일자" value={formatDate(postDetail.endDate)} />
+                            <Field label="게시물상태" value={postDetail.status} />
+                            <Field label="요청유형" value={postDetail.type} />
+                            <Field label="요약" value={postDetail.summary || '요약 없음'} className="col-span-2" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex flex-wrap gap-3 justify-center">
+                            <ActionButton
+                                kind="approve"
+                                onClick={() => handleAction('approve')}
+                                disabled={isActionDisabled || isUpdating}
+                                loading={isUpdating}
+                            >
+                                승인
+                            </ActionButton>
+
+                            <ActionButton
+                                kind="reject"
+                                onClick={() => handleAction('reject')}
+                                disabled={isActionDisabled || isUpdating}
+                                loading={isUpdating}
+                            >
+                                거절
+                            </ActionButton>
+                        </div>
+
+                        <div className="pt-4 border-t border-slate-200 flex justify-end">
+                            <ActionButton
+                                kind="secondary"
+                                onClick={onClose}
+                                disabled={isUpdating}
+                            >
+                                닫기
+                            </ActionButton>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {isHoldModalOpen && (
+                <PostHoldModal
+                    open={isHoldModalOpen}
+                    onClose={handleCloseHoldModal}
+                    projectId={postDetail.requestId}
+                    adminId={authUser}
+                    onUpdate={onStatusChange}
+                />
+            )}
+        </div>
+    );
 }

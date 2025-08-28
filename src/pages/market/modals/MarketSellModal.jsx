@@ -2,9 +2,12 @@ import { useMemo, useState } from "react";
 import SalesChart from "../SalesChart";
 import { toast } from "react-toastify";
 import useScrollLock from "../../../component/useScrollLock";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {tradeSell} from "../../../api/market_api";
 
-export default function MarketSellModal({ isOpen, onClose, onConfirm }) {
+export default function MarketSellModal({tradeHistory,tradeHistoryLoading, projectId,isOpen, onClose, onConfirm }) {
   useScrollLock(isOpen);
+  const queryClient = useQueryClient();
   const [priceStr, setPriceStr] = useState("");
   const [qtyStr, setQtyStr] = useState("");
   // Hook들은 조건부 return 위에
@@ -17,7 +20,6 @@ export default function MarketSellModal({ isOpen, onClose, onConfirm }) {
     [qtyStr]
   );
   const total = useMemo(() => price * qty, [price, qty]);
-  if (!isOpen) return null;
 
   const format = (digits) => digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   const onlyDigits = (v) => v.replace(/[^\d]/g, "");
@@ -31,18 +33,34 @@ export default function MarketSellModal({ isOpen, onClose, onConfirm }) {
     setQtyStr(d ? format(d) : "");
   };
 
+  const mutation = useMutation({
+    mutationFn: (payload)=> tradeSell(payload),
+    onSuccess: () => {
+      toast.success(`판매 요청이 완료되었습니다.`, {
+        position: "bottom-right",
+      });
+      queryClient.refetchQueries({ queryKey: ["purchaseBidHistory", projectId] });
+      queryClient.refetchQueries({ queryKey: ["sellBidHistory", projectId] });
+      queryClient.refetchQueries({ queryKey: ["tradeHistory", projectId] });
+      onClose?.();
+    },
+    onError: (error) => {
+      toast.error(`판매 요청에 실패하였습니다.`, {
+        position: "bottom-right",
+      });
+    },
+  });
+
   const submit = () => {
     if (!price || !qty) return;
     onConfirm?.({ price, qty, total });
-    toast.success(`판매 요청이 완료되었습니다.`, {
-      style: { backgroundColor: "#fff", color: "#111" },
-      progressStyle: { backgroundColor: "#ef4444" },
-    });
+    mutation.mutate({projectId, purchasePrice:price, tokenQuantity:qty, ordersType:0 });
   };
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose?.();
   };
+  if (!isOpen) return null;
 
   return (
     <div
@@ -59,7 +77,7 @@ export default function MarketSellModal({ isOpen, onClose, onConfirm }) {
 
         <h2 className="text-2xl font-bold text-center mb-1">판매하기</h2>
         <p className="text-center text-gray-500 mb-6">(가격 단위: 원)</p>
-        <SalesChart />
+        <SalesChart tradeHistory={!tradeHistoryLoading ? tradeHistory : null} />
 
         <label className="mt-4 block text-sm text-gray-500 mb-1">
           판매 가격

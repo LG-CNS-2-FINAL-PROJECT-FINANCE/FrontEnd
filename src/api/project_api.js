@@ -35,8 +35,6 @@ function mapToInvestmentCardData(item) {
 
 //investmentList에 사용
 export async function getInvestments(options = {}) {
-    console.log('[project_api] getInvestments 호출됨');
-
     try {
         const { signal, ...restOptions } = options;
         const res = await authedGet('/product', { signal, ...restOptions });
@@ -61,11 +59,11 @@ export async function getInvestments(options = {}) {
 }
 
 //investmentDetail에 사용
-export async function getInvestmentsDetail(projectId, options = {}){
-    console.log(`[project_api] getInvestmentsDetail 호출됨. ID: ${projectId}`);
-
+export async function getInvestmentsDetail(url,projectId, options = {}){
     try{
-        const res = await authedGet(`/product/${projectId}`, options);
+
+        const res = await authedGet(`${url}/${projectId}`, options);
+
         const payload = res.data;
 
         const detail = mapToInvestmentCardData(payload);
@@ -94,7 +92,7 @@ export async function getInvestmentsDetail(projectId, options = {}){
         // ✅ Map favorite flag robustly - handle different response formats
         detail.isFavorite = payload.favorite ?? payload.isFavorited ?? payload.favorited ?? false;
         detail.isInvested = payload.isInvested ?? false; // 투자 여부
-        detail.tokenPrice = payload.tokenPrice ?? null; // 토큰 가격 -> 이건 고민해봐야함 여기서 불러올지 아니면 다른 곳에서 불러올지
+        detail.tokenPrice = payload.tradePrice ?? null; // 토큰 가격 -> 이건 고민해봐야함 여기서 불러올지 아니면 다른 곳에서 불러올지
 
         return detail;
 
