@@ -1,18 +1,30 @@
 import React, { useState } from 'react';
-import { useTheme } from '../../context/ThemeContext';
+import { createProductRequest, validateProductForm } from '../../api/project_registration_api';
+import RegisterConfirmation from './RegisterConfirmation';
 
 function ProductRegistration() {
+    // Form state
     const [formData, setFormData] = useState({
         title: '',
         description: '',
         summary: '',
-        targetAmount: '',
-        minInvestment: ''
+        goalAmount: '',
+        minInvestment: '',
+        startDate: '',
+        endDate: ''
     });
+
+    // UI state
     const [documentFile, setDocumentFile] = useState(null);
     const [imageFile, setImageFile] = useState(null);
-    const { themeColors } = useTheme();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
 
+    // Modal state
+    const [showConfirmation, setShowConfirmation] = useState(false);
+    const [productTitle, setProductTitle] = useState('');
+
+    // Form handlers
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -22,21 +34,44 @@ function ProductRegistration() {
     };
 
     const handleDocumentUpload = (e) => {
-        const file = e.target.files[0];
-        setDocumentFile(file);
+        setDocumentFile(e.target.files[0]);
     };
 
     const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        setImageFile(file);
+        setImageFile(e.target.files[0]);
     };
 
-    const handleSubmit = (e) => {
+    // Form submission
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Form Data:', formData);
-        console.log('Document:', documentFile);
-        console.log('Image:', imageFile);
-        alert('상품 등록 신청이 완료되었습니다! 관리자 심사 후 승인됩니다.');
+
+        // Reset error messages
+        setSubmitError('');
+
+        // Validate form including file uploads
+        const validation = validateProductForm(formData, documentFile, imageFile);
+        if (!validation.isValid) {
+            const firstError = Object.values(validation.errors)[0];
+            setSubmitError(firstError);
+            return;
+        }
+
+        setIsSubmitting(true);
+
+        try {
+            const result = await createProductRequest(formData, documentFile, imageFile);
+
+            if (result.success) {
+                setProductTitle(formData.title);
+                setShowConfirmation(true);
+            } else {
+                setSubmitError(result.error);
+            }
+        } catch (error) {
+            setSubmitError('예상치 못한 오류가 발생했습니다. 다시 시도해주세요.');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -48,6 +83,13 @@ function ProductRegistration() {
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
+                    {/* Error Message */}
+                    {submitError && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 flex items-center gap-2">
+                            <span className="text-lg">⚠️</span>
+                            {submitError}
+                        </div>
+                    )}
                     {/* 제목 - 상품명 입력 */}
                     <div className="space-y-2">
                         <label className="block text-lg font-semibold text-gray-700">제목</label>
@@ -57,8 +99,35 @@ function ProductRegistration() {
                             value={formData.title}
                             onChange={handleInputChange}
                             placeholder="상품명 입력"
+                            required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                         />
+                    </div>
+
+                    {/* 투자 기간 */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="block text-lg font-semibold text-gray-700">시작일</label>
+                            <input
+                                type="date"
+                                name="startDate"
+                                value={formData.startDate}
+                                onChange={handleInputChange}
+                                required
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-lg font-semibold text-gray-700">종료일</label>
+                            <input
+                                type="date"
+                                name="endDate"
+                                value={formData.endDate}
+                                onChange={handleInputChange}
+                                required
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                            />
+                        </div>
                     </div>
 
                     {/* 문서 업로드 */}
@@ -72,8 +141,8 @@ function ProductRegistration() {
                                 className="hidden"
                                 accept=".pdf,.doc,.docx"
                             />
-                            <label 
-                                htmlFor="documentUpload" 
+                            <label
+                                htmlFor="documentUpload"
                                 className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
                             >
                                 파일선택
@@ -98,8 +167,8 @@ function ProductRegistration() {
                                 className="hidden"
                                 accept="image/*"
                             />
-                            <label 
-                                htmlFor="imageUpload" 
+                            <label
+                                htmlFor="imageUpload"
                                 className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
                             >
                                 이미지 선택
@@ -144,8 +213,8 @@ function ProductRegistration() {
                         <label className="block text-lg font-semibold text-gray-700">모집금액</label>
                         <input
                             type="number"
-                            name="targetAmount"
-                            value={formData.targetAmount}
+                            name="goalAmount"
+                            value={formData.goalAmount}
                             onChange={handleInputChange}
                             placeholder="목표 모집금액을 입력해주세요 (원)"
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
@@ -169,12 +238,29 @@ function ProductRegistration() {
                     <div className="flex justify-center pt-6">
                         <button
                             type="submit"
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 outline-none"
+                            disabled={isSubmitting}
+                            className={`font-semibold py-3 px-8 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 outline-none flex items-center gap-2 ${isSubmitting
+                                    ? 'bg-gray-400 cursor-not-allowed text-gray-200'
+                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                                }`}
                         >
-                            등록하기
+                            {isSubmitting && (
+                                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                                </svg>
+                            )}
+                            {isSubmitting ? '등록 중...' : '등록하기'}
                         </button>
                     </div>
                 </form>
+
+                {/* Confirmation Modal */}
+                <RegisterConfirmation
+                    isOpen={showConfirmation}
+                    onClose={() => setShowConfirmation(false)}
+                    productTitle={productTitle}
+                />
             </div>
         </div>
     );

@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const [role, setRole] = useState(null);
 
+
     const tokenRef = useRef(null);
 
     const TOKEN_KEY_ACCESS = 'ACCESS_TOKEN';
@@ -29,14 +30,23 @@ export function AuthProvider({ children }) {
             privateApi.defaults.headers.common['Authorization'] = `Bearer ${newAccess}`;
             try {
                 const decodedToken = jwtDecode(newAccess);
+                const UserSeqFromToken = decodedToken.userSeq || null;
                 const roleFromToken = decodedToken.role || null; // 토큰 페이로드에서 'role' 클레임 추출
                 setRole(roleFromToken);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+                setUserState(UserSeqFromToken);
                 console.log('[AuthContext] 현재 사용자 역할:', roleFromToken);
+                console.log('[AuthContext] 현재 사용자:', UserSeqFromToken);
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
             } catch (e) {
-                console.error('[AuthContext] JWT 디코딩 또는 role 추출 오류:', e);
+                console.error('[AuthContext] JWT 디코딩 또는 role 또는 UserSeq 추출 오류:', e);
                 setRole(null);
+                setUserState(null);
             }
-            console.log('setTokens: access set', newAccess);
         } else {
             setAccessTokenState(null);
             tokenRef.current = null;
@@ -84,13 +94,13 @@ export function AuthProvider({ children }) {
             console.log('loginMutation success res.headers=', res.headers);
 
             const headerToken = res.headers?.authorization?.replace(/^Bearer\s+/i, '') || null;
-            const { accessToken: a, refreshToken: r, user: u} = res.data || {};
+            const { accessToken: a, refreshToken: r} = res.data || {};
             const finalAccess = a || headerToken;
 
             setTokens(finalAccess, r);
-            setUserState(u);
+            // setUserState(u);
             console.log('리프레쉬는', r);
-            console.log('유저는', u);
+            // console.log('유저는', u);
         },
         onError: (error) => {
             console.error('loginMutation error:', error);
