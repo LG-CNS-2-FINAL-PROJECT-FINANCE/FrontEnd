@@ -33,15 +33,20 @@ export function AuthProvider({ children }) {
                 const UserSeqFromToken = decodedToken.userSeq || null;
                 const roleFromToken = decodedToken.role || null; // 토큰 페이로드에서 'role' 클레임 추출
                 setRole(roleFromToken);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 setUserState(UserSeqFromToken);
                 console.log('[AuthContext] 현재 사용자 역할:', roleFromToken);
                 console.log('[AuthContext] 현재 사용자:', UserSeqFromToken);
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
             } catch (e) {
                 console.error('[AuthContext] JWT 디코딩 또는 role 또는 UserSeq 추출 오류:', e);
                 setRole(null);
                 setUserState(null);
             }
-            console.log('setTokens: access set', newAccess);
         } else {
             setAccessTokenState(null);
             tokenRef.current = null;
