@@ -23,7 +23,7 @@ function InvestmentDetail() {
         queryKey: ['investmentDetail', id],
         queryFn: async ({ signal }) => {
 
-            return getInvestmentsDetail(id, { signal });
+            return getInvestmentsDetail('/product',id, { signal });
         },
         enabled: !!id,
         staleTime: 5 * 60 * 1000, // 5분 동안은 fresh 상태 유지

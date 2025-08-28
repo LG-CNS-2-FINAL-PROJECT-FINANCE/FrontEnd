@@ -16,7 +16,7 @@ function MarketDetail() {
   const [mainImage, setMainImage] = useState(null); // 메인 표시 이미지
   const { data:product, isLoading:productLoading, isError:productError } = useQuery({
     queryKey: ["product", id],
-    queryFn: () => getInvestmentsDetail(id),
+    queryFn: () => getInvestmentsDetail('/product/market/end',id),
     retry: false,
   });
   useEffect(() => {
