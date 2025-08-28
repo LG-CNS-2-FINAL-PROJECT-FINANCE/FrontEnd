@@ -10,6 +10,7 @@ import { productData } from './my_page_component/data/productData';
 import { editRequestData } from './my_page_component/data/editRequestData';
 import UserProfile from './my_page_component/UserProfile';
 import { useTheme } from '../../context/ThemeContext';
+import useUser from "../../lib/useUser";
 
 const MyPage = () => {
     const [investments, setInvestments] = useState([]);
@@ -17,6 +18,12 @@ const MyPage = () => {
     const [products, setProducts] = useState([]);
     const [editRequests, setEditRequests] = useState([]);
     const { role } = useTheme(); // Get user role from theme context
+
+    const { user } = useUser();
+
+    const userRole = user?.role;
+    const CREATOR = "CREATOR"
+    // console.log('현재 페이지의 userRole은 ', userRole);
 
     useEffect(() => {
         setInvestments(investmentData);
@@ -55,7 +62,7 @@ const MyPage = () => {
 
                         {/* Favorites Preview */}
                         <div className="mt-8">
-                            <FavoritePreview favorites={favorites} />
+                            {userRole === CREATOR ? (<></>) : (<FavoritePreview favorites={favorites} />)}
                         </div>
                     </>
                 )}
