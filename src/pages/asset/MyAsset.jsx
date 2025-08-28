@@ -7,142 +7,10 @@ import AssetCheckModal from "./modals/AssetCheckModal";
 import { getAccountAllHistory, getWalletToken } from "../../api/asset_api";
 import { useQuery } from "@tanstack/react-query";
 import { toKSTDateTime } from "../../lib/toKSTDateTime";
-import { getTokenTradeHistory } from "../../api/market_api";
+import { getTokenTradeDoneHistoryByUserId } from "../../api/market_api";
 
 
 function MyAsset({ account, wallet }) {
-  const tokenDetails = [
-    {
-      projectName: "감만유",
-      amount: "30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-
-    {
-      projectName: "케로로 중사",
-      amount: "2,000",
-      time: "09:15 AM",
-      date: "07/05/2024",
-      tokenNumber: "gywnsdlakfantlgkwlak!",
-    },
-    {
-      projectName: "영구와 땡칠이",
-      amount: "80",
-      time: "04:00 PM",
-      date: "06/28/2024",
-      tokenNumber: "alsdlmsgodhqrgkekgpgpg",
-    },
-    {
-      projectName: "뽀로로와 친구들",
-      amount: "30",
-      time: "11:00 AM",
-      date: "06/20/2024",
-      tokenNumber: "wnsghsmsdhkswjsQkfro",
-    },
-  ];
-  const tokenMarkets = [
-    {
-      projectName: "감만유",
-      amount: "+30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "+30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "-30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "-30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "-30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-    {
-      projectName: "감만유",
-      amount: "+30",
-      time: "02:45 PM",
-      date: "07/10/2024",
-      tokenNumber: "rnalsdhkswjsqkhajcdjdl",
-    },
-
-    {
-      projectName: "케로로 중사",
-      amount: "-2,000",
-      time: "09:15 AM",
-      date: "07/05/2024",
-      tokenNumber: "gywnsdlakfantlgkwlak!",
-    },
-    {
-      projectName: "영구와 땡칠이",
-      amount: "+80",
-      time: "04:00 PM",
-      date: "06/28/2024",
-      tokenNumber: "alsdlmsgodhqrgkekgpgpg",
-    },
-    {
-      projectName: "뽀로로와 친구들",
-      amount: "+30",
-      time: "11:00 AM",
-      date: "06/20/2024",
-      tokenNumber: "wnsghsmsdhkswjsQkfro",
-    },
-  ];
   const { data:accountAllHistory, isLoading:accountAllHistoryLoading, isError:accountAllHistoryError } = useQuery({
     queryKey: ["accountAllHistory"],
     queryFn: getAccountAllHistory,
@@ -155,7 +23,7 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
   });
   const { data:walletTokenTradeHistory, isLoading:walletTokenTradeHistoryLoading, isError:walletTokenTradeHistoryError } = useQuery({
     queryKey: ["walletTokenTradeHistory"],
-    queryFn: getTokenTradeHistory,
+    queryFn: getTokenTradeDoneHistoryByUserId,
     retry: false,
   });
   
