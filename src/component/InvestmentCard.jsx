@@ -12,7 +12,7 @@ dayjs.extend(isSameOrBefore);
 function InvestmentCard({ project, imageUrl }) {
     console.log('[InvestmentCard] project prop:', project);
     console.log('[InvestmentCard] image prop:', imageUrl);
-    const ddayValue = Number(project.dday);
+    const ddayValue = project.dday;
     const { themeColors } = useTheme();
 
     const today = new Date();
@@ -23,6 +23,7 @@ function InvestmentCard({ project, imageUrl }) {
 
     //ISO형식 yyyy_mm_dd 변환
     const projectStartDateFormatted = project.startDate ? String(project.startDate).substring(0, 10) : '';
+    const projectEndDateFormatted = project.endDate ? String(project.endDate).substring(0, 10) : '';
 
     let displayStatusText;
     let statusTextColorClass = "text-red-500";
@@ -30,7 +31,11 @@ function InvestmentCard({ project, imageUrl }) {
 
     if (yyyy_mm_dd < projectStartDateFormatted) { // 프로젝트 시작일이 오늘보다 미래인 경우
         displayStatusText = '준비중';
-    } else {
+    }
+    if (ddayValue === '마감'){
+        displayStatusText = project.dday;
+    }
+    else {
         displayStatusText = 'D-'+ project.dday;
     }
 
