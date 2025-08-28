@@ -25,7 +25,7 @@ function LoginDetail_2() {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4">이름을 입력해주세요!</h1>
           <p className="text-lg text-gray-500">
-            다른 사용자에게 보여지며 수정 가능합니다.
+            뱅킹 서비스 연동을 위해 반드시 실명을 입력해 주세요.
           </p>
         </div>
 
