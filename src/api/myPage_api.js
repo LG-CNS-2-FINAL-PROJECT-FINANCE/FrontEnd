@@ -1,16 +1,19 @@
 import { privateApi as api } from './axiosInstance';
 
 function mapToMyInvestment(item) {
+
+    const product = item.product || {};
+
     return {
-        projectId: item.projectId ?? null, //프로젝트아이디
-        title: item.title ?? null, //제목
-        amount: item.amount ?? null, //투자금
-        deadline: item.deadline ?? null, // 마감 기한
-        progress: item.percent ?? null, //퍼센트
+        projectId: product.projectId ?? null, //프로젝트아이디
+        title: product.title ?? null, //제목
+        amount: product.amount ?? null, //투자금
+        deadline: product.deadline ?? null, // 마감 기한
+        progress: product.percent ?? null, //퍼센트
         // views: item.viewCount ?? null, //조회수
         // status: item.status ?? null, // 상태
         // startDate: item.startDate ?? null, //시작일
-        endDate: item.endDate ?? null, //마감일
+        endDate: product.endDate ?? null, //마감일
         // account: item.account ?? null, //계좌
 
         investedPrice : item.investedPrice, // 투자금
@@ -20,8 +23,8 @@ function mapToMyInvestment(item) {
 
         // investedAmount: item.investedAmount ?? null,
         // tokenQuantity: item.tokenQuantity ?? null,
-        content: item.content ?? null, //본문
-        summary: item.summary ?? null, //요약
+        content: product.content ?? null, //본문
+        summary: product.summary ?? null, //요약
     };
 }
 
@@ -33,7 +36,7 @@ export async function getMyInvestmentList(options = {}) {
 
         const res = await api.get('/market/invest/mylist', { signal, ...restOptions });
         const payload = res.data;
-        console.log('payload확인', payload)
+        console.log('getMyInvestment payload확인', payload)
 
         let list = [];
         if (Array.isArray(payload)) {

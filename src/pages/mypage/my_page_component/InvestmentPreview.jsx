@@ -44,7 +44,7 @@ const InvestmentPreview = ({}) => {
 
     const queryEnabled = !!user;
     const queryFnToUse = userRole === CREATOR ? null : getMyInvestmentList;
-    const queryKeyToUse = userRole === CREATOR ? [null, user?.userSeq] : ['myInvestmentsList', user.userSeq];
+    const queryKeyToUse = userRole === CREATOR ? [null, user?.email] : ['myInvestmentsList', user?.email];
 
     const {
         data: fetchedData,
@@ -54,7 +54,7 @@ const InvestmentPreview = ({}) => {
     } = useQuery({
         queryKey: queryKeyToUse,
         queryFn: async ({ signal }) => {
-            return queryFnToUse({ signal, userId: user?.userSeq });
+            return queryFnToUse({ signal, userId: user?.email });
         },
         enabled: queryEnabled,
         staleTime: 5 * 60 * 1000,
