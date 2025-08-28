@@ -192,8 +192,8 @@ function MarketDetail() {
             </div>
           )}
         </div>
-        <div className="grid grid-cols-6 mb-8">
-          {!productLoading?product.imageUrl.map((img, idx) => {
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+           {!productLoading ? product.imageUrl.map((img, idx) => {
             const isActive = img === mainImage;
             return (
               <button
@@ -206,10 +206,10 @@ function MarketDetail() {
                     setMainImage(img);
                   }
                 }}
-                className={`relative w-28 h-28 rounded-xl overflow-hidden bg-gray-200 mb-6 outline-none ring-offset-2 transition
-                  ${isActive ? "ring-1 ring-red-500" : "hover:ring-2 hover:ring-red-300"}`}
-              >
-                <img
+                className={`relative w-full aspect-square rounded-xl overflow-hidden bg-gray-200 outline-none ring-offset-2 transition
+                   ${isActive ? "ring-1 ring-red-500" : "hover:ring-2 hover:ring-red-300"}`}
+               >
+              <img
                   className="w-full h-full object-cover"
                   src={img}
                   alt={`thumbnail ${idx + 1}`}

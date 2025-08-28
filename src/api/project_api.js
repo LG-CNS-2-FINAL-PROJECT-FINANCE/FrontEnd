@@ -2,8 +2,8 @@ import { publicApi, privateApi } from './axiosInstance';
 
 // Helper: choose client based on whether a token exists
 function authedGet(url, options = {}) {
-const token = localStorage.getItem('accessToken');
-return token ? privateApi.get(url, options) : publicApi.get(url, options);
+    const token = localStorage.getItem('accessToken');
+    return token ? privateApi.get(url, options) : publicApi.get(url, options);
 }
 
 function mapToInvestmentCardData(item) {
@@ -98,6 +98,27 @@ export async function getInvestmentsDetail(url,projectId, options = {}){
 
     } catch (error){
         console.error(`[project_api] getInvestmentsDetail 오류(ID -> ${projectId}):`, error);
+        throw error;
+    }
+}
+
+
+export const getProjectsRankingByAmount = async() =>{
+    try {
+        const res = await publicApi.get('/product/ranking/amount');
+        return res.data;
+    } catch (error) {
+        console.error('[project_api] getProjectsRankingByAmount 오류:', error);
+        throw error;
+    }
+}
+
+export const getProjectsRankingByView = async() =>{
+    try {
+        const res = await publicApi.get('/product/ranking/view');
+        return res.data;
+    } catch (error) {
+        console.error('[project_api] getProjectsRankingByView 오류:', error);
         throw error;
     }
 }
