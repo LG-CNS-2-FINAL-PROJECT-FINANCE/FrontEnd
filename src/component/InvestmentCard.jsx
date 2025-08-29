@@ -10,6 +10,7 @@ dayjs.extend(isSameOrBefore);
 
 function InvestmentCard({ project, imageUrl, disableNavigation }) {
     const ddayValue = project.dday;
+
     const { themeColors } = useTheme();
 
     const today = new Date();

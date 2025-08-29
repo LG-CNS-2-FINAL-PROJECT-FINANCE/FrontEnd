@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaShareAlt,
   FaRegStar,
@@ -6,9 +6,13 @@ import {
   FaFlag,
 } from "react-icons/fa";
 import { RiMoneyCnyBoxFill, RiMoneyCnyBoxLine } from "react-icons/ri";
+import { toast } from "react-toastify";
 import InvestmentModal from "./InvestmentModal";
+import InvestmentCancelModal from "./InvestmentCancelModal";
 import ReportModal from "./ReportModal";
 import { useTheme } from "../../../context/ThemeContext";
+import { toggleFavorite } from "../../../api/favorites_api";
+import useUser from "../../../lib/useUser";
 
 function InvestmentSummary({
   title,
@@ -26,19 +30,62 @@ function InvestmentSummary({
 }) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const { themeColors, role } = useTheme();
+  const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
+  const { themeColors } = useTheme();
+  const { user } = useUser();
   
-  // Determine if current user is a creator
-  const isCreator = role === '창작자';
+  //User 확인 - role이 CREATOR인지
+  const isCreator = user?.role === 'CREATOR';
+
+  useEffect(() => {
+    setIsFavorite(initialIsFavorite);
+  }, [initialIsFavorite]);
 
   // 공유하기, 즐겨찾기, 신고
-  const handleShare = () => {
-    alert("공유하기!");
+  const handleShare = async () => {
+    try {
+      // 현재 URL을 클립보드에 복사
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("링크가 클립보드에 복사되었습니다!", {
+        position: "bottom-right",
+      });
+    } catch (error) {
+      console.error('링크 복사 실패:', error);
+      toast.error("링크 복사에 실패했습니다.", {position: "bottom-right"});
+    }
   };
-  const handleFavoriteToggle = () => {
-    setIsFavorite(!isFavorite);
-    alert(`즐겨찾기 ${isFavorite ? "해제" : "추가"}!`);
+  const handleFavoriteToggle = async () => {
+    if (isFavoriteLoading) return;
+    
+    setIsFavoriteLoading(true);
+    
+    try {
+      // API 호출로 즐겨찾기 토글
+      const result = await toggleFavorite(projectNumber);
+      
+      // 서버에서 받은 결과로 상태 업데이트 (백엔드 응답 구조에 맞춤)
+      const newFavoriteState = result.favorited;
+      setIsFavorite(newFavoriteState);
+      
+      // 사용자에게 피드백 - toast로 변경
+      toast.success(`즐겨찾기 ${newFavoriteState ? "추가" : "해제"}되었습니다!`, {
+        position: "bottom-right",
+      });
+      
+    } catch (error) {
+      console.error('Favorite toggle error:', error);
+      
+      // 에러 메시지 표시 - alert 유지 (에러는 더 강한 피드백 필요)
+      if (error.message) {
+        alert(error.message);
+      } else {
+        alert('즐겨찾기 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      setIsFavoriteLoading(false);
+    }
   };
   const handleReport = () => {
     setIsReportModalOpen(true);
@@ -56,15 +103,18 @@ function InvestmentSummary({
     if (isCreator) {
       alert("수정 요청을 보냅니다.");
     } else {
-      alert("투자를 취소합니다.");
+      setIsCancelModalOpen(true);
     }
-
-    window.location.reload();
   };
 
   //투자하기 모달 닫기
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  //투자 취소 모달 닫기
+  const closeCancelModal = () => {
+    setIsCancelModalOpen(false);
   };
 
   //신고하기 모달 닫기
@@ -117,15 +167,7 @@ function InvestmentSummary({
 
             <button
               onClick={handleCancelInvestment}
-              className={`
-                                border border-gray-300 py-2 px-3 rounded-md font-semibold flex items-center
-                                ${
-                                  isInvested
-                                    ? "text-gray-700 hover:bg-gray-100"
-                                    : "text-gray-400 cursor-not-allowed bg-gray-100"
-                                }
-                            `}
-              disabled={!isInvested}
+              className="border border-gray-300 py-2 px-3 rounded-md font-semibold flex items-center text-gray-700 hover:bg-gray-100 transition-colors"
             >
               <RiMoneyCnyBoxLine className="inline-block mr-1" /> {isCreator ? "수정요청" : "투자취소"}
             </button>
@@ -142,14 +184,17 @@ function InvestmentSummary({
 
             <button
               onClick={handleFavoriteToggle}
-              className="text-yellow-500 hover:text-yellow-700 flex items-center"
+              disabled={isFavoriteLoading}
+              className={`text-yellow-500 hover:text-yellow-700 flex items-center transition-colors ${
+                isFavoriteLoading ? 'opacity-50 cursor-wait' : ''
+              }`}
             >
               {isFavorite ? (
                 <FaStar className="inline-block mr-1" />
               ) : (
                 <FaRegStar className="inline-block mr-1" />
               )}{" "}
-              즐겨찾기
+              {isFavoriteLoading ? "처리중..." : "즐겨찾기"}
             </button>
 
             <button
@@ -166,12 +211,20 @@ function InvestmentSummary({
       <InvestmentModal
         isOpen={isModalOpen}
         onClose={closeModal}
+        projectId={projectNumber}
         minInvestment={minInvestment}
         imageUrl={imageUrl}
         title={title}
         summary={summary}
         author={author}
         tokenPrice={tokenPrice}
+      />
+
+      <InvestmentCancelModal
+        isOpen={isCancelModalOpen}
+        onClose={closeCancelModal}
+        projectId={projectNumber}
+        title={title}
       />
 
       <ReportModal

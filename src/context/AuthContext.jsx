@@ -41,7 +41,6 @@ export function AuthProvider({ children }) {
                 setRole(null);
                 setUserState(null);
             }
-            console.log('setTokens: access set', newAccess);
         } else {
             setAccessTokenState(null);
             tokenRef.current = null;

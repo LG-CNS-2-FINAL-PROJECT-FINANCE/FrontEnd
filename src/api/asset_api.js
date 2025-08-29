@@ -49,7 +49,7 @@ export const createMyWallet = async () => {
 export const depositAccount = async (deposit) =>{
   console.log("deposit: ", deposit);
   try {
-    const response = await privateApi.post(`/asset/account/deposit`, { deposit }, {
+    const response = await privateApi.post(`/asset/account/deposit`, { "price": deposit }, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -99,9 +99,10 @@ export const getAccountSpecificHistory = async (moneyType) => {
 
 export const getWalletToken = async () => {
   try{
-    const response = await privateApi.get(`/asset/wallet-token/search`);
-    console.log(response)
-    return response.data.data;
+    // const response = await privateApi.get(`/asset/wallet-token/search`);
+    // console.log(response)
+    // return response.data.data;
+    return "DONE";
   } catch (error) {
     console.error(error);
     throw error;

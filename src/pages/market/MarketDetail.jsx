@@ -6,9 +6,24 @@ import SalesChart from "./SalesChart";
 import TradeHistory from "./TradeHistory";
 import MarketPurchaseModal from "./modals/MarketPurchaseModal";
 import MarketSellModal from "./modals/MarketSellModal";
+import { useQuery } from "@tanstack/react-query";
+import { getInvestmentsDetail } from "../../api/project_api";
+import { getMyTradeDoneHistoryByProjectId, getMyTradeYetHistoryByProjectId, getTokenTradeDoneHistoryByProjectId, getTokenTradePurchaseHistory, getTokenTradeSellHistory } from "../../api/market_api";
+import { formatKST,toKSTDateTime } from "../../lib/toKSTDateTime";
 
 function MarketDetail() {
   const { id } = useParams();
+  const [mainImage, setMainImage] = useState(null); // 메인 표시 이미지
+  const { data:product, isLoading:productLoading, isError:productError } = useQuery({
+    queryKey: ["product", id],
+    queryFn: () => getInvestmentsDetail('/product/market/end',id),
+    retry: false,
+  });
+  useEffect(() => {
+      if (product) {
+        setMainImage(product.DefaultImageUrl || product.imageUrl?.[0] || null);
+      }
+    }, [product]);
 
   const [isTradeModalOpen, setIsTradeModalOpen] = useState(false);
   const [tradeType, setTradeType] = useState(null); // '구매' | '판매'
@@ -17,20 +32,33 @@ function MarketDetail() {
   const [secondTab, setSecondTab] = useState(0);
   const navigate = useNavigate();
 
-  const product = {
-    id: id,
-    name: `프로젝트명 ${id}`,
-    images: Array(10).fill(null),
-    description:
-      "This project focuses on developing a sustainable, eco-friendly housing community in a rapidly growing suburban area. The development will feature energy-efficient homes with solar panels, rainwater harvesting systems, and community gardens. Our commitment to sustainability extends to using locally sourced, recycled materials wherever possible, minimizing the environmental impact of construction. The community is designed to appeal to environmentally conscious families and individuals seeking a healthier, more sustainable lifestyle. The location offers convenient access to urban amenities while preserving a tranquil, natural setting. This investment offers a unique opportunity to support sustainable development while potentially benefiting from the increasing demand for eco-friendly housing.",
+  const { data: tradeHistory, isLoading: tradeHistoryLoading, isError: tradeHistoryError } = useQuery({
+    queryKey: ["tradeHistory", id],
+    queryFn: () => getTokenTradeDoneHistoryByProjectId(id),
+    retry: false,
+  });
+  const {data:purchaseBidHistory, isLoading: purchaseBidHistoryLoading, isError: purchaseBidHistoryError} = useQuery({
+    queryKey: ["purchaseBidHistory", id],
+    queryFn: () => getTokenTradePurchaseHistory(id),
+    retry: false,
+  });
+  const {data:sellBidHistory, isLoading: sellBidHistoryLoading, isError: sellBidHistoryError} = useQuery({
+    queryKey: ["sellBidHistory", id],
+    queryFn: () => getTokenTradeSellHistory(id),
+    retry: false,
+  });
 
-    mainImage: null,
-    files: [
-      { name: "파일1.pdf", url: "/path/to/file1.pdf" },
-      { name: "파일2.pdf", url: "/path/to/file2.pdf" },
-      { name: "파일3.pdf", url: "/path/to/file3.pdf" },
-    ],
-  };
+
+  const {data:myTradeDoneHistory, isLoading: myTradeDoneHistoryLoading, isError: myTradeDoneHistoryError} = useQuery({
+    queryKey: ["myTradeDoneHistory",id],
+    queryFn: () => getMyTradeDoneHistoryByProjectId(id),
+    retry: false,
+  });
+    const {data:myTradeYetHistory, isLoading: myTradeYetHistoryLoading, isError: myTradeYetHistoryError} = useQuery({
+    queryKey: ["myTradeYetHistory",id],
+    queryFn: () => getMyTradeYetHistoryByProjectId(id),
+    retry: false,
+  });
 
   const openPurchase = () => {
     setTradeType("구매");
@@ -53,70 +81,93 @@ function MarketDetail() {
     setIsTradeModalOpen(false);
   };
 
-  // 예시 체결 거래 데이터 (API 연동 시 교체)
-  const executedTrades = [
-    { qty: 1, price: 20324, time: "2024.05.12 12:10" },
-    { qty: 2, price: 20400, time: "2024.05.12 12:05" },
-    { qty: 1, price: 20210, time: "2024.05.12 11:59" },
-  ];
-  const buyBids = [
-    { qty: 3, price: 20100, time: "2024.05.12 12:12" },
-    { qty: 1, price: 20050, time: "2024.05.12 12:08" },
-  ];
-  const sellBids = [
-    { qty: 2, price: 20500, time: "2024.05.12 12:11" },
-    { qty: 1, price: 20620, time: "2024.05.12 12:07" },
-  ];
+  if (productLoading) {
+    return (
+      <div className="flex w-full h-[calc(100vh+240px)] mb-24">
+        {/* Left skeleton */}
+        <div className="flex-1 overflow-y-auto p-4 pr-8">
+          <div className="flex items-center mb-6">
+            <div className="h-6 w-6 rounded bg-neutral-200 animate-pulse mr-4" />
+            <div className="h-8 w-64 rounded bg-neutral-200 animate-pulse" />
+          </div>
+            <div className="rounded-xl bg-neutral-200 animate-pulse mb-6 w-full" style={{ height: 400 }} />
+            <div className="grid grid-cols-5 gap-4 mb-8">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-24 rounded-xl bg-neutral-200 animate-pulse" />
+              ))}
+            </div>
+            <div className="h-8 w-72 rounded bg-neutral-200 animate-pulse mb-6" />
+            <div className="space-y-3 mb-8">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-4 w-full rounded bg-neutral-200 animate-pulse" />
+              ))}
+            </div>
+            <div className="h-6 w-40 rounded bg-neutral-200 animate-pulse mb-4" />
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-10 w-full rounded-md border bg-neutral-100 animate-pulse" />
+              ))}
+            </div>
+        </div>
 
-  // 예시 거래내역 데이터 (API 연동 시 교체)
-  const historyData = [
-    {
-      id: 1,
-      tokenName: "토큰 이름",
-      side: "매수",
-      price: 300,
-      qty: 3,
-      amount: 900,
-      time: "2024-08-05 16:35",
-      status: "체결",
-    },
-    {
-      id: 2,
-      tokenName: "토큰 이름",
-      side: "매도",
-      price: 300,
-      qty: 3,
-      amount: 900,
-      time: "2024-08-05 16:35",
-      status: "체결",
-    },
-    {
-      id: 3,
-      tokenName: "토큰 이름",
-      side: "매수",
-      price: 310,
-      qty: 2,
-      amount: 620,
-      time: "2024-08-06 10:10",
-      status: "미체결",
-    },
-    {
-      id: 4,
-      tokenName: "토큰 이름",
-      side: "매수",
-      price: 310,
-      qty: 2,
-      amount: 620,
-      time: "2024-08-06 10:10",
-      status: "미체결",
-    },
-  ];
+        {/* Right skeleton */}
+        <div className="overflow-y-auto mt-8 w-[480px] min-w-[380px] h-full bg-white border-l px-4 pl-8 py-8 flex flex-col">
+          <div className="flex bg-neutral-100 rounded-md mb-8 px-4 w-full max-w-xl mx-auto h-10 animate-pulse" />
+          <div className="mb-6">
+            <div className="h-4 w-24 bg-neutral-200 rounded animate-pulse mb-2" />
+            <div className="h-10 w-48 bg-neutral-200 rounded animate-pulse mb-4" />
+            <div className="flex gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex-1 space-y-2">
+                  <div className="h-3 w-16 bg-neutral-200 rounded animate-pulse" />
+                  <div className="h-4 w-20 bg-neutral-200 rounded animate-pulse" />
+                  <div className="h-3 w-24 bg-neutral-200 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-6 mb-8">
+            <div className="h-12 w-full rounded-lg bg-red-200/50 animate-pulse" />
+            <div className="h-12 w-full rounded-lg bg-red-100 animate-pulse" />
+          </div>
+          <div className="mb-6">
+            <div className="h-4 w-12 bg-neutral-200 rounded animate-pulse mb-3" />
+            <div className="h-48 w-full bg-neutral-200 rounded-xl animate-pulse" />
+          </div>
+          <div>
+            <div className="h-8 w-full bg-neutral-100 rounded-md mb-3 animate-pulse" />
+            <div className="space-y-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-8 w-full bg-neutral-200 rounded animate-pulse" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  if (productError) {
+    return (
+      <div className="flex w-full h-[calc(100vh+240px)] items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg font-semibold text-red-600 mb-2">상품 정보를 불러오지 못했습니다.</p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-5 py-2 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600"
+          >
+            새로고침
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading Done + No Error
   return (
     <div className="flex w-full h-[calc(100vh+240px)] mb-24">
       {/* 왼쪽: 스크롤 가능 영역 */}
       <div className="flex-1 overflow-y-auto p-4 pr-8 scrollbar-hide">
-        {/* ...existing code... 왼쪽 내용 그대로 유지 ... */}
         <div className="flex flex-row items-center">
           <button
             onClick={() => navigate("/market")}
@@ -124,23 +175,52 @@ function MarketDetail() {
           >
             <FaChevronLeft />
           </button>
-          <h1 className="text-3xl font-bold mb-6">{product.name}</h1>
+          <h1 className="text-3xl font-bold mb-6">{product.title}</h1>
         </div>
         <div
-          className="rounded-xl bg-gray-300 flex items-center justify-center text-lg text-black mb-6"
-          style={{ height: 400 }}
+          className="relative rounded-xl overflow-hidden bg-gray-200 mb-6 h-[600px]"
         >
-          썸네일 이미지
-        </div>
-        <div className="grid grid-cols-5 gap-4 mb-8 ">
-          {product.images.map((img, idx) => (
-            <div
-              key={idx}
-              className="bg-gray-300 rounded-xl h-24 flex items-center justify-center text-gray-500 text-xs"
-            >
-              프로젝트 사진
+          {mainImage ? (
+            <img
+              className="w-full h-full object-cover transition duration-300"
+              src={mainImage}
+              alt="product main image"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-neutral-400 text-sm">
+              이미지 없음
             </div>
-          ))}
+          )}
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+           {!productLoading ? product.imageUrl.map((img, idx) => {
+            const isActive = img === mainImage;
+            return (
+              <button
+                type="button"
+                key={idx}
+                onClick={() => setMainImage(img)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setMainImage(img);
+                  }
+                }}
+                className={`relative w-full aspect-square rounded-xl overflow-hidden bg-gray-200 outline-none ring-offset-2 transition
+                   ${isActive ? "ring-1 ring-red-500" : "hover:ring-2 hover:ring-red-300"}`}
+               >
+              <img
+                  className="w-full h-full object-cover"
+                  src={img}
+                  alt={`thumbnail ${idx + 1}`}
+                  draggable={false}
+                />
+                {isActive && (
+                  <span className="absolute inset-0 bg-black/20" aria-hidden="true" />
+                )}
+              </button>
+            );
+          }):null}
         </div>
         <h1 className="text-3xl font-bold mb-6">프로젝트 상세설명</h1>
         <p>{product.description}</p>
@@ -148,7 +228,7 @@ function MarketDetail() {
       </div>
 
       {/* 오른쪽: 고정 영역 */}
-      <div className="overflow-y-auto scrollbar-hide mt-8 w-[480px] min-w-[380px] h-full bg-white border-l px-4 pl-8 py-8 flex flex-col">
+      <div className="overflow-y-auto scrollbar-hide mt-8 w-[45%] h-full bg-white border-l px-4 pl-8 py-8 flex flex-col">
         {/* 탭 메뉴 */}
         <div className="flex bg-gray-100 rounded-md mb-8 px-4 w-full max-w-xl mx-auto">
           <button
@@ -177,24 +257,25 @@ function MarketDetail() {
               <div className="text-lg text-gray-700 font-bold">즉시 구매가</div>
               <div className="text-3xl font-bold mb-4 mt-1">20,423 원</div>
               <div className="flex gap-6 text-left w-full">
-                <div className="w-full">
+                <div className="flex-1">
                   <div className="text-sm text-gray-400">최근 거래가</div>
-                  <div className="text-gray-700 text-sm">42,000원</div>
-                  <div className="text-green-600 text-sm font-bold">
-                    ▼3,000 (-6.7%)
+                  <div className="text-gray-700 text-sm">
+                    {product.tokenPrice ? product.tokenPrice.toLocaleString() : "-"} 원
                   </div>
                 </div>
-                <div className="w-full border-l px-4">
+                <div className="flex-1 border-l pl-4">
                   <div className="text-sm text-gray-400">발매가</div>
-                  <div className="text-gray-700 text-sm">74,900원</div>
+                  <div className="text-gray-700 text-sm">
+                    {(product.goalAmount / product.minInvestment).toLocaleString()} 원
+                  </div>
                 </div>
-                <div className="w-full border-l px-4">
-                  <div className="text-sm text-gray-400">모델번호</div>
-                  <div className="text-gray-700 text-sm">205089-1LI</div>
+                <div className="flex-1 border-l pl-4">
+                  <div className="text-sm text-gray-400 mb-1">프로젝트 번호</div>
+                  <div className="text-gray-700 text-xs">{product.projectId}</div>
                 </div>
-                <div className="w-full border-l px-4">
+                <div className="flex-1 border-l pl-4">
                   <div className="text-sm text-gray-400">출시일</div>
-                  <div className="text-gray-700 text-sm">2024.01.04</div>
+                  <div className="text-gray-700 text-sm">{product.startDate}</div>
                 </div>
               </div>
             </div>
@@ -216,7 +297,7 @@ function MarketDetail() {
 
             <div className="mb-6">
               <div className="font-bold mb-2">시세</div>
-              <SalesChart />
+              <SalesChart tradeHistory={!tradeHistoryLoading ? [...tradeHistory].reverse() : null} />
             </div>
 
             <div>
@@ -265,19 +346,34 @@ function MarketDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {executedTrades.map((r, i) => (
-                      <tr key={i} className="border-b border-gray-100">
-                        <td className="px-3 py-2 text-left">
-                          {r.qty.toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-left">
-                          {r.price.toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-left whitespace-nowrap">
-                          {r.time}
+                    {/* 체결 거래 테이블 바디 */}
+                    {!tradeHistoryLoading && tradeHistory?.length > 0
+                      ? tradeHistory.map((trade, i) => (
+                          <tr key={i} className="border-b border-gray-100">
+                            <td className="px-3 py-2 text-left">
+                              {trade.tokenQuantity}
+                            </td>
+                            <td className="px-3 py-2 text-left">
+                              {trade.tradePrice}
+                            </td>
+                            <td className="px-3 py-2 text-left whitespace-nowrap">
+                              {formatKST(toKSTDateTime(trade.tradedAt))}
+                            </td>
+                          </tr>
+                        ))
+                      : null}
+
+                    {/* 데이터 없음 메시지 */}
+                    {!tradeHistoryLoading && (!tradeHistory || !tradeHistory || tradeHistory.length === 0) && (
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="px-3 py-6 text-center text-sm text-neutral-400"
+                        >
+                          최근 거래가 없습니다.
                         </td>
                       </tr>
-                    ))}
+                    )}
                   </tbody>
                 </table>
               )}
@@ -296,19 +392,34 @@ function MarketDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {buyBids.map((r, i) => (
-                      <tr key={i} className="border-b border-gray-100">
-                        <td className="px-3 py-2 text-left">
-                          {r.qty.toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-left text-red-600 font-semibold">
-                          {r.price.toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-left whitespace-nowrap">
-                          {r.time}
-                        </td>
-                      </tr>
-                    ))}
+                    {!purchaseBidHistoryLoading && purchaseBidHistory?.data?.length > 0
+                      ? [...purchaseBidHistory.data].reverse().map((r, i) => (
+                          <tr key={i} className="border-b border-gray-100">
+                            <td className="px-3 py-2 text-left">
+                              {r.tokenQuantity.toLocaleString()}
+                            </td>
+                            <td className="px-3 py-2 text-left text-red-600 font-semibold">
+                              {r.purchasePrice.toLocaleString()}
+                            </td>
+                            <td className="px-3 py-2 text-left whitespace-nowrap">
+                              {formatKST(toKSTDateTime(r.registedAt))}
+                            </td>
+                          </tr>
+                        ))
+                      : null}
+                    {!purchaseBidHistoryLoading &&
+                      (!purchaseBidHistory ||
+                        !purchaseBidHistory.data ||
+                        purchaseBidHistory.data.length === 0) && (
+                        <tr>
+                          <td
+                            colSpan={3}
+                            className="px-3 py-6 text-center text-sm text-neutral-400"
+                          >
+                            구매 입찰이 없습니다.
+                          </td>
+                        </tr>
+                      )}
                   </tbody>
                 </table>
               )}
@@ -327,39 +438,60 @@ function MarketDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {sellBids.map((r, i) => (
-                      <tr key={i} className="border-b border-gray-100">
-                        <td className="px-3 py-2 text-left">
-                          {r.qty.toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-left text-blue-600 font-semibold">
-                          {r.price.toLocaleString()}
-                        </td>
-                        <td className="px-3 py-2 text-left whitespace-nowrap">
-                          {r.time}
-                        </td>
-                      </tr>
-                    ))}
+                    {!sellBidHistoryLoading && sellBidHistory?.data?.length > 0
+                      ? [...sellBidHistory.data].reverse().map((r, i) => (
+                          <tr key={i} className="border-b border-gray-100">
+                            <td className="px-3 py-2 text-left">
+                              {r.tokenQuantity.toLocaleString()}
+                            </td>
+                            <td className="px-3 py-2 text-left text-red-600 font-semibold">
+                              {r.purchasePrice.toLocaleString()}
+                            </td>
+                            <td className="px-3 py-2 text-left whitespace-nowrap">
+                              {formatKST(toKSTDateTime(r.registedAt))}
+                            </td>
+                          </tr>
+                        ))
+                      : null}
+                    {!sellBidHistoryLoading &&
+                      (!sellBidHistory ||
+                        !sellBidHistory.data ||
+                        sellBidHistory.data.length === 0) && (
+                        <tr>
+                          <td
+                            colSpan={3}
+                            className="px-3 py-6 text-center text-sm text-neutral-400"
+                          >
+                            판매 입찰이 없습니다.
+                          </td>
+                        </tr>
+                      )}
                   </tbody>
                 </table>
               )}
             </div>
           </>
         ) : (
-          <TradeHistory data={historyData} />
+          <TradeHistory projectId={id} myTradeDoneHistory={myTradeDoneHistory} myTradeYetHistory={myTradeYetHistory} />
         )}
         {/* 모달 */}
         {isTradeModalOpen && (
           <>
             {tradeType === "구매" && (
               <MarketPurchaseModal
+                tradeHistory={[...tradeHistory].reverse()}
+                tradeHistoryLoading={tradeHistoryLoading}
+                projectId={id}
                 isOpen={isTradeModalOpen}
                 onClose={closeTradeModal}
                 onConfirm={handlePurchaseConfirm}
               />
             )}
-            {tradeType === "판매" && (
+            {tradeType === "판매" && (  
               <MarketSellModal
+                tradeHistory={[...tradeHistory].reverse()}
+                tradeHistoryLoading={tradeHistoryLoading}
+                projectId={id}
                 isOpen={isTradeModalOpen}
                 onClose={closeTradeModal}
                 onConfirm={handleSellConfirm}
