@@ -28,6 +28,7 @@ import FraudDetection from "./pages/admin/FraudDetection";
 import Setting from "./pages/admin/Setting";
 import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import ProductRegistration from "./pages/product/ProductRegistration.jsx";
+import ProductEdit from "./pages/product/ProductEdit.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
 import MyProduct from "./pages/mypage/MyProduct.jsx";
 import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
@@ -59,6 +60,7 @@ function App() {
 
               {/*Product Registration*/}
               {<Route path="/product-registration" element={<ProductRegistration />} />}
+              <Route path="/product-edit/:id" element={<ProductEdit />} />
 
               {/*Market*/}
               <Route path="/market" element={<Market />} />

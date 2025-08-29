@@ -2,7 +2,7 @@ import { privateApi as api } from './axiosInstance';
 
 function mapToUiPost(item) {
     return {
-        requestId: item.projectId ?? item.requestId ?? item.id ?? null,
+        requestId: item.requestId ?? item.id ?? null,
         userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,
         startDate: item.start_date ?? item.startDate ?? null,
         endDate: item.end_date ?? item.endDate ?? null,
@@ -16,14 +16,14 @@ function mapToUiPost(item) {
 export async function getPosts({
                                    // page = 1,
                                    // size = 10,
-                                   searchBy,
-                                   keyword,
-                                   requestType,
-                                   requestStatus,
-                                   startDate,
-                                   endDate,
-                                   signal,
-                               } = {}) {
+                                    searchBy,
+                                    keyword,
+                                    requestType,
+                                    requestStatus,
+                                    startDate,
+                                    endDate,
+                                    signal,
+                                } = {}) {
 
     console.log('[admin_project_api] getPosts 호출됨. 원본 파라미터:', {  searchBy, keyword, requestType, startDate, endDate, requestStatus});
 
@@ -118,7 +118,7 @@ export async function getPostsList({ page=1, size=10, signal } = {}) {
 
 function mapToPostDetail(item) {
     return {
-        requestId: item.requestId ?? item.id ?? item.projectId ?? null, //요청번호
+        requestId: item.requestId ?? item.id?? null, //요청번호
         userNo: item.userSeq ?? item.user_seq ?? item.userId ?? null, //작성자id
         projectId: item.projectId ?? null, //창작물 번호
         title: item.title ?? null, //제목
@@ -127,7 +127,14 @@ function mapToPostDetail(item) {
         endDate: item.endDate ?? item.end_date ?? null, //마감일
         goalAmount: item.goalAmount ?? null, //목표금액
         minInvestment: item.minInvestment ?? null, //최저투자금액
-        files: item.document && Array.isArray(item.document) ? item.document.map(url => ({ name: url.split('/').pop(), url: url })) : [], //파일
+        files: item.document && Array.isArray(item.document) 
+            ? item.document
+                .filter(url => url && typeof url === 'string' && url.trim() !== '') // Filter out empty/invalid URLs
+                .map(url => ({ 
+                    name: url.split('/').pop() || 'Unknown File', 
+                    url: url.trim() 
+                })) 
+            : [], //파일
         updateStopReason: item.reason ?? null, //사유 (update, stop)
         type: item.type ?? null, //창작물 유형
         status: item.status ?? item.postStatus ?? null, //창작물 상태 (status) - APPROVED, PENDING, REJECTED

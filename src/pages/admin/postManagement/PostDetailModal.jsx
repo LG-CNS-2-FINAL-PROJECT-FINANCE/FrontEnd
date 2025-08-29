@@ -182,6 +182,15 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
     }
 
     const isActionDisabled = postDetail.status === 'APPROVED' || postDetail.status === 'REJECTED';
+    
+    // Check if there are invalid files/images that would cause AWS SDK errors
+    const hasInvalidFiles = (postDetail.files && postDetail.files.some(file => 
+        !file.url || file.url.trim() === '' || !file.name || file.name.trim() === ''
+    )) || (postDetail.images && postDetail.images.some(image => 
+        !image.url || image.url.trim() === '' || !image.name || image.name.trim() === ''
+    ));
+    
+    const isApprovalDisabled = isActionDisabled || (postDetail.type === 'STOP' && hasInvalidFiles);
 
     const handleAction = async (actionType) => {
         setIsUpdating(true);
@@ -194,10 +203,60 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                 throw new Error('Request ID is missing');
             }
 
+            // Check for problematic files/images before proceeding with approval
+            if (actionType === 'approve' && ((postDetail.files && postDetail.files.length > 0) || (postDetail.images && postDetail.images.length > 0))) {
+                const invalidFiles = postDetail.files ? postDetail.files.filter(file => 
+                    !file.url || file.url.trim() === '' || !file.name || file.name.trim() === ''
+                ) : [];
+                
+                const invalidImages = postDetail.images ? postDetail.images.filter(image => 
+                    !image.url || image.url.trim() === '' || !image.name || image.name.trim() === ''
+                ) : [];
+                
+                if (invalidFiles.length > 0 || invalidImages.length > 0) {
+                    console.error('Invalid files found:', invalidFiles);
+                    console.error('Invalid images found:', invalidImages);
+                    setUpdateError('파일/이미지 처리 중 오류가 발생했습니다. 일부 첨부 파일이나 이미지에 문제가 있어 승인할 수 없습니다. 백엔드 관리자에게 문의하세요.');
+                    return;
+                }
+            }
+
             const payload = { requestId };
 
             console.log('Sending payload:', payload);
             console.log('Post detail object:', postDetail);
+            console.log('Files:', postDetail.files);
+            console.log('Images:', postDetail.images);
+            console.log('Files detailed analysis:');
+            if (postDetail.files && postDetail.files.length > 0) {
+                postDetail.files.forEach((file, index) => {
+                    console.log(`File ${index}:`, {
+                        url: file.url,
+                        name: file.name,
+                        urlType: typeof file.url,
+                        nameType: typeof file.name,
+                        urlEmpty: file.url === '',
+                        nameEmpty: file.name === '',
+                        urlTrimmed: file.url ? file.url.trim() : 'N/A',
+                        nameTrimmed: file.name ? file.name.trim() : 'N/A'
+                    });
+                });
+            }
+            console.log('Images detailed analysis:');
+            if (postDetail.images && postDetail.images.length > 0) {
+                postDetail.images.forEach((image, index) => {
+                    console.log(`Image ${index}:`, {
+                        url: image.url,
+                        name: image.name,
+                        urlType: typeof image.url,
+                        nameType: typeof image.name,
+                        urlEmpty: image.url === '',
+                        nameEmpty: image.name === '',
+                        urlTrimmed: image.url ? image.url.trim() : 'N/A',
+                        nameTrimmed: image.name ? image.name.trim() : 'N/A'
+                    });
+                });
+            }
 
             const api_instance = api;
             await api_instance.post(endpoint, payload);
@@ -207,7 +266,16 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
         } catch (e) {
             console.error('게시물 상태 업데이트 실패:', e);
             console.error('Response data:', e?.response?.data);
-            setUpdateError(e?.response?.data?.message || '상태 업데이트에 실패했습니다. 다시 시도해주세요.');
+            
+            // Provide specific error message for AWS SDK errors
+            let errorMessage = '상태 업데이트에 실패했습니다. 다시 시도해주세요.';
+            if (e?.response?.status === 500 && e?.response?.data?.message?.includes('Key cannot be empty')) {
+                errorMessage = '파일 처리 중 AWS 오류가 발생했습니다. 첨부 파일에 문제가 있을 수 있습니다. 백엔드 관리자에게 문의하세요.';
+            } else if (e?.response?.data?.message) {
+                errorMessage = e.response.data.message;
+            }
+            
+            setUpdateError(errorMessage);
         } finally {
             setIsUpdating(false);
         }
@@ -273,6 +341,15 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                         </div>
                     )}
 
+                    {/* Warning for STOP requests with file/image issues */}
+                    {postDetail.type === 'STOP' && ((postDetail.files && postDetail.files.some(file => !file.url || file.url.trim() === '')) || 
+                     (postDetail.images && postDetail.images.some(image => !image.url || image.url.trim() === ''))) && (
+                        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 flex items-center gap-2">
+                            <span className="text-lg">⚠️</span>
+                            이 중단 요청에는 문제가 있는 첨부 파일이나 이미지가 포함되어 있습니다. 승인 시 오류가 발생할 수 있습니다.
+                        </div>
+                    )}
+
                     {copiedMessage.show && (
                         <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm text-center animate-pulse">
                             {copiedMessage.text}
@@ -305,9 +382,43 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                                 {postDetail.updateStopReason && <div>정지/수정 사유: {postDetail.updateStopReason}</div>}
                                 {postDetail.rejectReason && <div>거절 사유: {postDetail.rejectReason}</div>}
                                 {postDetail.files && postDetail.files.length > 0 && (
-                                    <div>첨부 파일: {postDetail.files.map(file => (
-                                        <a key={file.url} href={file.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">{file.name}</a>
-                                    ))}</div>
+                                    <div>첨부 파일 ({postDetail.files.length}개): 
+                                        {postDetail.files.map((file, index) => (
+                                            <div key={index} className="ml-2">
+                                                {file.url && file.url.trim() !== '' ? (
+                                                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">
+                                                        {file.name || 'Unknown File'}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-red-500 block">{file.name || 'Invalid File'} (URL 없음)</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {postDetail.images && postDetail.images.length > 0 && (
+                                    <div>첨부 이미지 ({postDetail.images.length}개): 
+                                        {postDetail.images.map((image, index) => (
+                                            <div key={index} className="ml-2">
+                                                {image.url && image.url.trim() !== '' ? (
+                                                    <a href={image.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">
+                                                        {image.name || 'Unknown Image'}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-red-500 block">{image.name || 'Invalid Image'} (URL 없음)</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {postDetail.imageUrl && (
+                                    <div>대표 이미지: 
+                                        <div className="ml-2">
+                                            <a href={postDetail.imageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">
+                                                {postDetail.imageUrl.split('/').pop() || 'Image'}
+                                            </a>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -324,14 +435,21 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
 
                     <div className="space-y-4">
                         <div className="flex flex-wrap gap-3 justify-center">
-                            <ActionButton
-                                kind="approve"
-                                onClick={() => handleAction('approve')}
-                                disabled={isActionDisabled || isUpdating}
-                                loading={isUpdating}
-                            >
-                                승인
-                            </ActionButton>
+                            <div className="relative">
+                                <ActionButton
+                                    kind="approve"
+                                    onClick={() => handleAction('approve')}
+                                    disabled={isApprovalDisabled || isUpdating}
+                                    loading={isUpdating}
+                                >
+                                    승인
+                                </ActionButton>
+                                {isApprovalDisabled && hasInvalidFiles && postDetail.type === 'STOP' && (
+                                    <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-red-500 whitespace-nowrap">
+                                        파일 문제로 승인 불가
+                                    </div>
+                                )}
+                            </div>
 
                             <ActionButton
                                 kind="reject"

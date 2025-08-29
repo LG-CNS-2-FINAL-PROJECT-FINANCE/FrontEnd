@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createProductRequest, validateProductForm } from '../../api/project_registration_api';
+import { createProductRequest, validateProductForm, uploadFileToS3 } from '../../api/project_registration_api';
 import RegisterConfirmation from './RegisterConfirmation';
 
 function ProductRegistration() {
@@ -17,6 +17,11 @@ function ProductRegistration() {
     // UI state
     const [documentFile, setDocumentFile] = useState(null);
     const [imageFile, setImageFile] = useState(null);
+    const [documentUploadUrl, setDocumentUploadUrl] = useState('');
+    const [imageUploadUrl, setImageUploadUrl] = useState('');
+    const [isUploadingDocument, setIsUploadingDocument] = useState(false);
+    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [uploadError, setUploadError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
 
@@ -33,12 +38,48 @@ function ProductRegistration() {
         }));
     };
 
-    const handleDocumentUpload = (e) => {
-        setDocumentFile(e.target.files[0]);
+    const handleDocumentUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        setDocumentFile(file);
+        setIsUploadingDocument(true);
+        setUploadError('');
+        
+        try {
+            const uploadResult = await uploadFileToS3(file);
+            if (uploadResult.success) {
+                setDocumentUploadUrl(uploadResult.url);
+            }
+        } catch (error) {
+            console.error('Document upload error:', error);
+            setUploadError('문서 파일 업로드에 실패했습니다: ' + error.message);
+            setDocumentFile(null);
+        } finally {
+            setIsUploadingDocument(false);
+        }
     };
 
-    const handleImageUpload = (e) => {
-        setImageFile(e.target.files[0]);
+    const handleImageUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        setImageFile(file);
+        setIsUploadingImage(true);
+        setUploadError('');
+        
+        try {
+            const uploadResult = await uploadFileToS3(file);
+            if (uploadResult.success) {
+                setImageUploadUrl(uploadResult.url);
+            }
+        } catch (error) {
+            console.error('Image upload error:', error);
+            setUploadError('이미지 파일 업로드에 실패했습니다: ' + error.message);
+            setImageFile(null);
+        } finally {
+            setIsUploadingImage(false);
+        }
     };
 
     // Form submission
@@ -48,8 +89,14 @@ function ProductRegistration() {
         // Reset error messages
         setSubmitError('');
 
+        // Check if uploads are still in progress
+        if (isUploadingDocument || isUploadingImage) {
+            setSubmitError('파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+
         // Validate form including file uploads
-        const validation = validateProductForm(formData, documentFile, imageFile);
+        const validation = validateProductForm(formData, documentUploadUrl, imageUploadUrl);
         if (!validation.isValid) {
             const firstError = Object.values(validation.errors)[0];
             setSubmitError(firstError);
@@ -59,7 +106,7 @@ function ProductRegistration() {
         setIsSubmitting(true);
 
         try {
-            const result = await createProductRequest(formData, documentFile, imageFile);
+            const result = await createProductRequest(formData, documentUploadUrl, imageUploadUrl);
 
             if (result.success) {
                 setProductTitle(formData.title);
@@ -88,6 +135,14 @@ function ProductRegistration() {
                         <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 flex items-center gap-2">
                             <span className="text-lg">⚠️</span>
                             {submitError}
+                        </div>
+                    )}
+                    
+                    {/* Upload Error Message */}
+                    {uploadError && (
+                        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg text-orange-800 flex items-center gap-2">
+                            <span className="text-lg">UPLOAD ERROR</span>
+                            {uploadError}
                         </div>
                     )}
                     {/* 제목 - 상품명 입력 */}
@@ -140,17 +195,32 @@ function ProductRegistration() {
                                 onChange={handleDocumentUpload}
                                 className="hidden"
                                 accept=".pdf,.doc,.docx"
+                                disabled={isUploadingDocument}
                             />
                             <label
                                 htmlFor="documentUpload"
-                                className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                                className={`cursor-pointer inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium transition-colors ${
+                                    isUploadingDocument 
+                                        ? 'text-gray-500 cursor-not-allowed' 
+                                        : 'text-gray-700 hover:bg-gray-200'
+                                }`}
                             >
-                                파일선택
+                                {isUploadingDocument ? '업로드 중...' : '파일선택'}
                             </label>
-                            {documentFile && (
-                                <p className="mt-2 text-sm text-gray-600">선택된 파일: {documentFile.name}</p>
+                            
+                            {isUploadingDocument && (
+                                <p className="mt-2 text-sm text-blue-600">
+                                    문서 업로드 중...
+                                </p>
                             )}
-                            {!documentFile && (
+                            
+                            {documentFile && documentUploadUrl && (
+                                <p className="mt-2 text-sm text-green-600">
+                                    업로드 완료: {documentFile.name}
+                                </p>
+                            )}
+                            
+                            {!documentFile && !isUploadingDocument && (
                                 <p className="mt-2 text-sm text-gray-500">PDF, DOC, DOCX 파일을 선택해주세요</p>
                             )}
                         </div>
@@ -166,17 +236,32 @@ function ProductRegistration() {
                                 onChange={handleImageUpload}
                                 className="hidden"
                                 accept="image/*"
+                                disabled={isUploadingImage}
                             />
                             <label
                                 htmlFor="imageUpload"
-                                className="cursor-pointer inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 transition-colors"
+                                className={`cursor-pointer inline-flex items-center px-4 py-2 bg-gray-100 border border-gray-300 rounded-md text-sm font-medium transition-colors ${
+                                    isUploadingImage 
+                                        ? 'text-gray-500 cursor-not-allowed' 
+                                        : 'text-gray-700 hover:bg-gray-200'
+                                }`}
                             >
-                                이미지 선택
+                                {isUploadingImage ? '업로드 중...' : '이미지 선택'}
                             </label>
-                            {imageFile && (
-                                <p className="mt-2 text-sm text-gray-600">선택된 이미지: {imageFile.name}</p>
+                            
+                            {isUploadingImage && (
+                                <p className="mt-2 text-sm text-blue-600">
+                                    이미지 업로드 중...
+                                </p>
                             )}
-                            {!imageFile && (
+                            
+                            {imageFile && imageUploadUrl && (
+                                <p className="mt-2 text-sm text-green-600">
+                                    업로드 완료: {imageFile.name}
+                                </p>
+                            )}
+                            
+                            {!imageFile && !isUploadingImage && (
                                 <p className="mt-2 text-sm text-gray-500">JPG, PNG, GIF 이미지를 선택해주세요</p>
                             )}
                         </div>
