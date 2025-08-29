@@ -4,12 +4,18 @@ import { IoIosAdd } from "react-icons/io";
 import InvestmentCard from '../../../component/InvestmentCard';
 import useUser from "../../../lib/useUser";
 import { getMyInvestmentList, getMyProductList } from '../../../api/myPage_api';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import ConfirmDeleteModal from './ConfirmDeleteModal';
+import {FaTrashAlt} from "react-icons/fa";
 
 const InvestmentPreview = ({}) => {
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
     const [displayedInvestments, setDisplayedInvestments] = useState([]);
+
+    const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
+    const [selectedProductToDelete, setSelectedProductToDelete] = useState(null);
 
     const handleMoreClick = () => {
         navigate('/my-investments');
@@ -88,6 +94,22 @@ const InvestmentPreview = ({}) => {
         );
     }
 
+    const handleDeleteClick = (requestId, title) => {
+        setSelectedProductToDelete({ requestId, title });
+        setIsConfirmDeleteModalOpen(true);
+    };
+
+    const handleCloseConfirmDeleteModal = () => {
+        setIsConfirmDeleteModalOpen(false);
+        setSelectedProductToDelete(null);
+    };
+
+    const handleProductDeleted = () => {
+        // 삭제 성공 후 현재 쿼리 키를 무효화하여 최신 목록을 다시 가져옴
+        queryClient.invalidateQueries(queryKeyToUse);
+        handleCloseConfirmDeleteModal(); // 모달 닫기
+    };
+
     return (
         <>
             {userRole === CREATOR ? (
@@ -104,9 +126,9 @@ const InvestmentPreview = ({}) => {
                             <IoIosAdd className="text-2xl text-gray-600" />
                         </button>
 
-                        <div className="grid grid-cols-4">
+                        <div className="grid grid-cols-4 gap-4">
                             {displayedInvestments.map((investment) => (
-                                <div key={investment.requestId} className="transform scale-90" >
+                                <div key={investment.requestId} className="transform scale-90 relative" >
                                     <InvestmentCard
                                         disableNavigation={true}
                                         key={investment.requestId}
@@ -123,6 +145,15 @@ const InvestmentPreview = ({}) => {
                                             type: investment.type,
                                         }}
                                     />
+                                    <button
+                                        className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors z-10"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteClick(investment.requestId, investment.title);
+                                        }}
+                                    >
+                                        <FaTrashAlt className="w-3 h-3" />
+                                    </button>
                                 </div>
                             ))}
                         </div>
@@ -170,6 +201,16 @@ const InvestmentPreview = ({}) => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {isConfirmDeleteModalOpen && selectedProductToDelete && (
+                <ConfirmDeleteModal
+                    open={isConfirmDeleteModalOpen}
+                    onClose={handleCloseConfirmDeleteModal}
+                    requestId={selectedProductToDelete.requestId}
+                    titleToMatch={selectedProductToDelete.title}
+                    onDeleted={handleProductDeleted}
+                />
             )}
         </>
     );

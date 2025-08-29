@@ -99,3 +99,18 @@ export async function getMyProductList(options = {}){
         throw error;
     }
 }
+
+// 요청삭제 API
+export async function deleteRequest(requestId) {
+    console.log(`[myPage_api] deleteProductRequest 호출됨. RequestId: ${requestId}`);
+
+    try {
+        const res = await api.post(`/product/request/cancel/${requestId}`);
+        console.log(`[myPage_api] deleteProductRequest 응답:`, res.data);
+        return res.data;
+
+    } catch (error) {
+        console.error(`[myPage_api] deleteProductRequest 오류 (RequestId: ${requestId}):`, error);
+        throw error;
+    }
+}

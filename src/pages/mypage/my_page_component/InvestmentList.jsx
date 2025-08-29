@@ -1,10 +1,16 @@
 import React, { useState, useEffect, useContext } from 'react';
 import InvestmentCard from '../../../component/InvestmentCard';
 import { getMyInvestmentList, getMyProductList } from '../../../api/myPage_api';
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useUser from "../../../lib/useUser";
+import ConfirmDeleteModal from './ConfirmDeleteModal';
+import {FaTrashAlt} from "react-icons/fa";
 
 const InvestmentList = ({}) => {
+    const queryClient = useQueryClient();
+
+    const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
+    const [selectedProductToDelete, setSelectedProductToDelete] = useState(null);
 
     const { user } = useUser();
 
@@ -19,7 +25,6 @@ const InvestmentList = ({}) => {
         queryFnToUse = getMyProductList;
         queryKeyToUse = ['myProductList', user?.email]
     }
-
 
 
     const {
@@ -76,6 +81,22 @@ const InvestmentList = ({}) => {
         );
     }
 
+    const handleDeleteClick = (requestId, title) => {
+        setSelectedProductToDelete({ requestId, title });
+        setIsConfirmDeleteModalOpen(true);
+    };
+
+    const handleCloseConfirmDeleteModal = () => {
+        setIsConfirmDeleteModalOpen(false);
+        setSelectedProductToDelete(null);
+    };
+
+    const handleProductDeleted = () => {
+        // 삭제 성공 후 현재 쿼리 키를 무효화하여 최신 목록을 다시 가져옴
+        queryClient.invalidateQueries(queryKeyToUse);
+        handleCloseConfirmDeleteModal(); // 모달 닫기
+    };
+
     return (
         <>
         {userRole === "CREATOR" ? (
@@ -84,16 +105,16 @@ const InvestmentList = ({}) => {
 
                 <h2 className="text-2xl font-bold mb-4">상품 요청 내역</h2>
                 <h3 className="text-right text-xs text-gray-500 px-2">요청은 프로젝트당 하나씩 요청할 수 있습니다.</h3>
-                <h3 className="text-right text-xs text-red-500 px-2">(요청 신청을 취소하고 싶으시면 길게 눌러서 취소하세요)</h3>
+                <h3 className="text-right text-xs text-red-500 px-2">(요청 신청을 취소하고 싶으시면 오른쪽 상단 휴지통을 눌러 취소하세요.)</h3>
 
                 {/* Full Investment List with Thin Gray Border - full width */}
                 <div
                     className="border border-gray-200 rounded-lg p-6 w-full"
                 >
                     {/* Investment Grid - shows all items */}
-                    <div className="grid grid-cols-4">
+                    <div className="grid grid-cols-4 gap-4">
                         {fetchedData.map((investment) => (
-                            <div key={investment.requestId} className="transform scale-90" >
+                            <div key={investment.requestId} className="transform scale-90 relative" >
                                 <InvestmentCard
                                     disableNavigation={true}
                                     key={investment.requestId}
@@ -110,6 +131,15 @@ const InvestmentList = ({}) => {
                                         type: investment.type,
                                     }}
                                 />
+                                <button
+                                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 transition-colors z-10"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleDeleteClick(investment.requestId, investment.title);
+                                    }}
+                                >
+                                        <FaTrashAlt className="w-3 h-3" />
+                                    </button>
                             </div>
                         ))}
                     </div>
@@ -151,7 +181,17 @@ const InvestmentList = ({}) => {
             </div>
 
         )}
+            {isConfirmDeleteModalOpen && selectedProductToDelete && (
+                <ConfirmDeleteModal
+                    open={isConfirmDeleteModalOpen}
+                    onClose={handleCloseConfirmDeleteModal}
+                    requestId={selectedProductToDelete.requestId}
+                    titleToMatch={selectedProductToDelete.title}
+                    onDeleted={handleProductDeleted}
+                />
+            )}
         </>
+
 
     );
 };
