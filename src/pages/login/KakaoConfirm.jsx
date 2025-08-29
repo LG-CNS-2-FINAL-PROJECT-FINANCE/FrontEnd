@@ -1,4 +1,3 @@
-// KakaoConfirm.tsx (또는 .jsx)
 import { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";

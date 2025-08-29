@@ -99,9 +99,10 @@ export const getAccountSpecificHistory = async (moneyType) => {
 
 export const getWalletToken = async () => {
   try{
-    const response = await privateApi.get(`/asset/wallet-token/search`);
-    console.log(response)
-    return response.data.data;
+    // const response = await privateApi.get(`/asset/wallet-token/search`);
+    // console.log(response)
+    // return response.data.data;
+    return "DONE";
   } catch (error) {
     console.error(error);
     throw error;

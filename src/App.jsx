@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./pages/common/ScrollToTop.js";
 import Layout from "./layout/user/Layout.jsx";
 import AdminLayout from "./layout/admin/AdminLayout.jsx";
-import Home from "./pages/Home.jsx";
+import Home from "./pages/home/Home.jsx";
 import Login from "./pages/login/Login.jsx";
 import InvestmentListPage from "./pages/investment/investmentList.jsx";
 import InvestmentDetail from "./pages/investment/investmentDetail.jsx";

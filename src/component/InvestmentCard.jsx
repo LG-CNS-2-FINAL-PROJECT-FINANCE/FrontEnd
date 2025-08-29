@@ -10,8 +10,6 @@ dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
 
 function InvestmentCard({ project, imageUrl }) {
-    console.log('[InvestmentCard] project prop:', project);
-    console.log('[InvestmentCard] image prop:', imageUrl);
     const ddayValue = Number(project.dday);
     const { themeColors } = useTheme();
 
