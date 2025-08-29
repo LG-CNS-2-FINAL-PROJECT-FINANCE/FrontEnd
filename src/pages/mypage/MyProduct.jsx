@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import UserProfile from './my_page_component/UserProfile';
 import ProductList from './my_page_component/ProductList';
 import { productData } from './my_page_component/data/productData';
+import MyProductList from "./my_page_component/MyProductList";
 
 const MyProduct = () => {
     const [products, setProducts] = useState([]);
@@ -21,9 +22,12 @@ const MyProduct = () => {
             </div>
             
             {/* Right side - Scrollable Full Product list area (no portfolio rectangle) */}
-            <div className="flex-1 bg-white p-6">
-                {/* Full Product List */}
+            {/*<div className="flex-1 bg-white p-6">
                 <ProductList products={products} />
+            </div>*/}
+
+            <div className="flex-1 bg-white p-6">
+                <MyProductList />
             </div>
         </div>
     );

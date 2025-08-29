@@ -115,3 +115,31 @@ export async function deleteRequest(requestId) {
         throw error;
     }
 }
+
+//창작자 개인 상품 모든 등록 조회
+export async function getMyProductPv(options = {}){
+    console.log('[myPage_api] getMyProductPv 호출됨');
+
+    try {
+        const {signal, ...restOptions} = options;
+
+        const res = await api.get('/product/product/myPage', {signal, ...restOptions});
+        const payload = res.data;
+        console.log('getMyProductPv payload 확인', payload);
+
+        let list = [];
+        if (Array.isArray(payload)) {
+            list = payload;
+        } else if (payload.data && Array.isArray(payload.data)) {
+            list = payload.data;
+        } else if (payload.content && Array.isArray(payload.content)) {
+            list = payload.content;
+        }
+
+        const myProductPv = list.map(mapToMyProduct);
+        return myProductPv;
+    }catch (error){
+        console.log('[myPage_api] getMyProductPv 오류', error);
+        throw error;
+    }
+}

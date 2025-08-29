@@ -11,6 +11,7 @@ import { editRequestData } from './my_page_component/data/editRequestData';
 import UserProfile from './my_page_component/UserProfile';
 import { useTheme } from '../../context/ThemeContext';
 import useUser from "../../lib/useUser";
+import MyProductPreview from "./my_page_component/MyProductPreview";
 
 const MyPage = () => {
     const [investments, setInvestments] = useState([]);
@@ -62,7 +63,7 @@ const MyPage = () => {
 
                         {/* Favorites Preview */}
                         <div className="mt-8">
-                            {userRole === CREATOR ? (<></>) : (<FavoritePreview favorites={favorites} />)}
+                            {userRole === CREATOR ? (<MyProductPreview />) : (<FavoritePreview />)}
                         </div>
                     </>
                 )}
