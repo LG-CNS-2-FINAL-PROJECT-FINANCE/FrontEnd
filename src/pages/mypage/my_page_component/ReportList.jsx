@@ -3,8 +3,9 @@ import React from 'react';
 const ReportList = ({ reports }) => {
     return (
         <div className="w-full">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">신고내역</h2>
             <div className="border border-gray-300 rounded-lg p-6 bg-white">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">신고내역</h2>
+
                 
                 <div className="space-y-4">
                     {reports && reports.length > 0 ? (
@@ -35,7 +36,7 @@ const ReportList = ({ reports }) => {
                             </div>
                         ))
                     ) : (
-                        <div className="text-center py-8 text-gray-500">
+                        <div className="text-center text-gray-500">
                             신고내역이 없습니다.
                         </div>
                     )}
