@@ -75,7 +75,7 @@ const InvestmentPreview = ({}) => {
 
     if (isLoading) {
         return <div className="container mx-auto py-8 text-center text-lg">
-            {userRole === CREATOR ? "상품 등록 내역" : "투자 내역"} 로딩 중...
+            {userRole === CREATOR ? "상품 요청 내역" : "투자 내역"} 로딩 중...
         </div>;
     }
 
@@ -86,9 +86,9 @@ const InvestmentPreview = ({}) => {
     if (!fetchedData || fetchedData.length === 0) {
         return (
             <div className="container mx-auto py-8">
-                <h2 className="text-2xl font-bold mb-4">{userRole === CREATOR ? "상품 등록 내역" : "투자 내역"}</h2>
+                <h2 className="text-2xl font-bold mb-4">{userRole === CREATOR ? "상품 요청 내역" : "투자 내역"}</h2>
                 <div className="border border-gray-200 rounded-lg p-6 relative w-full text-center text-gray-500">
-                    {userRole === CREATOR ? "등록된 상품이 없습니다." : "투자 내역이 없습니다."}
+                    {userRole === CREATOR ? "요청된 상품이 없습니다." : "투자 내역이 없습니다."}
                 </div>
             </div>
         );
