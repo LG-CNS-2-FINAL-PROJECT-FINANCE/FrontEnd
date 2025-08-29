@@ -81,7 +81,7 @@ const FavoriteList = ({}) => {
                         <div key={investment.projectId} className="transform scale-90">
                             <InvestmentCard
                                 key={investment.projectId}
-                                imageUrl={investment.imageUrl}
+                                imageUrl={investment.DefaultImageUrl}
                                 project={{
                                     projectId: investment.projectId,
                                     name: investment.title,

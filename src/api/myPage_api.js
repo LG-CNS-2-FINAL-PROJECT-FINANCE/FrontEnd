@@ -16,6 +16,7 @@ function mapToMyInvestment(item) {
         // startDate: item.startDate ?? null, //시작일
         endDate: item.product.endDate ?? null, //마감일
         // account: item.account ?? null, //계좌
+        DefaultImageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image[0] : 'bull.png', //이미지
 
         investedPrice : item.investedPrice, // 투자금
         tokenQuantity : item.tokenQuantity, // 투자수량

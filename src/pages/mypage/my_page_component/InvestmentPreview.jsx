@@ -132,7 +132,7 @@ const InvestmentPreview = ({}) => {
                                     <InvestmentCard
                                         disableNavigation={true}
                                         key={investment.requestId}
-                                        imageUrl={investment.imageUrl}
+                                        imageUrl={investment.DefaultImageUrl}
                                         project={{
                                             projectId: investment.requestId,
                                             name: investment.title,
