@@ -2,7 +2,7 @@ import { privateApi, publicApi } from "./axiosInstance";
 
 export const getMarketProducts = async () => {
   try {
-    const response = await publicApi.get(`/product/market/end`);
+    const response = await publicApi.get(`/product/market/trading`);
     return response.data.content;
     
   } catch (error) {
