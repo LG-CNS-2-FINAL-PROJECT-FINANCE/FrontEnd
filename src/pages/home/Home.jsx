@@ -102,7 +102,7 @@ function Home() {
           <TopProjectsSection projectsByView={projectsByView} projectsByViewLoading={projectsByViewLoading}  projectsByViewError={projectsByViewError} />
         </div>
         <div className="pl-4 w-[30%] flex flex-col items-start">
-          <h1 className="font-bold text-xl mb-4">일간 베스트</h1>
+          <h1 className="font-bold text-xl mb-4">실시간 베스트</h1>
           <div className="w-full rounded-xl bg-white border p-4">
             {projectsByAmountLoading && (
               <div className="animate-pulse space-y-3">

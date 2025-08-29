@@ -156,7 +156,7 @@ function Header() {
         <>
           {/* 바깥 클릭 영역 */}
           <div
-            className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50"
+            className="fixed inset-0  flex justify-center items-center z-50"
             onClick={() => setOpenNotif(false)}
           />
           {/* 패널 */}

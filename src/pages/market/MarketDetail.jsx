@@ -228,7 +228,7 @@ function MarketDetail() {
       </div>
 
       {/* 오른쪽: 고정 영역 */}
-      <div className="overflow-y-auto scrollbar-hide mt-8 w-[500px] min-w-[380px] h-full bg-white border-l px-4 pl-8 py-8 flex flex-col">
+      <div className="overflow-y-auto scrollbar-hide mt-8 w-[45%] h-full bg-white border-l px-4 pl-8 py-8 flex flex-col">
         {/* 탭 메뉴 */}
         <div className="flex bg-gray-100 rounded-md mb-8 px-4 w-full max-w-xl mx-auto">
           <button
@@ -257,19 +257,23 @@ function MarketDetail() {
               <div className="text-lg text-gray-700 font-bold">즉시 구매가</div>
               <div className="text-3xl font-bold mb-4 mt-1">20,423 원</div>
               <div className="flex gap-6 text-left w-full">
-                <div className="w-full">
+                <div className="flex-1">
                   <div className="text-sm text-gray-400">최근 거래가</div>
-                  <div className="text-gray-700 text-sm">{product.tokenPrice? product.tokenPrice.toLocaleString():"-"} 원</div>
+                  <div className="text-gray-700 text-sm">
+                    {product.tokenPrice ? product.tokenPrice.toLocaleString() : "-"} 원
+                  </div>
                 </div>
-                <div className="w-full border-l px-2">
+                <div className="flex-1 border-l pl-4">
                   <div className="text-sm text-gray-400">발매가</div>
-                  <div className="text-gray-700 text-sm">{product.goalAmount/product.minInvestment} 원</div>
+                  <div className="text-gray-700 text-sm">
+                    {(product.goalAmount / product.minInvestment).toLocaleString()} 원
+                  </div>
                 </div>
-                <div className="w-full border-l px-2">
-                  <div className="text-sm text-gray-400">프로젝트 번호</div>
-                  <div className="text-gray-700 text-sm">{product.projectId}</div>
+                <div className="flex-1 border-l pl-4">
+                  <div className="text-sm text-gray-400 mb-1">프로젝트 번호</div>
+                  <div className="text-gray-700 text-xs">{product.projectId}</div>
                 </div>
-                <div className="w-full border-l px-2">
+                <div className="flex-1 border-l pl-4">
                   <div className="text-sm text-gray-400">출시일</div>
                   <div className="text-gray-700 text-sm">{product.startDate}</div>
                 </div>
