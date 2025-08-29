@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import UserProfile from './my_page_component/UserProfile';
+import useUser from "../../lib/useUser";
+import { toast } from "react-toastify";
+import {editUser} from "../../api/user_api";
+
 
 const AccountManagement = () => {
     const [formData, setFormData] = useState({
@@ -13,6 +17,36 @@ const AccountManagement = () => {
             [name]: value
         }));
     };
+
+    const { user } = useUser();
+
+    const FEMALE = "FEMALE";
+    const MALE = "MALE";
+
+    const handleEditNickname = async () => {
+        if (!formData.nickname) {
+            toast.warn("닉네임을 입력해주세요!");
+            return;
+        }
+        try {
+            const res = await editUser(user.userSeq, formData.nickname);
+            console.log("✅ 닉네임 수정 성공:", res);
+
+            setFormData({nickname: ""});
+            toast.success("닉네임이 수정되었습니다!");
+
+            window.location.reload();
+        } catch (err) {
+            console.error("❌ 닉네임 수정 실패:", err);
+            toast.error("닉네임 수정에 실패했습니다.");
+        }
+    };
+
+    useEffect(() => {
+        if (user?.nickname) {
+            setFormData({ nickname: user.nickname });
+        }
+    }, [user]);
 
     return (
         <div className="flex min-h-screen relative">
@@ -31,15 +65,15 @@ const AccountManagement = () => {
                     <div className="flex flex-col items-center space-y-6">
                         {/* Bull Image */}
                         <img
-                            src="/assets/bull.png"
-                            alt="Bull"
+                            src={user?.role === "CREATOR" ? "/assets/pig.png" : "/assets/bull.png"}
+                            alt={user?.role === "CREATOR" ? "Pig" : "Bull"}
                             className="object-cover rounded-full shadow-lg"
                             style={{ width: '120px', height: '120px' }}
                         />
 
                         {/* Nickname Display */}
                         <div className="text-xl font-bold text-gray-800">
-                            Nickname
+                            {user?.nickname}
                         </div>
 
                         {/* Form Fields */}
@@ -47,44 +81,58 @@ const AccountManagement = () => {
                             {/* Email Display (Read-only) */}
                             <div>
                                 <div className="flex items-center justify-between mb-2">
-                                    <label className="block text-sm font-medium text-gray-700">
+                                    <label className="text-sm font-medium text-gray-700">
                                         이메일
                                     </label>
                                     <span className="text-red-500 text-xs">수정불가</span>
                                 </div>
-                                <div className="w-full py-2 text-gray-900 border-b border-gray-300">
-                                    user@example.com
-                                </div>
+                                <input
+                                    type="text"
+                                    value={user?.email ?? ""}
+                                    readOnly
+                                    className="px-1 w-full py-2 border-b border-gray-300 bg-gray-100 text-gray-900 cursor-not-allowed"
+                                />
                             </div>
 
                             {/* Nickname Input (Only editable field) */}
-                            <div>
+                            <div className="">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     닉네임
                                 </label>
-                                <input
-                                    type="text"
-                                    name="nickname"
-                                    value={formData.nickname}
-                                    onChange={handleInputChange}
-                                    className="w-full border-b border-gray-300 focus:border-blue-500 outline-none py-2 bg-transparent"
-                                    placeholder="닉네임을 입력하세요"
-                                />
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="text"
+                                        name="nickname"
+                                        value={formData.nickname ?? ""}
+                                        onChange={handleInputChange}
+                                        className="w-full border-b border-gray-300 focus:border-blue-500 outline-none py-2 bg-transparent"
+                                        placeholder="닉네임을 입력해주세요."
+                                    />
+                                    <button
+                                        onClick={handleEditNickname}
+                                        className="bg-red-500 hover:bg-red-600 rounded-xl text-amber-50 text-[10px] h-8 w-16">수정하기</button>
+                                </div>
                             </div>
 
                             {/* Gender Display (Read-only) */}
                             <div>
-                                <div className="flex items-center justify-between mb-3">
-                                    <label className="block text-sm font-medium text-gray-700">
-                                        성별
-                                    </label>
-                                    <span className="text-red-500 text-xs">수정불가</span>
-                                </div>
                                 <div className="flex space-x-4">
-                                    <div className="flex-1 py-2 px-4 border border-gray-300 rounded text-center bg-gray-50 text-gray-700">
+                                    {/* 남성 */}
+                                    <div
+                                        className={`flex-1 py-2 px-4 border rounded text-center cursor-not-allowed ${user?.gender === MALE
+                                            ? "border-gray-300 bg-gray-50 text-gray-700"
+                                            : "border-gray-200 bg-white text-gray-400"
+                                        }`}
+                                    >
                                         남성
                                     </div>
-                                    <div className="flex-1 py-2 px-4 border border-gray-300 rounded text-center bg-white text-gray-400">
+
+                                    {/* 여성 */}
+                                    <div className={`flex-1 py-2 px-4 border rounded text-center cursor-not-allowed ${user?.gender === FEMALE 
+                                        ? "border-gray-300 bg-gray-50 text-gray-700"
+                                        : "border-gray-200 bg-white text-gray-400"
+                                    }`}
+                                    >
                                         여성
                                     </div>
                                 </div>
@@ -99,9 +147,13 @@ const AccountManagement = () => {
                                     </label>
                                     <span className="text-red-500 text-xs">수정불가</span>
                                 </div>
-                                <div className="w-full py-2 text-gray-900 border-b border-gray-300">
-                                    1990-01-01
-                                </div>
+                                <input
+                                    type="text"
+                                    value={user?.birthDate ?? ""}
+                                    readOnly
+                                    className="px-1 w-full py-2 border-b border-gray-300 bg-gray-100 text-gray-900 cursor-not-allowed">
+
+                                </input>
                             </div>
                         </div>
                     </div>

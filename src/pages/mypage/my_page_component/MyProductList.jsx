@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useContext } from 'react';
-import InvestmentCard from '../../../component/InvestmentCard';
-import {getMyFavoriteList} from '../../../api/favorite_api';
-import { useQuery } from "@tanstack/react-query";
+import React, {useEffect} from 'react';
 import useUser from "../../../lib/useUser";
+import {getMyProductPv} from "../../../api/myPage_api";
+import {useQuery} from "@tanstack/react-query";
+import InvestmentCard from "../../../component/InvestmentCard";
 
-const FavoriteList = ({}) => {
+const MyProductList = () => {
 
     const { user } = useUser();
 
     const queryEnabled = !!user;
-    const queryFnToUse = getMyFavoriteList;
-    const queryKeyToUse = ['myFavoriteList', user?.email];
+    const queryFnToUse = getMyProductPv;
+    const queryKeyToUse = ['myProductPv', user?.email];
 
     const {
         data: fetchedData,
@@ -58,21 +58,21 @@ const FavoriteList = ({}) => {
     if (!fetchedData || fetchedData.length === 0) {
         return (
             <div className="container mx-auto py-8">
-                <h2 className="text-2xl font-bold mb-4">즐겨 찾기</h2>
+                <h2 className="text-2xl font-bold mb-4">등록 상품 내역</h2>
                 <div className="border border-gray-200 rounded-lg p-6 relative w-full text-center text-gray-500">
-                    즐겨찾기가 없습니다.
+                    등록된 상품이 없습니다.
                 </div>
             </div>
         );
     }
 
-    return (
+    return(
         <div>
             {/* Favorites List Title */}
-            <h2 className="text-2xl font-bold mb-4">즐겨찾기</h2>
-            
+            <h2 className="text-2xl font-bold mb-4">등록 상품 내역</h2>
+
             {/* Full Favorites List with Thin Gray Border - full width */}
-            <div 
+            <div
                 className="border border-gray-200 rounded-lg p-6 w-full"
             >
                 {/* Favorites Grid */}
@@ -98,7 +98,6 @@ const FavoriteList = ({}) => {
                 </div>
             </div>
         </div>
-    );
-};
-
-export default FavoriteList;
+    )
+}
+export default MyProductList;

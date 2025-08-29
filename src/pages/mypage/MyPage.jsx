@@ -10,6 +10,10 @@ import { productData } from './my_page_component/data/productData';
 import { editRequestData } from './my_page_component/data/editRequestData';
 import UserProfile from './my_page_component/UserProfile';
 import { useTheme } from '../../context/ThemeContext';
+import useUser from "../../lib/useUser";
+import MyProductPreview from "./my_page_component/MyProductPreview";
+import MyReports from "./MyReports";
+import ReportList from "./my_page_component/ReportList";
 
 const MyPage = () => {
     const [investments, setInvestments] = useState([]);
@@ -17,6 +21,12 @@ const MyPage = () => {
     const [products, setProducts] = useState([]);
     const [editRequests, setEditRequests] = useState([]);
     const { role } = useTheme(); // Get user role from theme context
+
+    const { user } = useUser();
+
+    const userRole = user?.role;
+    const CREATOR = "CREATOR"
+    // console.log('현재 페이지의 userRole은 ', userRole);
 
     useEffect(() => {
         setInvestments(investmentData);
@@ -40,25 +50,19 @@ const MyPage = () => {
                 {/* Portfolio Rectangle */}
                 <PortfolioSection />
 
-                {/* Conditional Content based on role */}
-                {role === '창작자' ? (
-                    /* Creator view - Show Product Preview and Edit Requests */
-                    <>
-                        <ProductPreview products={products} />
-                        <EditRequestPreview editRequests={editRequests} />
-                    </>
-                ) : (
-                    /* Investor view - Show Investment Preview and Favorites */
-                    <>
-                        {/* Investment Preview */}
-                        <InvestmentPreview investments={investments} />
+                <>
+                    {/* Investment Preview */}
+                    <InvestmentPreview investments={investments} />
 
-                        {/* Favorites Preview */}
-                        <div className="mt-8">
-                            <FavoritePreview favorites={favorites} />
-                        </div>
-                    </>
-                )}
+                    {/* Favorites Preview */}
+                    <div className="mt-8">
+                        {userRole === CREATOR ? (<MyProductPreview />) : (<FavoritePreview />)}
+                    </div>
+
+                    <div className="mt-8">
+                        <ReportList />
+                    </div>
+                </>
             </div>
         </div>
     );

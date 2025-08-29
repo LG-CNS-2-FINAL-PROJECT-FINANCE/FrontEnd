@@ -241,7 +241,7 @@ function ProductRegistration() {
                             disabled={isSubmitting}
                             className={`font-semibold py-3 px-8 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 outline-none flex items-center gap-2 ${isSubmitting
                                     ? 'bg-gray-400 cursor-not-allowed text-gray-200'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                                    : 'bg-blue-500 hover:bg-blue-600 text-white'
                                 }`}
                         >
                             {isSubmitting && (

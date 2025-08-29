@@ -74,3 +74,16 @@ export const selectRole = async (role) => {
     throw error.response ? error.response.data : error;
   }
 };
+
+export const editUser = async (userSeq, nickname) => {
+  try {
+    const response = await privateApi.post(`user/edit`, {
+      // userSeq,
+      nickname,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("❌ editUser 요청 실패:", error);
+    throw error;
+  }
+};

@@ -21,7 +21,7 @@ function mapToInvestmentCardData(item) {
         imageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image : [], // 이미지파일 모든 파일
         document: item.document ?? null, //문서 파일
         viewCount: item.viewCount ?? null,          // 조회수
-        state: item.status ?? null,        // 창작물 상태
+        // state: item.status ?? null,        // 창작물 상태
         summary: item.summary ?? null, //요약
         content: item.content ?? null, //등록 설명
         goalAmount: item.goalAmount ?? null, //목표 금액
