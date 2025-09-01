@@ -98,6 +98,7 @@ const EditInfo = () => {
             <div className="bg-white rounded-lg p-6 w-96">
               <h2 className="text-lg font-bold mb-4">정말 탈퇴하시겠습니까?</h2>
               <p className="mb-6 text-gray-600">탈퇴하면 모든 데이터가 삭제됩니다.</p>
+              <p className="mb-6 text-red-400 text-sm">※단 사용자님의 계정은 60일까지 보관됩니다. <br /> 60일안에 재접속하시게 되시면 다시 활성화됩니다.</p>
               <div className="flex justify-end gap-2">
                 <button
                     className="px-4 py-2 bg-gray-200 rounded"

@@ -74,7 +74,7 @@ function Home() {
         </div>
         <div className="w-[30%] flex flex-col gap-6">
           <div className="flex flex-col items-start">
-            <h1 className="font-bold text-xl mb-4">실시간 베스트</h1>
+            <h1 className="font-bold text-xl mb-4">👑실시간 베스트👑</h1>
             <div className="w-full rounded-xl bg-white border p-4">
               {projectsByAmountLoading && (
                 <div className="animate-pulse space-y-3">
