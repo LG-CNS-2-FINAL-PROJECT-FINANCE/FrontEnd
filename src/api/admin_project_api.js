@@ -6,10 +6,10 @@ function mapToUiPost(item) {
         userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,
         startDate: item.start_date ?? item.startDate ?? null,
         endDate: item.end_date ?? item.endDate ?? null,
-        status: item.status ?? item.postStatus ?? null,
-        type: item.type ?? null,
+        status: item.requestStatus ?? item.status ?? item.postStatus ?? null,
+        type: item.requestType ?? item.type ?? null,
         title: item.title ?? null,
-        summary: item.summary ?? null,
+        // summary: item.summary ?? null,
     };
 }
 
@@ -34,16 +34,16 @@ export async function getPosts({
     }
 
     if (requestType && requestType !== 'ALL') {
-        params.type = requestType;
+        params.requestType = requestType;
     }
 
     if (requestStatus && requestStatus !== 'ALL') {
-        params.status = {
+        params.requestStatus = {
             'APPROVED': 'APPROVED',
             'REJECTED': 'REJECTED',
             'PENDING': 'PENDING',
         }[requestStatus];
-        if (!params.status) {
+        if (!params.requestStatus) {
             console.warn(`[admin_project_api] Unknown status for API mapping: ${requestStatus}`);
         }
     }
@@ -129,8 +129,8 @@ function mapToPostDetail(item) {
         minInvestment: item.minInvestment ?? null, //최저투자금액
         files: item.document && Array.isArray(item.document) ? item.document.map(url => ({ name: url.split('/').pop(), url: url })) : [], //파일
         updateStopReason: item.reason ?? null, //사유 (update, stop)
-        type: item.type ?? null, //창작물 유형
-        status: item.status ?? item.postStatus ?? null, //창작물 상태 (status) - APPROVED, PENDING, REJECTED
+        type: item.requestType ?? item.type ?? null, //창작물 유형
+        status: item.requestStatus ?? item.status ?? item.postStatus ?? null, //창작물 상태 (status) - APPROVED, PENDING, REJECTED
         adminId: item.adminId ?? null, //관리자ID
         rejectReason: item.rejectReason ?? null, //사유 (reject)
 
