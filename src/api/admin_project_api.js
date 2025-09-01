@@ -135,6 +135,17 @@ function mapToPostDetail(item) {
                     url: url.trim() 
                 })) 
             : [], //파일
+        images: item.image && Array.isArray(item.image) 
+            ? item.image
+                .filter(url => url && typeof url === 'string' && url.trim() !== '') // Filter out empty/invalid URLs
+                .map(url => ({ 
+                    name: url.split('/').pop() || 'Unknown Image', 
+                    url: url.trim() 
+                })) 
+            : [], //이미지
+        imageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 
+            ? item.image.find(url => url && typeof url === 'string' && url.trim() !== '') 
+            : null, //단일 이미지 URL (기존 호환성)
         updateStopReason: item.reason ?? null, //사유 (update, stop)
         type: item.type ?? null, //창작물 유형
         status: item.status ?? item.postStatus ?? null, //창작물 상태 (status) - APPROVED, PENDING, REJECTED

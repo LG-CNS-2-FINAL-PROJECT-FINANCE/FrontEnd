@@ -14,28 +14,21 @@ const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     </svg>
 );
 
-const XIcon = ({ className = 'w-5 h-5' }) => (
-    <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 10 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 10 0 01-1.414-1.414L8.586 10 4.293 5.707a1 10 0 010-1.414z" clipRule="evenodd" />
-    </svg>
-);
-
 const StatusBadge = ({ status = 'PENDING' }) => {
     const map = {
         APPROVED: 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
         REJECTED: 'bg-rose-100 text-rose-700 ring-rose-600/20',
         PENDING: 'bg-amber-100 text-amber-800 ring-amber-600/20',
     };
-    const label = status;
     const cls = map[status] || 'bg-slate-100 text-slate-700 ring-slate-600/20';
     return (
         <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${cls}`}>
-            {label}
+            {status}
         </span>
     );
 };
 
-const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children, icon }) => {
+const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children }) => {
     const variants = {
         approve: disabled || loading
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -59,7 +52,6 @@ const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children
             `}
         >
             {loading && <Spinner />}
-            {icon && <span>{icon}</span>}
             {children}
         </button>
     );
@@ -95,8 +87,7 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
     const [copiedMessage, setCopiedMessage] = useState({ show: false, text: '' });
     const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
 
-    const { user: authUser } = useContext(AuthContext); //로그인한 사용자 정보를 가져오기 위해서 사용함
-    console.log('지금 authcontext 정보 가져오는중?', authUser)
+    const { user: authUser } = useContext(AuthContext);
 
     const {
         data: postDetail,
@@ -214,8 +205,6 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                 ) : [];
                 
                 if (invalidFiles.length > 0 || invalidImages.length > 0) {
-                    console.error('Invalid files found:', invalidFiles);
-                    console.error('Invalid images found:', invalidImages);
                     setUpdateError('파일/이미지 처리 중 오류가 발생했습니다. 일부 첨부 파일이나 이미지에 문제가 있어 승인할 수 없습니다. 백엔드 관리자에게 문의하세요.');
                     return;
                 }
@@ -223,50 +212,11 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
 
             const payload = { requestId };
 
-            console.log('Sending payload:', payload);
-            console.log('Post detail object:', postDetail);
-            console.log('Files:', postDetail.files);
-            console.log('Images:', postDetail.images);
-            console.log('Files detailed analysis:');
-            if (postDetail.files && postDetail.files.length > 0) {
-                postDetail.files.forEach((file, index) => {
-                    console.log(`File ${index}:`, {
-                        url: file.url,
-                        name: file.name,
-                        urlType: typeof file.url,
-                        nameType: typeof file.name,
-                        urlEmpty: file.url === '',
-                        nameEmpty: file.name === '',
-                        urlTrimmed: file.url ? file.url.trim() : 'N/A',
-                        nameTrimmed: file.name ? file.name.trim() : 'N/A'
-                    });
-                });
-            }
-            console.log('Images detailed analysis:');
-            if (postDetail.images && postDetail.images.length > 0) {
-                postDetail.images.forEach((image, index) => {
-                    console.log(`Image ${index}:`, {
-                        url: image.url,
-                        name: image.name,
-                        urlType: typeof image.url,
-                        nameType: typeof image.name,
-                        urlEmpty: image.url === '',
-                        nameEmpty: image.name === '',
-                        urlTrimmed: image.url ? image.url.trim() : 'N/A',
-                        nameTrimmed: image.name ? image.name.trim() : 'N/A'
-                    });
-                });
-            }
-
-            const api_instance = api;
-            await api_instance.post(endpoint, payload);
+            await api.post(endpoint, payload);
 
             onStatusChange(requestId, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
             onClose();
         } catch (e) {
-            console.error('게시물 상태 업데이트 실패:', e);
-            console.error('Response data:', e?.response?.data);
-            
             // Provide specific error message for AWS SDK errors
             let errorMessage = '상태 업데이트에 실패했습니다. 다시 시도해주세요.';
             if (e?.response?.status === 500 && e?.response?.data?.message?.includes('Key cannot be empty')) {
@@ -297,7 +247,6 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
 
 
     const titleId = 'post-detail-title';
-    const descId = 'post-detail-desc';
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -306,8 +255,7 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                 onClick={closeOnBackdrop}
             />
 
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100
-             max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100 max-h-[90vh] overflow-y-auto scrollbar-hide">
 
                 <div className="bg-red-500 p-6 rounded-t-2xl text-white">
                     <div className="flex items-center justify-between">
@@ -343,7 +291,7 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
 
                     {/* Warning for STOP requests with file/image issues */}
                     {postDetail.type === 'STOP' && ((postDetail.files && postDetail.files.some(file => !file.url || file.url.trim() === '')) || 
-                     (postDetail.images && postDetail.images.some(image => !image.url || image.url.trim() === ''))) && (
+                    (postDetail.images && postDetail.images.some(image => !image.url || image.url.trim() === ''))) && (
                         <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 flex items-center gap-2">
                             <span className="text-lg">⚠️</span>
                             이 중단 요청에는 문제가 있는 첨부 파일이나 이미지가 포함되어 있습니다. 승인 시 오류가 발생할 수 있습니다.
