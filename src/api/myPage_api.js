@@ -43,6 +43,8 @@ function mapToMyProduct(item) {
         startDate: item.startDate ?? null,
         endDate: item.endDate ?? null,
         type: item.type ?? null,
+        DefaultImageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image[0] : 'bull.png', //이미지
+
     };
 }
 
