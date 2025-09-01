@@ -14,7 +14,7 @@ function mapToMyFavorite(item){
         endDate: item.endDate ?? null, //마감일
         content: item.content ?? null, //본문
         summary: item.summary ?? null, //요약
-        type: item.type ?? null,
+        type: item.requestType ?? item.type ?? null,
         DefaultImageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image[0] : 'bull.png', //이미지
 
     }

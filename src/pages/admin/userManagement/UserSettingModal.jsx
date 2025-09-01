@@ -10,15 +10,24 @@ export default function UserSettingModal({ open, onClose, user, onStatusChange, 
 
     // Animate modal entrance
     useEffect(() => {
+        const handleEsc = (e) => {
+            if (e.key === "Escape") {
+                onClose();
+            }
+        };
+
         if (open) {
             document.body.style.overflow = 'hidden';
+            window.addEventListener("keydown", handleEsc);
         } else {
             document.body.style.overflow = 'unset';
         }
+
         return () => {
             document.body.style.overflow = 'unset';
+            window.removeEventListener("keydown", handleEsc);
         };
-    }, [open]);
+    }, [open, onClose]);
 
     if (!open || !user) return null;
 
