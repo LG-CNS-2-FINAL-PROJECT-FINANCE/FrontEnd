@@ -308,12 +308,12 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                         <div className="mb-4">
                             <div className="flex justify-between items-center mb-4">
                                 <h3 className="text-lg font-semibold text-slate-900">게시물 정보</h3>
-                                <button
+{/*                                <button
                                     onClick={handleOpenHoldModal}
                                     className="px-3 py-1 bg-slate-200 text-slate-700 rounded-md text-sm hover:bg-slate-300 transition-colors"
                                 >
                                     숨김 처리
-                                </button>
+                                </button>*/}
                             </div>
                             <div className="text-sm text-slate-500 space-y-1">
                                 <div className="flex items-center">
