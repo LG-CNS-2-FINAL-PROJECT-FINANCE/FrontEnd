@@ -58,7 +58,7 @@ function TopProjectsSection({ projectsByView, projectsByViewLoading, projectsByV
           {list.map(investment => (
             <InvestmentCard
                 key={investment.projectId}
-                imageUrl={investment.DefaultImageUrl}
+                imageUrl={investment.image}
                 project={{
                     projectId: investment.projectId,
                     name: investment.title,

@@ -21,7 +21,8 @@ function mapToInvestmentCardData(item) {
         imageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image : [], // 이미지파일 모든 파일
         document: item.document ?? null, //문서 파일
         viewCount: item.viewCount ?? null,          // 조회수
-        // state: item.status ?? null,        // 창작물 상태
+//        state: item.projectStatus ?? item.status ?? null,        // 창작물 상태
+//        visiblity: item.projectVisibility ?? null, //프로젝트 가시성
         summary: item.summary ?? null, //요약
         content: item.content ?? null, //등록 설명
         goalAmount: item.goalAmount ?? null, //목표 금액
@@ -122,3 +123,59 @@ export const getProjectsRankingByView = async() =>{
         throw error;
     }
 }
+
+function mapToAdminPostListItem(item) {
+    return {
+        requestId: item.projectId ?? item.requestId ?? item.id ?? null, // 요청 ID 또는 게시물 ID
+        userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,   // 사용자 번호
+        startDate: item.start_date ?? item.startDate ?? null,           // 시작일
+        endDate: item.end_date ?? item.endDate ?? null,                 // 마감일
+        // status: item.status ?? item.postStatus ?? null,                 // 게시물 상태
+        type: item.type ?? null,                                        // 게시물 유형 (CREATOR 등)
+        title: item.title ?? null,                                      // 제목
+        summary: item.summary ?? null,                                  // 요약
+        state: item.projectStatus ?? item.status ?? null,        // 창작물 상태
+        visiblity: item.projectVisibility ?? null, //프로젝트 가시성
+    };
+}
+
+//관리자용 product 게시물 관리
+export const getAdminProductList = async(options = {}) => {
+    console.log('[project_api] getAdminProductList 호출됨');
+    const { signal, ...restOptions } = options;
+
+    try {
+        const params = { /*page, size,*/ ...restOptions };
+
+        const res = await privateApi.get('/product/admin', { params, signal });
+        const payload = res.data;
+
+        console.log('payload 확인', payload)
+
+        let list = [];
+        let total = 0;
+
+        if (Array.isArray(payload)) {
+            list = payload;
+            total = payload.length;
+        } else if (payload.content && Array.isArray(payload.content)) {
+            list = payload.content;
+            total = payload.totalElements ?? payload.total ?? payload.size ?? payload.count ?? list.length;
+        } else if (payload.data && Array.isArray(payload.data)) {
+            list = payload.data;
+            total = payload.total ?? list.length;
+        }
+
+        const adminProducts = list.map(mapToAdminPostListItem);
+        console.log('adminPr:', adminProducts)
+        return { posts: adminProducts, total };
+
+    } catch (error){
+        console.error('[project_api] getAdminProductList 오류:', error);
+        throw error;
+    }
+}
+
+//상세 조회 (product/admin/projectId)
+
+//검색 (product/search/admin/product)

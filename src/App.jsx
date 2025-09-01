@@ -33,6 +33,7 @@ import { ThemeProvider } from "./context/ThemeContext.jsx";
 import MyProduct from "./pages/mypage/MyProduct.jsx";
 import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
 import { useQueryClient } from "@tanstack/react-query";
+import PostAllManagement from "./pages/admin/postManagement/PostAllManagement"
 
 
 
@@ -88,6 +89,7 @@ function App() {
               <Route path="user" element={<UserManagement />}></Route>
               <Route path="reports" element={<ReportManagement />}></Route>
               <Route path="posts" element={<PostManagement />}></Route>
+              <Route path="post" element={<PostAllManagement />}></Route>
               <Route path="aml" element={<Aml />}></Route>
               <Route path="frauddetection" element={<FraudDetection />}></Route>
               <Route path="settings" element={<Setting />}></Route>

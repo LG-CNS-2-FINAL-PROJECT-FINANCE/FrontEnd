@@ -171,7 +171,7 @@ export default function PostManagement() {
                     {/* 타이틀 */}
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4">
-                            <h1 className="text-lg font-semibold whitespace-nowrap">게시물관리</h1>
+                            <h1 className="text-lg font-semibold whitespace-nowrap">게시물요청관리</h1>
                             <div className="text-sm text-gray-500">전체: {total ?? '-'}건</div>
                         </div>
                     </div>
@@ -353,7 +353,7 @@ export default function PostManagement() {
                     open={isDetailModalOpen}
                     onClose={handleModalClose}
                     postId={selectedPost.requestId}
-                    onStatusChange={handleStatusChange} // (requestId, newStatus) 시그니처 유지
+                    onStatusChange={handleStatusChange}
                 />
             )}
         </div>
