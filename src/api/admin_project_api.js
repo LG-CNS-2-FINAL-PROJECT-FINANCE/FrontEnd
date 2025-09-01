@@ -84,7 +84,7 @@ export async function getPosts({
 export async function getPostsList({ page=1, size=10, signal } = {}) {
     console.log('[admin_project_api] getPostsList 호출됨. 원본 파라미터:', { page, size });
 
-    const params = { page, size };
+    const params = { /*page, size*/ };
 
     const res = await api.get('/product/request', { params, signal });
     const payload = res.data;
