@@ -66,7 +66,7 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
     <div className="mt-8 mb-16">
       <h1 className="text-3xl font-bold mb-2">자산 조회</h1>
       <p className="text-gray-500 mb-6">
-        View detailed information about your account.
+        계좌 잔액, 입출금, 투자 지갑을 한눈에 확인하세요.
       </p>
 
       <div className="flex items-center gap-12 mb-6">
@@ -132,7 +132,7 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
           <div className="border rounded-lg p-6 px-16 mb-6">
             <div className="flex justify-around items-center mb-4">
               <div className="text-center">
-                <span className="text-gray-500 text-sm">이번달 입금</span>
+                <span className="text-gray-500 text-sm">누적 입금액</span>
                 <p className="text-3xl font-bold">12,000원</p>
               </div>
               <span className="text-gray-300">|</span>
@@ -142,7 +142,7 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
               </div>
               <span className="text-gray-300">|</span>
               <div className="text-center">
-                <span className="text-gray-500 text-sm">이번달 출금</span>
+                <span className="text-gray-500 text-sm">누적 출금액</span>
                 <p className="text-3xl font-bold">12,000원</p>
               </div>
             </div>
@@ -218,7 +218,7 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
                 ) : accountAllHistoryError ? (
                   <tr>
                     <td colSpan={4} className="py-4 text-center">
-                      Error loading transaction history
+                      거래 기록이 없습니다.
                     </td>
                   </tr>
                 ) : (
@@ -298,7 +298,7 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
                       Error loading wallet tokens
                     </td>
                   </tr>
-                ) : !walletToken || walletToken.length === 0 ? (
+                ) : !walletToken || !Array.isArray(walletToken) || walletToken.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="py-4 text-center text-gray-400">
                       보유한 토큰이 없습니다.
@@ -348,7 +348,7 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
                 ) : !walletTokenTradeHistory || walletTokenTradeHistory.length === 0 ? (
                   <tr>
                     <td colSpan={5} className="py-4 text-center text-gray-400">
-                      거래 기록이 없습니다.
+                      토큰 거래 기록이 없습니다.
                     </td>
                   </tr>
                 ) : (

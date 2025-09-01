@@ -99,12 +99,11 @@ export const getAccountSpecificHistory = async (moneyType) => {
 
 export const getWalletToken = async () => {
   try{
-    // const response = await privateApi.get(`/asset/wallet-token/search`);
-    // console.log(response)
-    // return response.data.data;
-    return "DONE";
+    const response = await privateApi.get(`/asset/wallet-token/search`);
+    console.log(response)
+    return response.data.data || []; 
   } catch (error) {
     console.error(error);
-    throw error;
+    return []; // Return empty array on error to prevent map errors
   }
 }

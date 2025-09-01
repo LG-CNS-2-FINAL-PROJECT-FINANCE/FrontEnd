@@ -16,7 +16,7 @@ function Asset() {
     retry: false,
   });
 
- return accountLoading || walletLoading ? (
+  return accountLoading || walletLoading ? (
     <div className="w-full h-screen flex flex-col items-center justify-center gap-8 py-20">
       {/* 로딩 인디케이터 */}
       <div className="flex flex-col items-center gap-4">
