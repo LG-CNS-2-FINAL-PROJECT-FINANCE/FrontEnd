@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaShareAlt,
   FaRegStar,
@@ -9,6 +10,7 @@ import { RiMoneyCnyBoxFill, RiMoneyCnyBoxLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import InvestmentModal from "./InvestmentModal";
 import InvestmentCancelModal from "./InvestmentCancelModal";
+import StopRequestModal from "./StopRequestModal";
 import ReportModal from "./ReportModal";
 import { useTheme } from "../../../context/ThemeContext";
 import { toggleFavorite } from "../../../api/favorites_api";
@@ -31,10 +33,12 @@ function InvestmentSummary({
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isStopModalOpen, setIsStopModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
   const { themeColors } = useTheme();
   const { user } = useUser();
+  const navigate = useNavigate();
   
   //User 확인 - role이 CREATOR인지
   const isCreator = user?.role === 'CREATOR';
@@ -93,7 +97,7 @@ function InvestmentSummary({
 
   const handleInvest = () => {
     if (isCreator) {
-      alert("중단 요청을 보냅니다.");
+      setIsStopModalOpen(true);
     } else {
       setIsModalOpen(true);
     }
@@ -101,7 +105,8 @@ function InvestmentSummary({
 
   const handleCancelInvestment = () => {
     if (isCreator) {
-      alert("수정 요청을 보냅니다.");
+      // 수정 요청 - ProductEdit 페이지로 이동
+      navigate(`/product-edit/${projectNumber}`);
     } else {
       setIsCancelModalOpen(true);
     }
@@ -115,6 +120,11 @@ function InvestmentSummary({
   //투자 취소 모달 닫기
   const closeCancelModal = () => {
     setIsCancelModalOpen(false);
+  };
+
+  //중단 요청 모달 닫기
+  const closeStopModal = () => {
+    setIsStopModalOpen(false);
   };
 
   //신고하기 모달 닫기
@@ -182,20 +192,23 @@ function InvestmentSummary({
               <FaShareAlt className="inline-block mr-1" /> 공유
             </button>
 
-            <button
-              onClick={handleFavoriteToggle}
-              disabled={isFavoriteLoading}
-              className={`text-yellow-500 hover:text-yellow-700 flex items-center transition-colors ${
-                isFavoriteLoading ? 'opacity-50 cursor-wait' : ''
-              }`}
-            >
-              {isFavorite ? (
-                <FaStar className="inline-block mr-1" />
-              ) : (
-                <FaRegStar className="inline-block mr-1" />
-              )}{" "}
-              {isFavoriteLoading ? "처리중..." : "즐겨찾기"}
-            </button>
+            {/* 즐겨찾기 버튼은 일반 사용자(USER)만 볼 수 있음 */}
+            {!isCreator && (
+              <button
+                onClick={handleFavoriteToggle}
+                disabled={isFavoriteLoading}
+                className={`text-yellow-500 hover:text-yellow-700 flex items-center transition-colors ${
+                  isFavoriteLoading ? 'opacity-50 cursor-wait' : ''
+                }`}
+              >
+                {isFavorite ? (
+                  <FaStar className="inline-block mr-1" />
+                ) : (
+                  <FaRegStar className="inline-block mr-1" />
+                )}{" "}
+                {isFavoriteLoading ? "처리중..." : "즐겨찾기"}
+              </button>
+            )}
 
             <button
               onClick={handleReport}
@@ -223,6 +236,13 @@ function InvestmentSummary({
       <InvestmentCancelModal
         isOpen={isCancelModalOpen}
         onClose={closeCancelModal}
+        projectId={projectNumber}
+        title={title}
+      />
+
+      <StopRequestModal
+        isOpen={isStopModalOpen}
+        onClose={closeStopModal}
         projectId={projectNumber}
         title={title}
       />

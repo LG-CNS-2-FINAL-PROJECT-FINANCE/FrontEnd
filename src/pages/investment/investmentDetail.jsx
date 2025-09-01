@@ -12,8 +12,6 @@ import {getInvestmentsDetail} from "../../api/project_api";
 function InvestmentDetail() {
     const { id } = useParams();
 
-    const dummyReporterId = '나는1번사용잔데용'; //나중에 로그인 정보 받아와야함
-
     const {
         data: investment,
         isLoading,
@@ -58,7 +56,6 @@ function InvestmentDetail() {
                 imageUrl={investment.imageUrl}
                 summary={investment.summary}
                 tokenPrice={investment.tokenPrice}
-                reporterId={dummyReporterId}
             />
 
             {/* 2. 투자 목표 및 진행 */}

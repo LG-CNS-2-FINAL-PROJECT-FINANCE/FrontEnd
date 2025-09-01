@@ -5,7 +5,7 @@ function LoginDetail_1() {
     client_id: "b4b2d8c256a781c939214bc2360fef37",
     redirect_uri: "http://127.0.0.1:3000/login/kakaoConfirm",
     response_type: "code",
-    // prompt: "login", -> 배포시 추가
+    //prompt: "login", -> 나중에 배포 시 추가
   };
   const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?${new URLSearchParams(
     kakaoParams

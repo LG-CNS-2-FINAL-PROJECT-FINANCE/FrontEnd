@@ -14,28 +14,21 @@ const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     </svg>
 );
 
-const XIcon = ({ className = 'w-5 h-5' }) => (
-    <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden>
-        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 10 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 10 0 01-1.414-1.414L8.586 10 4.293 5.707a1 10 0 010-1.414z" clipRule="evenodd" />
-    </svg>
-);
-
 const StatusBadge = ({ status = 'PENDING' }) => {
     const map = {
         APPROVED: 'bg-emerald-100 text-emerald-700 ring-emerald-600/20',
         REJECTED: 'bg-rose-100 text-rose-700 ring-rose-600/20',
         PENDING: 'bg-amber-100 text-amber-800 ring-amber-600/20',
     };
-    const label = status;
     const cls = map[status] || 'bg-slate-100 text-slate-700 ring-slate-600/20';
     return (
         <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset ${cls}`}>
-            {label}
+            {status}
         </span>
     );
 };
 
-const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children, icon }) => {
+const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children }) => {
     const variants = {
         approve: disabled || loading
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -59,7 +52,6 @@ const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children
             `}
         >
             {loading && <Spinner />}
-            {icon && <span>{icon}</span>}
             {children}
         </button>
     );
@@ -95,8 +87,7 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
     const [copiedMessage, setCopiedMessage] = useState({ show: false, text: '' });
     const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
 
-    const { user: authUser } = useContext(AuthContext); //로그인한 사용자 정보를 가져오기 위해서 사용함
-    console.log('지금 authcontext 정보 가져오는중?', authUser)
+    const { user: authUser } = useContext(AuthContext);
 
     const {
         data: postDetail,
@@ -182,6 +173,15 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
     }
 
     const isActionDisabled = postDetail.status === 'APPROVED' || postDetail.status === 'REJECTED';
+    
+    // Check if there are invalid files/images that would cause AWS SDK errors
+    const hasInvalidFiles = (postDetail.files && postDetail.files.some(file => 
+        !file.url || file.url.trim() === '' || !file.name || file.name.trim() === ''
+    )) || (postDetail.images && postDetail.images.some(image => 
+        !image.url || image.url.trim() === '' || !image.name || image.name.trim() === ''
+    ));
+    
+    const isApprovalDisabled = isActionDisabled || (postDetail.type === 'STOP' && hasInvalidFiles);
 
     const handleAction = async (actionType) => {
         setIsUpdating(true);
@@ -194,20 +194,38 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                 throw new Error('Request ID is missing');
             }
 
+            // Check for problematic files/images before proceeding with approval
+            if (actionType === 'approve' && ((postDetail.files && postDetail.files.length > 0) || (postDetail.images && postDetail.images.length > 0))) {
+                const invalidFiles = postDetail.files ? postDetail.files.filter(file => 
+                    !file.url || file.url.trim() === '' || !file.name || file.name.trim() === ''
+                ) : [];
+                
+                const invalidImages = postDetail.images ? postDetail.images.filter(image => 
+                    !image.url || image.url.trim() === '' || !image.name || image.name.trim() === ''
+                ) : [];
+                
+                if (invalidFiles.length > 0 || invalidImages.length > 0) {
+                    setUpdateError('파일/이미지 처리 중 오류가 발생했습니다. 일부 첨부 파일이나 이미지에 문제가 있어 승인할 수 없습니다. 백엔드 관리자에게 문의하세요.');
+                    return;
+                }
+            }
+
             const payload = { requestId };
 
-            console.log('Sending payload:', payload);
-            console.log('Post detail object:', postDetail);
-
-            const api_instance = api;
-            await api_instance.post(endpoint, payload);
+            await api.post(endpoint, payload);
 
             onStatusChange(requestId, actionType === 'approve' ? 'APPROVED' : 'REJECTED');
             onClose();
         } catch (e) {
-            console.error('게시물 상태 업데이트 실패:', e);
-            console.error('Response data:', e?.response?.data);
-            setUpdateError(e?.response?.data?.message || '상태 업데이트에 실패했습니다. 다시 시도해주세요.');
+            // Provide specific error message for AWS SDK errors
+            let errorMessage = '상태 업데이트에 실패했습니다. 다시 시도해주세요.';
+            if (e?.response?.status === 500 && e?.response?.data?.message?.includes('Key cannot be empty')) {
+                errorMessage = '파일 처리 중 AWS 오류가 발생했습니다. 첨부 파일에 문제가 있을 수 있습니다. 백엔드 관리자에게 문의하세요.';
+            } else if (e?.response?.data?.message) {
+                errorMessage = e.response.data.message;
+            }
+            
+            setUpdateError(errorMessage);
         } finally {
             setIsUpdating(false);
         }
@@ -229,7 +247,6 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
 
 
     const titleId = 'post-detail-title';
-    const descId = 'post-detail-desc';
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -238,8 +255,7 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                 onClick={closeOnBackdrop}
             />
 
-            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100
-             max-h-[90vh] overflow-y-auto scrollbar-hide">
+            <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-2xl transform transition-all duration-300 scale-100 max-h-[90vh] overflow-y-auto scrollbar-hide">
 
                 <div className="bg-red-500 p-6 rounded-t-2xl text-white">
                     <div className="flex items-center justify-between">
@@ -270,6 +286,15 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                         <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-lg text-rose-800 flex items-center gap-2">
                             <span className="text-lg">⚠️</span>
                             {updateError}
+                        </div>
+                    )}
+
+                    {/* Warning for STOP requests with file/image issues */}
+                    {postDetail.type === 'STOP' && ((postDetail.files && postDetail.files.some(file => !file.url || file.url.trim() === '')) || 
+                    (postDetail.images && postDetail.images.some(image => !image.url || image.url.trim() === ''))) && (
+                        <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 flex items-center gap-2">
+                            <span className="text-lg">⚠️</span>
+                            이 중단 요청에는 문제가 있는 첨부 파일이나 이미지가 포함되어 있습니다. 승인 시 오류가 발생할 수 있습니다.
                         </div>
                     )}
 
@@ -305,9 +330,43 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                                 {postDetail.updateStopReason && <div>정지/수정 사유: {postDetail.updateStopReason}</div>}
                                 {postDetail.rejectReason && <div>거절 사유: {postDetail.rejectReason}</div>}
                                 {postDetail.files && postDetail.files.length > 0 && (
-                                    <div>첨부 파일: {postDetail.files.map(file => (
-                                        <a key={file.url} href={file.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">{file.name}</a>
-                                    ))}</div>
+                                    <div>첨부 파일 ({postDetail.files.length}개): 
+                                        {postDetail.files.map((file, index) => (
+                                            <div key={index} className="ml-2">
+                                                {file.url && file.url.trim() !== '' ? (
+                                                    <a href={file.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">
+                                                        {file.name || 'Unknown File'}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-red-500 block">{file.name || 'Invalid File'} (URL 없음)</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {postDetail.images && postDetail.images.length > 0 && (
+                                    <div>첨부 이미지 ({postDetail.images.length}개): 
+                                        {postDetail.images.map((image, index) => (
+                                            <div key={index} className="ml-2">
+                                                {image.url && image.url.trim() !== '' ? (
+                                                    <a href={image.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">
+                                                        {image.name || 'Unknown Image'}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-red-500 block">{image.name || 'Invalid Image'} (URL 없음)</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {postDetail.imageUrl && (
+                                    <div>대표 이미지: 
+                                        <div className="ml-2">
+                                            <a href={postDetail.imageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">
+                                                {postDetail.imageUrl.split('/').pop() || 'Image'}
+                                            </a>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -324,14 +383,21 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
 
                     <div className="space-y-4">
                         <div className="flex flex-wrap gap-3 justify-center">
-                            <ActionButton
-                                kind="approve"
-                                onClick={() => handleAction('approve')}
-                                disabled={isActionDisabled || isUpdating}
-                                loading={isUpdating}
-                            >
-                                승인
-                            </ActionButton>
+                            <div className="relative">
+                                <ActionButton
+                                    kind="approve"
+                                    onClick={() => handleAction('approve')}
+                                    disabled={isApprovalDisabled || isUpdating}
+                                    loading={isUpdating}
+                                >
+                                    승인
+                                </ActionButton>
+                                {isApprovalDisabled && hasInvalidFiles && postDetail.type === 'STOP' && (
+                                    <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs text-red-500 whitespace-nowrap">
+                                        파일 문제로 승인 불가
+                                    </div>
+                                )}
+                            </div>
 
                             <ActionButton
                                 kind="reject"
