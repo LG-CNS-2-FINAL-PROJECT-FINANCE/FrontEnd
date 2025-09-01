@@ -87,3 +87,15 @@ export const editUser = async (userSeq, nickname) => {
     throw error;
   }
 };
+
+//사용자 탈퇴 요청 API
+export const secessionUser = async () => {
+  try {
+    console.log("[secessionUser 호출] 유저 탈퇴 요청")
+    const response = await privateApi.post(`user/delete`)
+    return response.data;
+  } catch (error){
+    console.error("유저 탈퇴 요청 실패", error);
+    throw error;
+  }
+}
