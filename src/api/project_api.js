@@ -130,7 +130,7 @@ function mapToAdminPostListItem(item) {
         userNo: item.user_seq ?? item.userSeq ?? item.userId ?? null,   // 사용자 번호
         startDate: item.start_date ?? item.startDate ?? null,           // 시작일
         endDate: item.end_date ?? item.endDate ?? null,                 // 마감일
-        status: item.status ?? item.postStatus ?? null,                 // 게시물 상태
+        // status: item.status ?? item.postStatus ?? null,                 // 게시물 상태
         type: item.type ?? null,                                        // 게시물 유형 (CREATOR 등)
         title: item.title ?? null,                                      // 제목
         summary: item.summary ?? null,                                  // 요약
@@ -147,8 +147,10 @@ export const getAdminProductList = async(options = {}) => {
     try {
         const params = { /*page, size,*/ ...restOptions };
 
-        const res = await privateApi.get('/product/list', { params, signal });
+        const res = await privateApi.get('/product/admin', { params, signal });
         const payload = res.data;
+
+        console.log('payload 확인', payload)
 
         let list = [];
         let total = 0;
@@ -165,6 +167,7 @@ export const getAdminProductList = async(options = {}) => {
         }
 
         const adminProducts = list.map(mapToAdminPostListItem);
+        console.log('adminPr:', adminProducts)
         return { posts: adminProducts, total };
 
     } catch (error){
@@ -172,3 +175,7 @@ export const getAdminProductList = async(options = {}) => {
         throw error;
     }
 }
+
+//상세 조회 (product/admin/projectId)
+
+//검색 (product/search/admin/product)

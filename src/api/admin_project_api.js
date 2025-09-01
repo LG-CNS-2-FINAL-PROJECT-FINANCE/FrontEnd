@@ -53,7 +53,7 @@ export async function getPosts({
 
     console.log(`[admin_project_api] 요청될 전체 URL: ${api.defaults.baseURL}/product/search/admin?${new URLSearchParams(params).toString()}`);
 
-    const res = await api.get('/product/search/admin', { params, signal });
+    const res = await api.get('/product/search/admin/request', { params, signal });
     const payload = res.data;
     console.log("현재 getPosts 매소드 get요청 작동", res);
 
@@ -86,7 +86,7 @@ export async function getPostsList({ page=1, size=10, signal } = {}) {
 
     const params = { /*page, size*/ };
 
-    const res = await api.get('/product/request', { params, signal });
+    const res = await api.get('/product/request/admin', { params, signal });
     const payload = res.data;
 
     console.log("현재 getPostsList 매소드 get요청 작동", res);
@@ -161,7 +161,7 @@ function mapToPostDetail(item) {
 export async function getPostDetailById(requestId, signal) {
     console.log(`[admin_project_api] getPostDetailById 호출됨. requestId: ${requestId}`);
     try {
-        const res = await api.get(`/product/request/${requestId}`, { signal });
+        const res = await api.get(`/product/request/admin/${requestId}`, { signal });
         const payload = res.data; // 상세 정보는 content 필드 없이 단일 객체로 올 것으로 예상
 
         // 받은 payload를 mapToPostDetail을 통해 프론트엔드에서 사용하기 쉽게 매핑
