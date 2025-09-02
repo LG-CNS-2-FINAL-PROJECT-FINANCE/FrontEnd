@@ -81,6 +81,10 @@ export default function PostAllManagement() {
         queryFn: async ({ signal }) => {
             if (!accessToken) return { posts: [], total: 0 };
 
+            const filters = submittedFilters;
+            console.log('--- API 호출 ---');
+            console.log('실제로 API로 전송될 필터 조건 (queryFn):', filters);
+
             if (isSearchActive) {
                 console.log('[PostAllManagement] Fetching with searchAdminProduct:', submittedFilters);
                 return searchAdminProduct({ ...submittedFilters, signal });
@@ -142,6 +146,8 @@ export default function PostAllManagement() {
 
     const handleSearchClick = () => {
         setSubmittedFilters(currentUiFilters);
+        console.log('--- 검색 실행 ---');
+        console.log('적용된 검색/필터 조건 (handleSearchClick):', currentUiFilters);
     };
 
     return (

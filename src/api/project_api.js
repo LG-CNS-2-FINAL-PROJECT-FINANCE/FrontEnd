@@ -210,6 +210,8 @@ export const searchAdminProduct = async(options = {}) => {
         const res = await privateApi.get('/product/search/admin/product', { params, signal });
         const payload = res.data;
 
+        console.log('검색된 payload 확인', payload)
+
         let list = [];
         let total = 0;
 
@@ -228,7 +230,7 @@ export const searchAdminProduct = async(options = {}) => {
         return { posts: adminProducts, total };
 
     } catch (error){
-        console.error('[project_api] searchAdminProduct 오류:', error);
+        console.info('[project_api] searchAdminProduct 오류:', error);
         throw error;
     }
 }
