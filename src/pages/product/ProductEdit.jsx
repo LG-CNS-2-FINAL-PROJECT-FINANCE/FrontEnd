@@ -5,11 +5,8 @@ import { submitUpdateRequest, uploadFileToS3 } from '../../api/project_registrat
 import { getInvestmentsDetail } from "../../api/project_api";
 import RegisterConfirmation from './RegisterConfirmation';
 
-// Simple validation function for edit form (outside component for reusability)
 const validateEditForm = (formData, reason) => {
     const errors = {};
-    
-    // Required text fields
     if (!formData.title?.trim()) errors.title = '제목을 입력해주세요.';
     if (!formData.description?.trim()) errors.description = '상세설명을 입력해주세요.';
     if (!formData.summary?.trim()) errors.summary = '상품요약을 입력해주세요.';
@@ -17,77 +14,50 @@ const validateEditForm = (formData, reason) => {
     if (!formData.minInvestment || formData.minInvestment <= 0) errors.minInvestment = '최소 투자금액을 입력해주세요.';
     if (!formData.startDate) errors.startDate = '시작일을 선택해주세요.';
     if (!formData.endDate) errors.endDate = '종료일을 선택해주세요.';
-    
-    // Required reason field
     if (!reason?.trim()) errors.reason = '수정 사유를 입력해주세요.';
     if (reason?.trim().length > 500) errors.reason = '수정 사유는 500자 이내로 입력해주세요.';
     
-    // Date logic validation (only check end > start)
     if (formData.startDate && formData.endDate) {
         const start = new Date(formData.startDate);
         const end = new Date(formData.endDate);
-        
-        if (end <= start) {
-            errors.endDate = '종료일은 시작일보다 늦어야 합니다.';
-        }
+        if (end <= start) errors.endDate = '종료일은 시작일보다 늦어야 합니다.';
     }
     
-    return {
-        isValid: Object.keys(errors).length === 0,
-        errors
-    };
+    return { isValid: Object.keys(errors).length === 0, errors };
 };
 
 function ProductEdit() {
     const { id } = useParams();
-
-    // Common input styling
     const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none";
 
-    // Fetch existing product data using the same query as investmentDetail
-    const {
-        data: investment,
-        isLoading,
-        isError,
-        error
-    } = useQuery({
-        queryKey: ['investmentDetail', id], // Same key as investmentDetail for cache sharing
-        queryFn: async ({ signal }) => {
-            return getInvestmentsDetail('/product', id, { signal });
-        },
-        enabled: !!id,
-        staleTime: 5 * 60 * 1000, // 5분 동안은 fresh 상태 유지
-        cacheTime: 10 * 60 * 1000, // 캐시에 10분간 보관
+    const { data: investment, isLoading } = useQuery({
+        queryKey: ["investmentDetail", id],
+        queryFn: () => getInvestmentsDetail(id),
+        staleTime: 5 * 60 * 1000,
+        cacheTime: 10 * 60 * 1000,
     });
 
-    // Form state - will be populated when data loads
+    // Form and file state
     const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        summary: '',
-        goalAmount: '',
-        minInvestment: '',
-        startDate: '',
-        endDate: ''
+        title: '', description: '', summary: '', goalAmount: '', 
+        minInvestment: '', startDate: '', endDate: ''
     });
-
-    // UI state
-    const [documentFile, setDocumentFile] = useState(null);
-    const [imageFile, setImageFile] = useState(null);
-    const [documentUploadUrl, setDocumentUploadUrl] = useState('');
-    const [imageUploadUrl, setImageUploadUrl] = useState('');
-    const [isUploadingDocument, setIsUploadingDocument] = useState(false);
-    const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [documentFiles, setDocumentFiles] = useState([]);
+    const [imageFiles, setImageFiles] = useState([]);
+    const [documentUploadUrls, setDocumentUploadUrls] = useState([]);
+    const [imageUploadUrls, setImageUploadUrls] = useState([]);
+    const [deletedExistingDocuments, setDeletedExistingDocuments] = useState([]);
+    const [deletedExistingImages, setDeletedExistingImages] = useState([]);
+    const [isUploadingDocuments, setIsUploadingDocuments] = useState(false);
+    const [isUploadingImages, setIsUploadingImages] = useState(false);
     const [uploadError, setUploadError] = useState('');
     const [reason, setReason] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
-
-    // Modal state
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [productTitle, setProductTitle] = useState('');
 
-    // Pre-fill form data when investment data loads
+    // Pre-fill form when investment loads
     useEffect(() => {
         if (investment) {
             setFormData({
@@ -102,107 +72,132 @@ function ProductEdit() {
         }
     }, [investment]);
 
-    // Form handlers
+    // Cleanup object URLs
+    useEffect(() => {
+        const allFiles = [...imageFiles, ...documentFiles];
+        return () => {
+            allFiles.forEach(file => {
+                if (file instanceof File) {
+                    URL.revokeObjectURL(URL.createObjectURL(file));
+                }
+            });
+        };
+    }, [imageFiles, documentFiles]);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleDocumentUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    const handleFileUpload = async (e, type) => {
+        const files = Array.from(e.target.files);
+        if (!files.length) return;
         
-        setDocumentFile(file);
-        setIsUploadingDocument(true);
+        const isDocument = type === 'document';
+        const setUploading = isDocument ? setIsUploadingDocuments : setIsUploadingImages;
+        const setFiles = isDocument ? setDocumentFiles : setImageFiles;
+        const setUrls = isDocument ? setDocumentUploadUrls : setImageUploadUrls;
+        
+        setUploading(true);
         setUploadError('');
         
         try {
-            const uploadResult = await uploadFileToS3(file);
-            if (uploadResult.success) {
-                setDocumentUploadUrl(uploadResult.url);
+            const uploadResults = await Promise.all(files.map(file => uploadFileToS3(file)));
+            const successful = uploadResults.filter(result => result.success);
+            const failed = uploadResults.filter(result => !result.success);
+            
+            if (successful.length > 0) {
+                const successfulFiles = files.filter((_, index) => uploadResults[index].success);
+                const successfulUrls = successful.map(result => result.url);
+                setFiles(prev => [...prev, ...successfulFiles]);
+                setUrls(prev => [...prev, ...successfulUrls]);
+            }
+            
+            if (failed.length > 0) {
+                setUploadError(`${failed.length}개 ${isDocument ? '문서' : '이미지'} 업로드에 실패했습니다.`);
             }
         } catch (error) {
-            console.error('Document upload error:', error);
-            setUploadError('문서 파일 업로드에 실패했습니다: ' + error.message);
-            setDocumentFile(null);
+            setUploadError(`${isDocument ? '문서' : '이미지'} 파일 업로드에 실패했습니다: ${error.message}`);
         } finally {
-            setIsUploadingDocument(false);
+            setUploading(false);
+        }
+        
+        e.target.value = '';
+    };
+
+    const removeFile = (index, type, isExisting = false) => {
+        if (isExisting) {
+            const setDeleted = type === 'document' ? setDeletedExistingDocuments : setDeletedExistingImages;
+            setDeleted(prev => [...prev, index]);
+        } else {
+            const setFiles = type === 'document' ? setDocumentFiles : setImageFiles;
+            const setUrls = type === 'document' ? setDocumentUploadUrls : setImageUploadUrls;
+            setFiles(prev => prev.filter((_, i) => i !== index));
+            setUrls(prev => prev.filter((_, i) => i !== index));
         }
     };
 
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        
-        setImageFile(file);
-        setIsUploadingImage(true);
-        setUploadError('');
-        
-        try {
-            const uploadResult = await uploadFileToS3(file);
-            if (uploadResult.success) {
-                setImageUploadUrl(uploadResult.url);
-            }
-        } catch (error) {
-            console.error('Image upload error:', error);
-            setUploadError('이미지 파일 업로드에 실패했습니다: ' + error.message);
-            setImageFile(null);
-        } finally {
-            setIsUploadingImage(false);
+    const clearAllFiles = (type) => {
+        if (type === 'document') {
+            setDocumentFiles([]);
+            setDocumentUploadUrls([]);
+        } else {
+            setImageFiles([]);
+            setImageUploadUrls([]);
+            setUploadError('');
         }
     };
 
-    // Form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitError('');
 
-        // Check if uploads are still in progress
-        if (isUploadingDocument || isUploadingImage) {
+        if (isUploadingDocuments || isUploadingImages) {
             setSubmitError('파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.');
             return;
         }
 
-        // Validate form
         const validation = validateEditForm(formData, reason);
         if (!validation.isValid) {
-            const firstError = Object.values(validation.errors)[0];
-            setSubmitError(firstError);
+            setSubmitError(Object.values(validation.errors)[0]);
             return;
         }
 
         setIsSubmitting(true);
         try {
-            // Use new uploaded URLs if available, otherwise use existing URLs from investment data
-            let documentUrls = [];
-            if (documentUploadUrl) {
-                // New file was uploaded
-                documentUrls = [documentUploadUrl];
-            } else if (investment.files && investment.files.length > 0) {
-                // Use existing file URL
-                const fileUrl = investment.files[0].url || investment.files[0].name;
-                if (fileUrl && typeof fileUrl === 'string' && fileUrl.trim() !== '') {
-                    documentUrls = [fileUrl];
-                }
+            // Combine new uploads with remaining existing files
+            let documentUrls = [...documentUploadUrls];
+            if (investment.files?.length > 0) {
+                const remainingDocs = investment.files
+                    .map((file, index) => ({ url: file.url || file.name, index }))
+                    .filter(({ url, index }) => 
+                        !deletedExistingDocuments.includes(index) && 
+                        url && typeof url === 'string' && url.trim() !== ''
+                    )
+                    .map(({ url }) => url);
+                documentUrls = [...documentUrls, ...remainingDocs];
             }
 
-            let imageUrls = [];
-            if (imageUploadUrl) {
-                // New image was uploaded
-                imageUrls = [imageUploadUrl];
-            } else if (investment.imageUrl && typeof investment.imageUrl === 'string') {
-                // Use existing image URL
-                const imageUrl = investment.imageUrl;
-                if (imageUrl && typeof imageUrl === 'string' && imageUrl.trim() !== '') {
-                    imageUrls = [imageUrl];
+            let imageUrls = [...imageUploadUrls];
+            if (investment.imageUrl) {
+                if (Array.isArray(investment.imageUrl)) {
+                    const remainingImages = investment.imageUrl
+                        .map((url, index) => ({ url, index }))
+                        .filter(({ url, index }) => 
+                            !deletedExistingImages.includes(index) && 
+                            url && typeof url === 'string' && url.trim() !== ''
+                        )
+                        .map(({ url }) => url);
+                    imageUrls = [...imageUrls, ...remainingImages];
+                } else if (typeof investment.imageUrl === 'string' && 
+                           investment.imageUrl.trim() !== '' && 
+                           !deletedExistingImages.includes(0)) {
+                    imageUrls = [...imageUrls, investment.imageUrl];
                 }
             }
 
             const result = await submitUpdateRequest({
-                projectId: id, // Use the project ID from URL params
+                projectId: id,
                 formData: formData,
                 reason: reason,
                 document: documentUrls,
@@ -220,7 +215,6 @@ function ProductEdit() {
         }
     };
 
-    // Handle loading and error states
     if (isLoading) {
         return (
             <div className="container mx-auto py-8 text-center">
@@ -230,260 +224,309 @@ function ProductEdit() {
         );
     }
 
-    if (isError || !investment) {
-        return (
-            <div className="container mx-auto py-8 text-center">
-                <h2 className="text-2xl font-bold text-red-600 mb-4">
-                    {isError ? '데이터 로드 실패' : '프로젝트를 찾을 수 없습니다'}
-                </h2>
-                <p className="text-gray-600">
-                    {error?.message || '프로젝트 정보를 불러올 수 없습니다.'}
-                </p>
-            </div>
-        );
+    if (showConfirmation) {
+        return <RegisterConfirmation productTitle={productTitle} isEdit={true} />;
     }
 
+    const FileList = ({ files, type, isExisting = false, onRemove }) => (
+        <div className="space-y-2">
+            {files.map((file, index) => (
+                (!isExisting || !deletedExistingDocuments.includes(index)) && (
+                    <div key={`${file.name || file}-${index}`} 
+                         className={`flex items-center justify-between p-3 rounded-lg border ${
+                             isExisting ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50'
+                         }`}>
+                        <div className="flex items-center gap-3">
+                            <span className="text-2xl">📄</span>
+                            <div>
+                                <p className="text-sm font-medium text-gray-900" title={file.name || file}>
+                                    {(file.name || file).length > 40 ? 
+                                        (file.name || file).substring(0, 40) + '...' : 
+                                        (file.name || file)
+                                    }
+                                </p>
+                                {file.size && (
+                                    <p className="text-xs text-gray-500">
+                                        {(file.size / 1024 / 1024).toFixed(2)} MB
+                                    </p>
+                                )}
+                                {isExisting && <p className="text-xs text-indigo-600">기존 파일</p>}
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => onRemove(index)}
+                            className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50"
+                        >
+                            <span className="text-lg">×</span>
+                        </button>
+                    </div>
+                )
+            ))}
+        </div>
+    );
+
+    const ImageGrid = ({ images, isExisting = false, onRemove }) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {images.map((img, index) => (
+                (!isExisting || !deletedExistingImages.includes(index)) && (
+                    <div key={`${img.name || img}-${index}`} className="relative group">
+                        <img 
+                            src={isExisting ? img : URL.createObjectURL(img)} 
+                            alt={`이미지 ${index + 1}`}
+                            className={`w-full h-24 object-cover rounded-lg border ${
+                                isExisting ? 'border-indigo-200' : ''
+                            }`}
+                        />
+                        <button
+                            type="button"
+                            onClick={() => onRemove(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                            ×
+                        </button>
+                        {!img.name && <p className="text-xs text-gray-500 mt-1 truncate">{img.name}</p>}
+                        {isExisting && <p className="text-xs text-indigo-600 mt-1">기존 이미지</p>}
+                    </div>
+                )
+            ))}
+        </div>
+    );
+
     return (
-        <div className="container mx-auto py-8">
-            <div className="max-w-4xl mx-auto bg-white">
-                {/* Page Title */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 text-center">프로젝트 수정 요청</h1>
-                    <p className="text-center text-gray-600 mt-2">기존 정보를 수정하여 관리자에게 승인 요청을 보냅니다.</p>
-                    <p className="text-center text-sm text-indigo-600 mt-1">프로젝트 ID: {investment.projectNumber}</p>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    {/* Error Message */}
-                    {submitError && (
-                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-800 flex items-center gap-2">
-                            <span className="text-lg">⚠️</span>
-                            {submitError}
-                        </div>
-                    )}
-                    
-                    {/* Upload Error Message */}
-                    {uploadError && (
-                        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg text-orange-800 flex items-center gap-2">
-                            <span className="text-lg">📤</span>
-                            {uploadError}
-                        </div>
-                    )}
-                    {/* 프로젝트명 */}
-                    <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">제목</label>
-                        <input
-                            type="text"
-                            name="title"
-                            value={formData.title}
-                            onChange={handleInputChange}
-                            placeholder="프로젝트명을 입력해주세요"
-                            className={inputClass}
-                        />
+        <div className="container mx-auto py-8 px-4">
+            <div className="max-w-4xl mx-auto">
+                <div className="bg-white rounded-lg shadow-lg p-8">
+                    <div className="flex items-center justify-between mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900">상품 수정</h1>
+                        <span className="px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                            수정 요청
+                        </span>
                     </div>
 
-                    {/* 문서 업로드 */}
-                    <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">
-                            문서 파일 <span className="text-sm font-normal text-gray-500">(선택사항)</span>
-                        </label>
-                        <input
-                            type="file"
-                            accept=".pdf,.doc,.docx,.hwp"
-                            onChange={handleDocumentUpload}
-                            className={inputClass}
-                            disabled={isUploadingDocument}
-                        />
-                        
-                        {isUploadingDocument && (
-                            <p className="text-sm text-blue-600 flex items-center gap-2">
-                                📤 문서 업로드 중...
-                            </p>
-                        )}
-                        
-                        {documentFile && documentUploadUrl && (
-                            <p className="text-sm text-green-600 flex items-center gap-2">
-                                ✅ 새 파일 업로드 완료: {documentFile.name}
-                            </p>
-                        )}
-                        
-                        {!isUploadingDocument && !documentFile && (
-                            <p className="text-sm text-gray-500">새 파일을 선택하지 않으면 기존 파일이 유지됩니다.</p>
-                        )}
-                        
-                        {investment.files && investment.files.length > 0 && (
-                            <p className="text-sm text-indigo-600">현재 파일: {investment.files[0]?.name || '첨부파일 있음'}</p>
-                        )}
-                    </div>
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        {/* 제목 */}
+                        <div className="space-y-2">
+                            <label className="block text-lg font-semibold text-gray-700">제목</label>
+                            <input
+                                type="text"
+                                name="title"
+                                value={formData.title}
+                                onChange={handleInputChange}
+                                placeholder="프로젝트명을 입력해주세요"
+                                className={inputClass}
+                            />
+                        </div>
 
-                    {/* 이미지 업로드 */}
-                    <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">
-                            대표 이미지 <span className="text-sm font-normal text-gray-500">(선택사항)</span>
-                        </label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className={inputClass}
-                            disabled={isUploadingImage}
-                        />
-                        
-                        {isUploadingImage && (
-                            <p className="text-sm text-blue-600 flex items-center gap-2">
-                                이미지 업로드 중...
-                            </p>
-                        )}
-                        
-                        {imageFile && imageUploadUrl && (
-                            <p className="text-sm text-green-600 flex items-center gap-2">
-                                새 이미지 업로드 완료: {imageFile.name}
-                            </p>
-                        )}
-                        
-                        {!isUploadingImage && !imageFile && (
-                            <p className="text-sm text-gray-500">새 이미지를 선택하지 않으면 기존 이미지가 유지됩니다.</p>
-                        )}
-                        
-                        {investment.imageUrl && (
-                            <div className="mt-2">
-                                <p className="text-sm text-indigo-600 mb-2">현재 이미지:</p>
-                                <img 
-                                    src={investment.imageUrl} 
-                                    alt="현재 대표 이미지" 
-                                    className="w-32 h-32 object-cover rounded-lg border"
+                        {/* 문서 업로드 */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <label className="block text-lg font-semibold text-gray-700">
+                                    문서 파일들 <span className="text-sm font-normal text-gray-500">(선택사항, 여러 개 선택 가능)</span>
+                                </label>
+                                {documentFiles.length > 0 && (
+                                    <button type="button" onClick={() => clearAllFiles('document')} className="text-sm text-red-600 hover:text-red-800 underline">
+                                        모든 문서 제거
+                                    </button>
+                                )}
+                            </div>
+                            <input
+                                type="file"
+                                accept=".pdf,.doc,.docx,.hwp"
+                                multiple
+                                onChange={(e) => handleFileUpload(e, 'document')}
+                                className={inputClass}
+                                disabled={isUploadingDocuments}
+                            />
+                            
+                            {isUploadingDocuments && (
+                                <p className="text-sm text-blue-600">📤 문서들 업로드 중...</p>
+                            )}
+                            
+                            {documentFiles.length > 0 && (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-green-600">선택된 문서: {documentFiles.length}개</p>
+                                    <FileList files={documentFiles} type="document" onRemove={(i) => removeFile(i, 'document')} />
+                                </div>
+                            )}
+                            
+                            {investment.files?.length > 0 && (
+                                <div className="mt-2">
+                                    <p className="text-sm text-indigo-600 mb-2">현재 서버에 저장된 문서:</p>
+                                    <FileList 
+                                        files={investment.files} 
+                                        type="document" 
+                                        isExisting={true}
+                                        onRemove={(i) => removeFile(i, 'document', true)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 이미지 업로드 */}
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <label className="block text-lg font-semibold text-gray-700">
+                                    대표 이미지들 <span className="text-sm font-normal text-gray-500">(선택사항, 여러 개 선택 가능)</span>
+                                </label>
+                                {imageFiles.length > 0 && (
+                                    <button type="button" onClick={() => clearAllFiles('image')} className="text-sm text-red-600 hover:text-red-800 underline">
+                                        모든 이미지 제거
+                                    </button>
+                                )}
+                            </div>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                onChange={(e) => handleFileUpload(e, 'image')}
+                                className={inputClass}
+                                disabled={isUploadingImages}
+                            />
+                            
+                            {isUploadingImages && (
+                                <p className="text-sm text-blue-600">이미지들 업로드 중...</p>
+                            )}
+                            
+                            {imageFiles.length > 0 && (
+                                <div className="space-y-2">
+                                    <p className="text-sm text-green-600">선택된 이미지: {imageFiles.length}개</p>
+                                    <ImageGrid images={imageFiles} onRemove={(i) => removeFile(i, 'image')} />
+                                </div>
+                            )}
+                            
+                            {investment.imageUrl && (
+                                <div className="mt-2">
+                                    <p className="text-sm text-indigo-600 mb-2">현재 서버에 저장된 이미지:</p>
+                                    <ImageGrid 
+                                        images={Array.isArray(investment.imageUrl) ? investment.imageUrl : [investment.imageUrl]} 
+                                        isExisting={true}
+                                        onRemove={(i) => removeFile(i, 'image', true)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 기타 폼 필드들 */}
+                        <div className="space-y-2">
+                            <label className="block text-lg font-semibold text-gray-700">상세설명</label>
+                            <textarea
+                                name="description"
+                                value={formData.description}
+                                onChange={handleInputChange}
+                                rows="6"
+                                placeholder="상품에 대한 상세한 설명을 입력해주세요"
+                                className={inputClass}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-lg font-semibold text-gray-700">상품요약</label>
+                            <textarea
+                                name="summary"
+                                value={formData.summary}
+                                onChange={handleInputChange}
+                                rows="3"
+                                placeholder="상품의 핵심 내용을 간단히 요약해주세요"
+                                className={inputClass}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="block text-lg font-semibold text-gray-700">목표 모집금액 (원)</label>
+                                <input
+                                    type="number"
+                                    name="goalAmount"
+                                    value={formData.goalAmount}
+                                    onChange={handleInputChange}
+                                    placeholder="목표 금액을 입력해주세요"
+                                    className={inputClass}
                                 />
                             </div>
-                        )}
-                    </div>
 
-                    {/* 상세설명 */}
-                    <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">상세설명</label>
-                        <textarea
-                            name="description"
-                            value={formData.description}
-                            onChange={handleInputChange}
-                            rows="6"
-                            placeholder="프로젝트에 대한 상세한 설명을 작성해주세요"
-                            className={`${inputClass} resize-none`}
-                        />
-                    </div>
-
-                    {/* 상품요약 */}
-                    <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">상품요약</label>
-                        <textarea
-                            name="summary"
-                            value={formData.summary}
-                            onChange={handleInputChange}
-                            rows="3"
-                            placeholder="프로젝트 요약을 간단히 작성해주세요"
-                            className={`${inputClass} resize-none`}
-                        />
-                    </div>
-
-                    {/* 날짜 입력 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-2">
-                            <label className="block text-lg font-semibold text-gray-700">시작일</label>
-                            <input
-                                type="date"
-                                name="startDate"
-                                value={formData.startDate}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                            />
+                            <div className="space-y-2">
+                                <label className="block text-lg font-semibold text-gray-700">최소 투자금액 (원)</label>
+                                <input
+                                    type="number"
+                                    name="minInvestment"
+                                    value={formData.minInvestment}
+                                    onChange={handleInputChange}
+                                    placeholder="최소 투자 금액을 입력해주세요"
+                                    className={inputClass}
+                                />
+                            </div>
                         </div>
-                        <div className="space-y-2">
-                            <label className="block text-lg font-semibold text-gray-700">종료일</label>
-                            <input
-                                type="date"
-                                name="endDate"
-                                value={formData.endDate}
-                                onChange={handleInputChange}
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                            />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <label className="block text-lg font-semibold text-gray-700">시작일</label>
+                                <input
+                                    type="date"
+                                    name="startDate"
+                                    value={formData.startDate}
+                                    onChange={handleInputChange}
+                                    className={inputClass}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="block text-lg font-semibold text-gray-700">종료일</label>
+                                <input
+                                    type="date"
+                                    name="endDate"
+                                    value={formData.endDate}
+                                    onChange={handleInputChange}
+                                    className={inputClass}
+                                />
+                            </div>
                         </div>
-                    </div>
 
-                    {/* 금액 입력 */}
-                    <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">목표 모집금액</label>
-                        <input
-                            type="number"
-                            name="goalAmount"
-                            value={formData.goalAmount}
-                            onChange={handleInputChange}
-                            placeholder="목표 모집금액을 입력해주세요 (원)"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                        />
-                    </div>
-
-                    {/* 최소투자금액 */}
-                    <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">최소투자금액</label>
-                        <input
-                            type="number"
-                            name="minInvestment"
-                            value={formData.minInvestment}
-                            onChange={handleInputChange}
-                            placeholder="최소 투자금액을 입력해주세요 (원)"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-                        />
-                    </div>
-
-                    {/* 수정 사유 */}
-                    <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">
-                            수정 사유 <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                            value={reason}
-                            onChange={(e) => setReason(e.target.value)}
-                            placeholder="프로젝트 수정을 요청하는 사유를 상세히 입력해주세요..."
-                            className={`${inputClass} resize-none`}
-                            rows="4"
-                            maxLength="500"
-                            required
-                        />
-                        <div className="flex justify-between">
-                            <p className="text-sm text-gray-500">
-                                관리자가 검토 후 승인/거절을 결정합니다.
-                            </p>
+                        {/* 수정 사유 */}
+                        <div className="space-y-2">
+                            <label className="block text-lg font-semibold text-red-600">
+                                수정 사유 <span className="text-red-500">*</span>
+                            </label>
+                            <textarea
+                                value={reason}
+                                onChange={(e) => setReason(e.target.value)}
+                                rows="4"
+                                placeholder="상품 정보를 수정하는 이유를 자세히 설명해주세요 (필수)"
+                                className={`${inputClass} border-red-300 focus:ring-red-500 focus:border-red-500`}
+                            />
                             <p className="text-sm text-gray-500">
                                 {reason.length}/500자
                             </p>
                         </div>
-                    </div>
 
-                    {/* 수정 요청 버튼 */}
-                    <div className="flex justify-center pt-6">
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className={`font-semibold py-3 px-8 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 outline-none flex items-center gap-2 ${isSubmitting
-                                    ? 'bg-gray-400 cursor-not-allowed text-gray-200'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                                }`}
-                        >
-                            {isSubmitting && (
-                                <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                                </svg>
-                            )}
-                            {isSubmitting ? '수정 요청 중...' : '수정 요청'}
-                        </button>
-                    </div>
-                </form>
+                        {/* 에러 메시지 */}
+                        {(uploadError || submitError) && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                                <p className="text-red-800 text-sm">
+                                    {uploadError || submitError}
+                                </p>
+                            </div>
+                        )}
 
-                {/* Confirmation Modal */}
-                <RegisterConfirmation
-                    isOpen={showConfirmation}
-                    onClose={() => setShowConfirmation(false)}
-                    productTitle={productTitle}
-                />
+                        {/* 제출 버튼 */}
+                        <div className="flex justify-end gap-4 pt-6 border-t">
+                            <button
+                                type="button"
+                                onClick={() => window.history.back()}
+                                className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                            >
+                                취소
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting || isUploadingDocuments || isUploadingImages}
+                                className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                            >
+                                {isSubmitting ? '수정 요청 중...' : '수정 요청'}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

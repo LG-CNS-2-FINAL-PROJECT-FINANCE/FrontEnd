@@ -22,7 +22,6 @@ function InvestmentSummary({
   endDate,
   author,
   isFavorite: initialIsFavorite,
-  isInvested,
   minInvestment,
   imageUrl,
   summary,
@@ -39,8 +38,8 @@ function InvestmentSummary({
   const { user } = useUser();
   const navigate = useNavigate();
   
-  //User 확인 - role이 CREATOR인지
-  const isCreator = user?.role === 'CREATOR';
+  // User 확인 - role Creator인지, author 작성자인지
+  const isProjectOwner = user?.role === 'CREATOR' && user?.userSeq === author;
 
   useEffect(() => {
     setIsFavorite(initialIsFavorite);
@@ -72,15 +71,12 @@ function InvestmentSummary({
       const newFavoriteState = result.favorited;
       setIsFavorite(newFavoriteState);
       
-      // 사용자에게 피드백 - toast로 변경
       toast.success(`즐겨찾기 ${newFavoriteState ? "추가" : "해제"}되었습니다!`, {
         position: "bottom-right",
       });
       
     } catch (error) {
       console.error('Favorite toggle error:', error);
-      
-      // 에러 메시지 표시 - alert 유지 (에러는 더 강한 피드백 필요)
       if (error.message) {
         alert(error.message);
       } else {
@@ -95,18 +91,21 @@ function InvestmentSummary({
   };
 
   const handleInvest = () => {
-    if (isCreator) {
+    if (isProjectOwner) {
+      //중단요청 버튼
       setIsStopModalOpen(true);
     } else {
+      // 투자하기 버튼
       setIsModalOpen(true);
     }
   };
 
   const handleCancelInvestment = () => {
-    if (isCreator) {
-      // 수정 요청 - ProductEdit 페이지로 이동
+    if (isProjectOwner) {
+      // 수정요청 버튼
       navigate(`/product-edit/${projectNumber}`);
     } else {
+      // 투자취소 버튼
       setIsCancelModalOpen(true);
     }
   };
@@ -149,33 +148,33 @@ function InvestmentSummary({
         </div>
 
         <div className="flex flex-col space-y-2">
-          {/* 투자하기, 투자 취소 버튼 */}
-          <div className="flex justify-end space-x-2">
-            {/* 분배요청 버튼 - 창작자만 보임 */}
-            {isCreator && (
+          {(isProjectOwner || user?.role !== 'CREATOR') && (
+            <div className="flex justify-end space-x-2">
+              {/* 분배요청 버튼 - 프로젝트 소유자만 보임 (CREATOR + matching userSeq) */}
+              {isProjectOwner && (
+                <button
+                  onClick={() => alert("분배 요청을 보냅니다.")}
+                  className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
+                >
+                  분배요청
+                </button>
+              )}
+
               <button
-                onClick={() => alert("분배 요청을 보냅니다.")}
-                className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
+                onClick={handleInvest}
+                className={`${themeColors.primaryBg} text-white py-2 px-3 rounded-md hover:${themeColors.primaryHover} transition-colors font-semibold flex items-center`}
               >
-                분배요청
+                {isProjectOwner ? "중단요청" : "투자하기"}
               </button>
-            )}
 
-            <button
-              onClick={handleInvest}
-              className={`${themeColors.primaryBg} text-white py-2 px-3 rounded-md hover:${themeColors.primaryHover} transition-colors font-semibold flex items-center`}
-            >
-              {isCreator ? "중단요청" : "투자하기"}{" "}
-              {/*원래 추가투자하기였는데 일단 그냥 하나로 보이게 변경 해둠*/}
-            </button>
-
-            <button
-              onClick={handleCancelInvestment}
-              className="border border-gray-300 py-2 px-3 rounded-md font-semibold flex items-center text-gray-700 hover:bg-gray-100 transition-colors"
-            >
-              {isCreator ? "수정요청" : "투자취소"}
-            </button>
-          </div>
+              <button
+                onClick={handleCancelInvestment}
+                className="border border-gray-300 py-2 px-3 rounded-md font-semibold flex items-center text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                {isProjectOwner ? "수정요청" : "투자취소"}
+              </button>
+            </div>
+          )}
 
           {/* 공유, 즐겨찾기, 신고 버튼 */}
           <div className="flex justify-end space-x-2">
@@ -186,8 +185,8 @@ function InvestmentSummary({
               <FaShareAlt className="inline-block mr-1" /> 공유
             </button>
 
-            {/* 즐겨찾기 버튼은 일반 사용자(USER)만 볼 수 있음 */}
-            {!isCreator && (
+            {/* 즐겨찾기 버튼은 프로젝트 소유자가 아닌 모든 사용자가 볼 수 있음 */}
+            {!isProjectOwner && (
               <button
                 onClick={handleFavoriteToggle}
                 disabled={isFavoriteLoading}
@@ -204,12 +203,15 @@ function InvestmentSummary({
               </button>
             )}
 
-            <button
-              onClick={handleReport}
-              className={`${themeColors.primaryText} hover:${themeColors.primaryText} opacity-75 flex items-center`}
-            >
-              <FaFlag className="inline-block mr-1" /> 신고
-            </button>
+            {/* 신고 버튼은 프로젝트 소유자가 아닌 모든 사용자가 볼 수 있음 */}
+            {!isProjectOwner && (
+              <button
+                onClick={handleReport}
+                className={`${themeColors.primaryText} hover:${themeColors.primaryText} opacity-75 flex items-center`}
+              >
+                <FaFlag className="inline-block mr-1" /> 신고
+              </button>
+            )}
           </div>
         </div>
       </div>
