@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext, useMemo } from 'react';
-import { getAdminProductList } from '../../../api/project_api';
+import { getAdminProductList, searchAdminProduct } from '../../../api/project_api';
 import dayjs from 'dayjs';
 import { AuthContext } from '../../../context/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -37,13 +37,38 @@ export default function PostAllManagement() {
     const { accessToken } = useContext(AuthContext);
     const queryClient = useQueryClient();
 
+    const [searchBy, setSearchBy] = useState('TITLE');
+    const [keyword, setKeyword] = useState('');
+    const [projectVisibility, setProjectVisibility] = useState('ALL');
+    const [projectStatus, setProjectStatus] = useState('ALL');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+
+    const [submittedFilters, setSubmittedFilters] = useState({});
+
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedPost, setSelectedPost] = useState(null);
 
-    const queryDataIdentifier = useMemo(() => {
+    const currentUiFilters = useMemo(() => {
         return {
+            searchBy,
+            keyword: keyword.trim(),
+            projectVisibility,
+            projectStatus,
+            startDate,
+            endDate,
         };
-    }, []);
+    }, [searchBy, keyword, projectVisibility, projectStatus, startDate, endDate]);
+
+    const isSearchActive = useMemo(() => {
+        return (
+            (currentUiFilters.keyword && currentUiFilters.keyword !== '') ||
+            (currentUiFilters.projectVisibility && currentUiFilters.projectVisibility !== 'ALL') ||
+            (currentUiFilters.projectStatus && currentUiFilters.projectStatus !== 'ALL') ||
+            (currentUiFilters.startDate && currentUiFilters.startDate !== '') ||
+            (currentUiFilters.endDate && currentUiFilters.endDate !== '')
+        );
+    }, [currentUiFilters]);
 
     const {
         data,
@@ -52,12 +77,17 @@ export default function PostAllManagement() {
         isError,
         error: queryError,
     } = useQuery({
-        queryKey: ['adminProducts', queryDataIdentifier],
+        queryKey: ['adminProducts', submittedFilters],
         queryFn: async ({ signal }) => {
             if (!accessToken) return { posts: [], total: 0 };
 
-            console.log('[PostAllManagement] Fetching with getAdminProductList (no pagination params)');
-            return getAdminProductList({ signal });
+            if (isSearchActive) {
+                console.log('[PostAllManagement] Fetching with searchAdminProduct:', submittedFilters);
+                return searchAdminProduct({ ...submittedFilters, signal });
+            } else {
+                console.log('[PostAllManagement] Fetching with getAdminProductList (no search terms):', submittedFilters);
+                return getAdminProductList({ signal });
+            }
         },
         enabled: !!accessToken,
         staleTime: 5 * 60 * 1000,
@@ -69,6 +99,19 @@ export default function PostAllManagement() {
     const isLoading = isInitialLoading || isFetching;
     const error = isError ? (queryError?.message || '알 수 없는 오류가 발생했습니다.') : '';
 
+    useEffect(() => {
+        if (accessToken) {
+            setSubmittedFilters({
+                searchBy: 'TITLE',
+                keyword: '',
+                projectVisibility: 'ALL',
+                projectStatus: 'ALL',
+                startDate: '',
+                endDate: '',
+            });
+        }
+    }, [accessToken]);
+
     const handleRowClick = (post) => { setSelectedPost(post); setIsDetailModalOpen(true); };
     const handleModalClose = () => { setIsDetailModalOpen(false); setSelectedPost(null); };
     const handleStatusChange = () => {
@@ -79,8 +122,26 @@ export default function PostAllManagement() {
     const handleRefreshClick = () => {
         queryClient.invalidateQueries(['adminProducts']);
     };
+
     const handleReset = () => {
-        queryClient.invalidateQueries(['adminProducts']);
+        setSearchBy('TITLE');
+        setKeyword('');
+        setProjectVisibility('ALL');
+        setProjectStatus('ALL');
+        setStartDate('');
+        setEndDate('');
+        setSubmittedFilters({
+            searchBy: 'TITLE',
+            keyword: '',
+            projectVisibility: 'ALL',
+            projectStatus: 'ALL',
+            startDate: '',
+            endDate: '',
+        });
+    };
+
+    const handleSearchClick = () => {
+        setSubmittedFilters(currentUiFilters);
     };
 
     return (
@@ -96,12 +157,91 @@ export default function PostAllManagement() {
 
                     <div className="bg-white rounded shadow overflow-hidden">
                         <div className="p-3">
-                            <div className="flex justify-end gap-2">
-                                <Button variant="primary" onClick={handleRefreshClick}>새로고침</Button>
-                                <Button variant="secondary" onClick={handleReset}>재조회</Button>
+                            <div className="grid grid-cols-1 lg:grid-cols-10 gap-2 w-full items-end">
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">검색유형</label>
+                                    <select
+                                        value={searchBy}
+                                        onChange={(e) => setSearchBy(e.target.value)}
+                                        className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    >
+                                        <option value="TITLE">제목</option>
+                                        <option value="PROJECT_ID">게시물번호</option>
+                                        <option value="USER_SEQ">사용자번호</option>
+                                        <option value="NICKNAME">닉네임</option>
+                                    </select>
+                                </div>
+
+                                <div className="lg:col-span-2">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">검색어</label>
+                                    <input
+                                        type="search"
+                                        value={keyword}
+                                        onChange={(e) => setKeyword(e.target.value)}
+                                        placeholder={searchBy === 'TITLE' ? '제목 입력' : searchBy === 'PROJECT_ID' ? '게시물번호 입력' : searchBy === 'USER_SEQ' ? '사용자번호 입력' : '닉네임 입력'}
+                                        className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    />
+                                </div>
+
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">숨김상태</label>
+                                    <select
+                                        value={projectVisibility}
+                                        onChange={(e) => setProjectVisibility(e.target.value)}
+                                        className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    >
+                                        <option value="ALL">전체</option>
+                                        <option value="PUBLIC">공개</option>
+                                        <option value="HOLD">숨김</option>
+                                    </select>
+                                </div>
+
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">게시물상태</label>
+                                    <select
+                                        value={projectStatus}
+                                        onChange={(e) => setProjectStatus(e.target.value)}
+                                        className="w-full px-2 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    >
+                                        <option value="ALL">전체</option>
+                                        <option value="OPEN">모집중</option>
+                                        <option value="FUNDING_LOCKED">모집 완료</option>
+                                        <option value="TRADING">거래중</option>
+                                        <option value="DISTRIBUTION_READY">정산 준비</option>
+                                        <option value="DISTRIBUTING">정산중</option>
+                                        <option value="CLOSED">종료</option>
+                                    </select>
+                                </div>
+
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">시작일</label>
+                                    <input
+                                        type="date"
+                                        value={startDate}
+                                        onChange={(e) => setStartDate(e.target.value)}
+                                        className="w-full px-1 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                    />
+                                </div>
+                                <div className="lg:col-span-1">
+                                    <label className="block text-xs font-medium text-gray-700 mb-1">종료일</label>
+                                    <input
+                                        type="date"
+                                        value={endDate}
+                                        onChange={(e) => setEndDate(e.target.value)}
+                                        className="w-full px-1 py-2 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:focus:ring-red-500 focus:border-red-500"
+                                    />
+                                </div>
+
+                                <div className="lg:col-span-3 flex justify-end gap-2">
+                                    <Button variant="primary" onClick={handleSearchClick}>검색</Button>
+                                    <Button variant="secondary" onClick={handleReset}>초기화</Button>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+
+
                 </div>
             </div>
 
@@ -152,7 +292,7 @@ export default function PostAllManagement() {
                                                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${(p.status) === 'APPROVED' ? 'bg-green-100 text-green-700' :
                                                         (p.state) === 'OPEN' ? 'bg-red-100 text-red-700' :
                                                             'bg-yellow-100 text-yellow-700'
-                                                        
+
                                                         //OPEN / FUNDING_LOCKED / TRADING / DISTRIBUTION_READY / DISTRIBUTING / CLOSED / TEMPORARY_STOP
                                                     }`}>
                                                         {p.state ?? '-'}
