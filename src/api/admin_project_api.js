@@ -155,6 +155,9 @@ function mapToPostDetail(item) {
         content: item.content ?? null, // 상세 설명
         viewCount: item.viewCount ?? null, // 조회수
         amount: item.amount ?? null, // 현재 모금액
+
+        projectStatus: item.projectStatus ?? null,
+        projectVisibility: item.projectVisibility ?? null
     };
 }
 
@@ -162,14 +165,35 @@ export async function getPostDetailById(requestId, signal) {
     console.log(`[admin_project_api] getPostDetailById 호출됨. requestId: ${requestId}`);
     try {
         const res = await api.get(`/product/request/admin/${requestId}`, { signal });
-        const payload = res.data; // 상세 정보는 content 필드 없이 단일 객체로 올 것으로 예상
+        const payload = res.data;
 
-        // 받은 payload를 mapToPostDetail을 통해 프론트엔드에서 사용하기 쉽게 매핑
         const postDetail = mapToPostDetail(payload);
         return postDetail;
 
     } catch (error) {
         console.error(`[admin_project_api] getPostDetailById 오류 (requestId: ${requestId}):`, error);
+        throw error;
+    }
+}
+
+//전체 게시물 관리
+export async function getAllDetail(projectId, signal) {
+    console.log(`[admin_project_api] getAllDetail 호출됨. projectId: ${projectId}`);
+    try {
+        const res = await api.get(`/product/admin/${projectId}`, { signal });
+        const payload = res.data;
+
+        console.log('payload 확인', payload);
+
+        const postAllDetail = mapToPostDetail(payload);
+        return postAllDetail;
+
+    } catch (error) {
+        if (error.name === 'CanceledError') {
+            console.info(`[admin_project_api] getAllDetail 쿼리 취소 (projectId: ${projectId}):`, error);
+        } else {
+            console.error('[admin_project_api] getAllDetail 오류', error); // 다른 예상치 못한 오류는 그대로 error로 출력
+        }
         throw error;
     }
 }
@@ -184,7 +208,7 @@ export async function togglePostHoldStatus(projectId, adminId, holdReason) {
     };
 
     try {
-        const res = await api.post(`/product/request/hold/toggle/${projectId}`, payload);
+        const res = await api.post(`/product/hold/toggle/${projectId}`, payload);
         console.log(`[admin_project_api] togglePostHoldStatus 응답:`, res.data);
         return res.data;
 

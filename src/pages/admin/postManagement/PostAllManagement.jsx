@@ -3,7 +3,7 @@ import { getAdminProductList } from '../../../api/project_api';
 import dayjs from 'dayjs';
 import { AuthContext } from '../../../context/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import PostDetailModal from './PostDetailModal';
+import PostAllDetailModal from './PostAllDetailModal';
 
 const Button = ({ variant = 'primary', onClick, children, disabled = false }) => {
     const base = 'px-4 py-2 text-sm font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-1 transition-colors disabled:opacity-60 disabled:cursor-not-allowed min-w-[80px]';
@@ -170,7 +170,7 @@ export default function PostAllManagement() {
             </div>
 
             {isDetailModalOpen && (
-                <PostDetailModal
+                <PostAllDetailModal
                     open={isDetailModalOpen}
                     onClose={handleModalClose}
                     postId={selectedPost.requestId}

@@ -171,7 +171,11 @@ export const getAdminProductList = async(options = {}) => {
         return { posts: adminProducts, total };
 
     } catch (error){
-        console.error('[project_api] getAdminProductList 오류:', error);
+        if (error.name === 'CanceledError') {
+            console.info('[project_api] getAdminProductList 쿼리 취소됨:', error.message); // 오류가 아닌 정보로 출력
+        } else {
+            console.error('[project_api] getAdminProductList 오류:', error); // 다른 예상치 못한 오류는 그대로 error로 출력
+        }
         throw error;
     }
 }
