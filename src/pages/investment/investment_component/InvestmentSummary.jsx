@@ -6,7 +6,6 @@ import {
   FaStar,
   FaFlag,
 } from "react-icons/fa";
-import { RiMoneyCnyBoxFill, RiMoneyCnyBoxLine } from "react-icons/ri";
 import { toast } from "react-toastify";
 import InvestmentModal from "./InvestmentModal";
 import InvestmentCancelModal from "./InvestmentCancelModal";
@@ -158,7 +157,7 @@ function InvestmentSummary({
                 onClick={() => alert("분배 요청을 보냅니다.")}
                 className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
               >
-                <RiMoneyCnyBoxLine className="inline-block mr-1" /> 분배요청
+                분배요청
               </button>
             )}
 
@@ -166,11 +165,6 @@ function InvestmentSummary({
               onClick={handleInvest}
               className={`${themeColors.primaryBg} text-white py-2 px-3 rounded-md hover:${themeColors.primaryHover} transition-colors font-semibold flex items-center`}
             >
-              {isInvested ? (
-                <RiMoneyCnyBoxFill className="inline-block mr-1" />
-              ) : (
-                <RiMoneyCnyBoxLine className="inline-block mr-1" />
-              )}
               {isCreator ? "중단요청" : "투자하기"}{" "}
               {/*원래 추가투자하기였는데 일단 그냥 하나로 보이게 변경 해둠*/}
             </button>
@@ -179,7 +173,7 @@ function InvestmentSummary({
               onClick={handleCancelInvestment}
               className="border border-gray-300 py-2 px-3 rounded-md font-semibold flex items-center text-gray-700 hover:bg-gray-100 transition-colors"
             >
-              <RiMoneyCnyBoxLine className="inline-block mr-1" /> {isCreator ? "수정요청" : "투자취소"}
+              {isCreator ? "수정요청" : "투자취소"}
             </button>
           </div>
 
