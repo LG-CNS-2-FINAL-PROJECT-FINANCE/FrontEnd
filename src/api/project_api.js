@@ -199,7 +199,7 @@ export const searchAdminProduct = async(options = {}) => {
             params.keyword = keyword;
         }
         if (projectVisibility && projectVisibility !== 'ALL') {
-            params.projectVisiblity = projectVisibility;
+            params.projectVisibility = projectVisibility;
         }
         if (projectStatus && projectStatus !== 'ALL') {
             params.projectStatus = projectStatus;
