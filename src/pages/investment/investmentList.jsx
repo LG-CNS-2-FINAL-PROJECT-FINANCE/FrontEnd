@@ -73,13 +73,18 @@ function InvestmentListPage() {
 
 
     const deadlineApproachingInvestments = useMemo(() => {
-        const hasDeadline = displayedInvestments.filter(inv => inv.deadline !== undefined && inv.deadline !== null && Number(inv.deadline) >= 0);
-        // deadline 기준으로 오름차순 정렬 (마감이 가까운 순)
+        if (!fetchedInvestments) return [];
+
+        const hasDeadline = fetchedInvestments.filter(inv =>
+            inv.deadline !== undefined && inv.deadline !== null && Number(inv.deadline) >= 0
+        );
+
         const sortedByDeadline = [...hasDeadline].sort((a, b) => {
-            return a.deadline - b.deadline; // deadline (숫자) 기준으로 정렬
+            return a.deadline - b.deadline;
         });
-        return sortedByDeadline.slice(0, 4); // 상위 4개만
-    }, [displayedInvestments]);
+
+        return sortedByDeadline.slice(0, 4);
+    }, [fetchedInvestments]);
 
     if (isLoading) {
         return <div className="container mx-auto py-8 text-center text-lg">투자 상품 로딩 중...</div>;
