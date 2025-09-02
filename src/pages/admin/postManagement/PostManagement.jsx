@@ -297,7 +297,7 @@ export default function PostManagement() {
                         <table className="min-w-full table-fixed border-collapse">
                             <thead className="bg-red-500 sticky top-0 z-10">
                                 <tr>
-                                    <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b text-white">게시물번호</th>
+                                    <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b text-white">게시물요청번호</th>
                                     <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b text-white">사용자번호</th>
                                     <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b text-white">제목</th>
                                     <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b text-white">시작일자</th>
