@@ -2,8 +2,16 @@ import { privateApi } from './axiosInstance';
 
 // Investment API - 투자 신청
 export const buyInvestment = async (investmentData) => {
+    const { projectId, investedPrice, tokenQuantity } = investmentData;
+
     try {
-        const response = await privateApi.post('/market/invest/buy', investmentData);
+        const response = await privateApi.post(
+            `/market/invest/${projectId}/buy`,
+            {
+                investedPrice,
+                tokenQuantity
+            }
+        );
         return response.data;
     } catch (error) {
         console.error('[investment_api] buyInvestment 오류:', error);
