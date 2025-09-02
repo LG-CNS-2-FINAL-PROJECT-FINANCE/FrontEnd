@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from "@tanstack/react-query";
+import { toast } from 'react-toastify';
 import { submitUpdateRequest, uploadFileToS3 } from '../../api/project_registration_api';
 import { getInvestmentsDetail } from "../../api/project_api";
-import RegisterConfirmation from './RegisterConfirmation';
 
 const validateEditForm = (formData, reason) => {
     const errors = {};
@@ -28,6 +28,7 @@ const validateEditForm = (formData, reason) => {
 
 function ProductEdit() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const inputClass = "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none";
 
     const { data: investment, isLoading } = useQuery({
@@ -54,8 +55,6 @@ function ProductEdit() {
     const [reason, setReason] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
-    const [showConfirmation, setShowConfirmation] = useState(false);
-    const [productTitle, setProductTitle] = useState('');
 
     // Pre-fill form when investment loads
     useEffect(() => {
@@ -190,8 +189,8 @@ function ProductEdit() {
                         .map(({ url }) => url);
                     imageUrls = [...imageUrls, ...remainingImages];
                 } else if (typeof investment.imageUrl === 'string' && 
-                           investment.imageUrl.trim() !== '' && 
-                           !deletedExistingImages.includes(0)) {
+                        investment.imageUrl.trim() !== '' && 
+                        !deletedExistingImages.includes(0)) {
                     imageUrls = [...imageUrls, investment.imageUrl];
                 }
             }
@@ -205,8 +204,11 @@ function ProductEdit() {
             });
 
             if (result.success) {
-                setProductTitle(formData.title);
-                setShowConfirmation(true);
+                // Show success toast and navigate to investment list
+                toast.success("상품 수정 요청이 완료되었습니다", {
+                    position: "bottom-right",
+                });
+                navigate('/investment');
             }
         } catch (error) {
             setSubmitError(error.message || '수정 요청 처리 중 오류가 발생했습니다.');
@@ -224,18 +226,14 @@ function ProductEdit() {
         );
     }
 
-    if (showConfirmation) {
-        return <RegisterConfirmation productTitle={productTitle} isEdit={true} />;
-    }
-
     const FileList = ({ files, type, isExisting = false, onRemove }) => (
         <div className="space-y-2">
             {files.map((file, index) => (
                 (!isExisting || !deletedExistingDocuments.includes(index)) && (
                     <div key={`${file.name || file}-${index}`} 
-                         className={`flex items-center justify-between p-3 rounded-lg border ${
-                             isExisting ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50'
-                         }`}>
+                        className={`flex items-center justify-between p-3 rounded-lg border ${
+                            isExisting ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50'
+                        }`}>
                         <div className="flex items-center gap-3">
                             <span className="text-2xl">📄</span>
                             <div>
@@ -512,7 +510,7 @@ function ProductEdit() {
                         <div className="flex justify-end gap-4 pt-6 border-t">
                             <button
                                 type="button"
-                                onClick={() => window.history.back()}
+                                onClick={() => navigate('/investment')}
                                 className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
                             >
                                 취소
