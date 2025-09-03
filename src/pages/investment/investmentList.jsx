@@ -105,7 +105,11 @@ function InvestmentListPage() {
             {/* 마감 임박 카드 4개 */}
             {searchTerm === '' && (
                 <section className="mb-12">
-                    <h2 className="text-2xl font-bold mb-6">마감 임박 상품 ✨</h2>
+                    <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                        <span className="animate-bounce">⏰</span>
+                        마감 임박 상품
+                        {/*<span className="animate-pulse">🔥</span>*/}
+                    </h2>
                     {deadlineApproachingInvestments.length > 0 ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                             {deadlineApproachingInvestments.map(investment => (
