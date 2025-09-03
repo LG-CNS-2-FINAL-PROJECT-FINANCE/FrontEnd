@@ -9,6 +9,8 @@ export default function KycVerificationModal({ open, onClose, onKycSuccess }) {
     const [residentIdBack, setResidentIdBack] = useState('');
     const [issueDate, setIssueDate] = useState('');
 
+    const [isConsentChecked, setIsConsentChecked] = useState(false);
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -44,6 +46,10 @@ export default function KycVerificationModal({ open, onClose, onKycSuccess }) {
         }
         if (residentIdFront.length !== 6 || residentIdBack.length !== 7) {
             setError('주민등록번호 형식이 올바르지 않습니다.');
+            return;
+        }
+        if (!isConsentChecked) {
+            setError('본인 확인 이용 동의(필수)에 체크해주세요.');
             return;
         }
 
@@ -146,22 +152,37 @@ export default function KycVerificationModal({ open, onClose, onKycSuccess }) {
                                 disabled={isLoading}
                             />
                         </div>
+
+                        <div className="flex items-center mt-6">
+                            <input
+                                type="checkbox"
+                                id="consentCheckbox"
+                                checked={isConsentChecked}
+                                onChange={(e) => setIsConsentChecked(e.target.checked)}
+                                className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                                disabled={isLoading}
+                            />
+                            <label htmlFor="consentCheckbox" className="ml-2 block text-sm text-gray-900">
+                                본인 확인 이용 동의(<span className="text-red-500 font-bold">필수</span>)
+                            </label>
+                        </div>
+
                     </div>
 
                     <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+                        <button
+                            onClick={handleSubmitKyc}
+                            disabled={isLoading}
+                            className="px-6 py-3 bg-red-500 text-white rounded-lg font-bold text-lg hover:bg-red-600 transition-all duration-200"
+                        >
+                            {isLoading ? '인증 진행 중...' : '본인인증 요청'}
+                        </button>
                         <button
                             onClick={onClose}
                             disabled={isLoading}
                             className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-all duration-200"
                         >
                             취소
-                        </button>
-                        <button
-                            onClick={handleSubmitKyc}
-                            disabled={isLoading}
-                            className="px-6 py-3 bg-red-600 text-white rounded-lg font-bold text-lg hover:bg-red-700 transition-all duration-200"
-                        >
-                            {isLoading ? '인증 진행 중...' : '본인인증 요청'}
                         </button>
                     </div>
                 </div>
