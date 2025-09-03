@@ -183,3 +183,54 @@ export const getAdminProductList = async(options = {}) => {
 //상세 조회 (product/admin/projectId)
 
 //검색 (product/search/admin/product)
+export const searchAdminProduct = async(options = {}) => {
+    console.log('[project_api] searchAdminProduct 호출됨');
+    const {
+        searchBy, keyword,
+        projectVisibility, projectStatus,
+        startDate, endDate,
+        signal
+    } = options;
+
+    try {
+        const params = {};
+        if (searchBy && keyword) {
+            params.searchBy = searchBy;
+            params.keyword = keyword;
+        }
+        if (projectVisibility && projectVisibility !== 'ALL') {
+            params.projectVisibility = projectVisibility;
+        }
+        if (projectStatus && projectStatus !== 'ALL') {
+            params.projectStatus = projectStatus;
+        }
+        if (startDate) { params.startDate = startDate; }
+        if (endDate) { params.endDate = endDate; }
+
+        const res = await privateApi.get('/product/search/admin/product', { params, signal });
+        const payload = res.data;
+
+        console.log('검색된 payload 확인', payload)
+
+        let list = [];
+        let total = 0;
+
+        if (Array.isArray(payload)) {
+            list = payload;
+            total = payload.length;
+        } else if (payload.content && Array.isArray(payload.content)) {
+            list = payload.content;
+            total = payload.totalElements ?? payload.total ?? payload.size ?? payload.count ?? list.length;
+        } else if (payload.data && Array.isArray(payload.data)) {
+            list = payload.data;
+            total = payload.total ?? list.length;
+        }
+
+        const adminProducts = list.map(mapToAdminPostListItem); // 동일한 매핑 함수 사용
+        return { posts: adminProducts, total };
+
+    } catch (error){
+        console.info('[project_api] searchAdminProduct 오류:', error);
+        throw error;
+    }
+}

@@ -2,8 +2,6 @@ import { privateApi as api } from './axiosInstance';
 
 function mapToMyInvestment(item) {
 
-    const product = {};
-
     return {
         // requestId : item.product.requestId ?? null,
         projectId: item.product.projectId ?? null, //프로젝트아이디
@@ -16,7 +14,7 @@ function mapToMyInvestment(item) {
         // startDate: item.startDate ?? null, //시작일
         endDate: item.product.endDate ?? null, //마감일
         // account: item.account ?? null, //계좌
-        DefaultImageUrl: item.image && Array.isArray(item.image) && item.image.length > 0 ? item.image[0] : 'bull.png', //이미지
+        DefaultImageUrl: item.product.image && Array.isArray(item.product.image) && item.product.image.length > 0 ? item.product.image[0] : 'bull.png', //이미지
 
         investedPrice : item.investedPrice, // 투자금
         tokenQuantity : item.tokenQuantity, // 투자수량
@@ -25,8 +23,8 @@ function mapToMyInvestment(item) {
 
         // investedAmount: item.investedAmount ?? null,
         // tokenQuantity: item.tokenQuantity ?? null,
-        content: product.content ?? null, //본문
-        summary: product.summary ?? null, //요약
+        content: item.product.content ?? null, //본문
+        summary: item.product.summary ?? null, //요약
     };
 }
 
