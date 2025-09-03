@@ -35,6 +35,7 @@ import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
 import { useQueryClient } from "@tanstack/react-query";
 import PostAllManagement from "./pages/admin/postManagement/PostAllManagement"
 import {AuthProvider} from "./context/AuthContext";
+import EventPage from "./pages/event/EventPage";
 
 
 
@@ -80,6 +81,9 @@ function App() {
 
               {/*Asset*/}
               <Route path="/asset" element={<Asset />} />
+
+              {/*Evnet*/}
+              <Route path="/event" element={<EventPage />} />
 
             </Route>
 

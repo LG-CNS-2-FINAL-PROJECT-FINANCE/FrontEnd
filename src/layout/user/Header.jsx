@@ -82,6 +82,14 @@ function Header() {
               {userRole === "CREATOR" ? "상품 등록" : "토큰 거래"}
             </span>
           </div>
+          <div>
+            <span
+                className="hover:cursor-pointer font-bold"
+                onClick={() => navigate("/event")}
+            >
+              이벤트
+            </span>
+          </div>
         </>
       </div>
       <div className="flex items-end space-x-4">
