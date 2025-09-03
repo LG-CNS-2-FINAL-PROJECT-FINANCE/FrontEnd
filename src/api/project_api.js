@@ -11,6 +11,7 @@ function mapToInvestmentCardData(item) {
         projectId: item._id ?? item.projectId ?? item.requestId ?? item.id ?? `unique-temp-${Math.random()}`,       // 창작물 번호
         // id: item._id ?? item.projectId ?? item.requestId ?? item.id ?? `unique-temp-${Math.random()}`,
         userSeq: item.userSeq ?? null,           // 사용자 번호
+        nickname: item.nickname ?? null, // 사용자 닉네임
         title: item.title ?? null,               // 제목
         amount: item.amount ?? null,             // 모금액
         startDate: item.startDate ?? null, //시작일

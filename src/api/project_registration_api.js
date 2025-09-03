@@ -41,6 +41,7 @@ export const validateProductForm = (formData, documentUrl = "", imageUrl = "") =
 export const createProductRequest = async (formData, documentUrl = "", imageUrl = "") => {
     try {
         const requestData = {
+            nickname: formData.nickname.trim(),
             title: formData.title.trim(),
             summary: formData.summary.trim(),
             content: formData.description.trim(),

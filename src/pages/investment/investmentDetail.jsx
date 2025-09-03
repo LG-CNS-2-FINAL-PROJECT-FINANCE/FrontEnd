@@ -50,6 +50,7 @@ function InvestmentDetail() {
                 startDate={investment.startDate}
                 endDate={investment.endDate}
                 author={investment.author}
+                nickname={investment.nickname}
                 isFavorite={investment.isFavorite}
                 isInvested={investment.isInvested}
                 minInvestment={investment.minInvestment}

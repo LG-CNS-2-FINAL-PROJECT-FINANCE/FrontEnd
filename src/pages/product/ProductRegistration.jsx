@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
 import { createProductRequest, validateProductForm, uploadFileToS3 } from '../../api/project_registration_api';
 import RegisterConfirmation from './RegisterConfirmation';
+import useUser from '../../lib/useUser';
 
 function ProductRegistration() {
-    // Form state
+    // Get user data including nickname
+    const { user } = useUser();
+    const nickname = user?.nickname;
+
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -95,6 +99,12 @@ function ProductRegistration() {
             return;
         }
 
+        // Check if nickname is available from user data
+        if (!nickname) {
+            setSubmitError('사용자 정보를 불러올 수 없습니다. 로그인 상태를 확인해주세요.');
+            return;
+        }
+
         // Validate form including file uploads
         const validation = validateProductForm(formData, documentUploadUrl, imageUploadUrl);
         if (!validation.isValid) {
@@ -106,7 +116,16 @@ function ProductRegistration() {
         setIsSubmitting(true);
 
         try {
-            const result = await createProductRequest(formData, documentUploadUrl, imageUploadUrl);
+            // 닉네임 추가 
+            const formDataWithNickname = {
+                ...formData,
+                nickname: nickname
+            };
+
+            console.log('ProductRegistration - submitting with nickname:', nickname);
+            console.log('ProductRegistration - final formData:', formDataWithNickname);
+
+            const result = await createProductRequest(formDataWithNickname, documentUploadUrl, imageUploadUrl);
 
             if (result.success) {
                 setProductTitle(formData.title);
