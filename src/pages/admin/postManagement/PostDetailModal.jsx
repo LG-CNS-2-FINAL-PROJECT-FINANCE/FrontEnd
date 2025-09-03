@@ -321,8 +321,12 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                                     <CopyIcon textToCopy={postDetail.requestId} onCopySuccess={() => handleCopy(postDetail.requestId, '게시물 번호')} />
                                 </div>
                                 <div className="flex items-center">
-                                    <span>사용자: {postDetail.userNo}</span>
+                                    <span>사용자번호: {postDetail.userNo}</span>
                                     <CopyIcon textToCopy={postDetail.userNo} onCopySuccess={() => handleCopy(postDetail.userNo, '사용자 번호')} />
+                                </div>
+                                <div className="flex items-center">
+                                    <span>닉네임: {postDetail.nickname}</span>
+                                    <CopyIcon textToCopy={postDetail.nickname} onCopySuccess={() => handleCopy(postDetail.nickname, '닉네임')} />
                                 </div>
                                 {postDetail.goalAmount && <div>목표 금액: {postDetail.goalAmount}</div>}
                                 {postDetail.minInvestment && <div>최저 투자금액: {postDetail.minInvestment}</div>}

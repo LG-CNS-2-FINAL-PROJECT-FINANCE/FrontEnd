@@ -60,10 +60,14 @@ function AssetHome() {
       toast.success("계좌 및 지갑 생성 완료! 🎉", { position: "bottom-right" });
     },
     onError: (err) => {
-      const msg =
-        err?.response?.data?.message ||
-        "생성 중 오류가 발생했습니다. 다시 시도해 주세요.";
-      toast.error(msg, { position: "bottom-right" });
+      console.error("Asset creation error:", err); // Log the actual error for debugging
+      toast.error(
+        <div>
+          <div>로그인이 필요합니다.</div>
+          <div>로그인 후 이용해 주세요.</div>
+        </div>,
+        { position: "bottom-right" }
+      );
     },
   });
 

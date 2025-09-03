@@ -120,6 +120,7 @@ function mapToPostDetail(item) {
     return {
         requestId: item.requestId ?? item.id?? null, //요청번호
         userNo: item.userSeq ?? item.user_seq ?? item.userId ?? null, //작성자id
+        nickname: item.nickname ?? null, //작성자 닉네임
         projectId: item.projectId ?? null, //창작물 번호
         title: item.title ?? null, //제목
         summary: item.summary ?? null, //요약

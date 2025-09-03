@@ -19,6 +19,7 @@ function InvestmentSummary({
   title,
   projectNumber,
   startDate,
+  nickname,
   endDate,
   author,
   isFavorite: initialIsFavorite,
@@ -144,7 +145,7 @@ function InvestmentSummary({
           <span>
             기간: {startDate} ~ {endDate}
           </span>
-          <span className="ml-4">작성자: {author}</span>
+          <span className="ml-4">작성자: {nickname}</span>
         </div>
 
         <div className="flex flex-col space-y-2">

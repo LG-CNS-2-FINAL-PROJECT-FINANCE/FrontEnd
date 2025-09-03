@@ -20,6 +20,8 @@ function AssetCheckModal({
       });
       queryClient.refetchQueries({ queryKey: ["account"] });
       queryClient.refetchQueries({ queryKey: ["accountAllHistory"] });
+      queryClient.refetchQueries({ queryKey: ["accumulatedDeposit"] });
+      queryClient.refetchQueries({ queryKey: ["accumulatedWithdrawal"] });
     },
     onError: (err) => {
       const msg =
@@ -36,6 +38,8 @@ function AssetCheckModal({
       });
       queryClient.refetchQueries({ queryKey: ["account"] });
       queryClient.refetchQueries({ queryKey: ["accountAllHistory"] });
+      queryClient.refetchQueries({ queryKey: ["accumulatedDeposit"] });
+      queryClient.refetchQueries({ queryKey: ["accumulatedWithdrawal"] });
     },
     onError: (err) => {
       const msg =

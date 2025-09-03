@@ -4,7 +4,7 @@ import AssetDepositModal from "./modals/AssetDepositModal";
 import AssetWithdrawModal from "./modals/AssetWithdrawModal";
 import { toast } from "react-toastify";
 import AssetCheckModal from "./modals/AssetCheckModal";
-import { getAccountAllHistory, getWalletToken } from "../../api/asset_api";
+import { getAccountAllHistory, getWalletToken, getAccumulatedAmount } from "../../api/asset_api";
 import { useQuery } from "@tanstack/react-query";
 import { toKSTDateTime } from "../../lib/toKSTDateTime";
 import { getTokenTradeDoneHistoryByUserId } from "../../api/market_api";
@@ -24,6 +24,20 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
   const { data:walletTokenTradeHistory, isLoading:walletTokenTradeHistoryLoading, isError:walletTokenTradeHistoryError } = useQuery({
     queryKey: ["walletTokenTradeHistory"],
     queryFn: getTokenTradeDoneHistoryByUserId,
+    retry: false,
+  });
+
+  //누적입금액 (moneyType = 0)
+  const { data: accumulatedDeposit, isLoading: accumulatedDepositLoading, isError: accumulatedDepositError } = useQuery({
+    queryKey: ["accumulatedDeposit"],
+    queryFn: () => getAccumulatedAmount(0),
+    retry: false,
+  });
+
+  //누적출금액 (moneyType = 1) 
+  const { data: accumulatedWithdrawal, isLoading: accumulatedWithdrawalLoading, isError: accumulatedWithdrawalError } = useQuery({
+    queryKey: ["accumulatedWithdrawal"], 
+    queryFn: () => getAccumulatedAmount(1),
     retry: false,
   });
   
@@ -133,7 +147,14 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
             <div className="flex justify-around items-center mb-4">
               <div className="text-center">
                 <span className="text-gray-500 text-sm">누적 입금액</span>
-                <p className="text-3xl font-bold">12,000원</p>
+                <p className="text-3xl font-bold">
+                  {accumulatedDepositLoading 
+                    ? "Loading..." 
+                    : accumulatedDepositError
+                    ? "Error"
+                    : `${formatNumber((accumulatedDeposit || 0).toString())}원`
+                  }
+                </p>
               </div>
               <span className="text-gray-300">|</span>
               <div className="text-center">
@@ -143,7 +164,14 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
               <span className="text-gray-300">|</span>
               <div className="text-center">
                 <span className="text-gray-500 text-sm">누적 출금액</span>
-                <p className="text-3xl font-bold">12,000원</p>
+                <p className="text-3xl font-bold">
+                  {accumulatedWithdrawalLoading 
+                    ? "Loading..." 
+                    : accumulatedWithdrawalError
+                    ? "Error"
+                    : `${formatNumber((accumulatedWithdrawal || 0).toString())}원`
+                  }
+                </p>
               </div>
             </div>
             <div className="mt-12 w-full flex justify-center gap-16">

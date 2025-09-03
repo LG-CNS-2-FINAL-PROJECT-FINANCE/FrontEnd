@@ -100,10 +100,28 @@ export const getAccountSpecificHistory = async (moneyType) => {
 export const getWalletToken = async () => {
   try{
     const response = await privateApi.get(`/asset/wallet-token/search`);
-    console.log(response)
     return response.data.data || []; 
   } catch (error) {
     console.error(error);
     return []; // Return empty array on error to prevent map errors
+  }
+}
+
+// Get accumulated amount by money type (0 = deposit, 1 = withdrawal)
+export const getAccumulatedAmount = async (moneyType) => {
+  try {
+    const requestBody = { moneyType: moneyType };
+
+    const response = await privateApi.post(`/asset/all`, requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    
+    return response.data; 
+
+  } catch (error) {
+    console.error(`Error getting accumulated amount for moneyType ${moneyType}:`, error);
+    throw error;
   }
 }
