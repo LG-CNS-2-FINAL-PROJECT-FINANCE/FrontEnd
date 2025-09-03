@@ -24,7 +24,7 @@ export default function AdminSidebar() {
         { to: '/admin/posts', label: '게시물요청관리' },
         { to: '/admin/post', label: '게시물관리' },
         { to: '/admin/fraudDetection', label: '이상거래탐지' },
-        { to: '/admin/aml', label: '자금세탁방지' },
+        // { to: '/admin/aml', label: '자금세탁방지' },
         { to: '/admin/settings', label: '설정' },
     ];
 

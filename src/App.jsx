@@ -34,6 +34,7 @@ import MyProduct from "./pages/mypage/MyProduct.jsx";
 import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
 import { useQueryClient } from "@tanstack/react-query";
 import PostAllManagement from "./pages/admin/postManagement/PostAllManagement"
+import {AuthProvider} from "./context/AuthContext";
 
 
 
@@ -83,9 +84,17 @@ function App() {
             </Route>
 
             {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
-            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/login" element={
+              <AuthProvider>
+                <AdminLogin />
+              </AuthProvider>
+            } />
             {/*관리자 페이지 헤더*/}
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/admin" element={
+              <AuthProvider>
+                <AdminLayout />
+              </AuthProvider>
+            }>
               <Route path="user" element={<UserManagement />}></Route>
               <Route path="reports" element={<ReportManagement />}></Route>
               <Route path="posts" element={<PostManagement />}></Route>

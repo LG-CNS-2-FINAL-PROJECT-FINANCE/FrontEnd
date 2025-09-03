@@ -5,6 +5,11 @@ export const getMyAccount = async () => {
     const response = await privateApi.get(`/asset/account/search`);
     return response.data.data;
   } catch (error) {
+    if (error.response && error.response.data && error.response.data.code === 'NotFound') {
+      console.info('[asset_api] getMyAccount: 계좌가 아직 생성되지 않았습니다. (404 정상 오류)');
+      return null;
+    }
+    console.error('[asset_api] getMyAccount 오류:', error.response?.data || error.message);
     throw error;
   }
 };
