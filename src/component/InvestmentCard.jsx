@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
+import { FaEye } from "react-icons/fa";
 
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
@@ -80,6 +81,14 @@ function InvestmentCard({ project, imageUrl, disableNavigation }) {
                     )}
                     {project.status !== null && (
                         <div>{project.status}</div>
+                    )}
+                    {project.views !== null &&(
+                        <div className="flex items-center">
+                            <FaEye />
+                            <div className="pl-1">
+                                { project.views }
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
