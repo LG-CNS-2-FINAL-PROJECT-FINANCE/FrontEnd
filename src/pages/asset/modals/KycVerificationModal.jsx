@@ -52,9 +52,10 @@ export default function KycVerificationModal({ open, onClose, onKycSuccess }) {
 
         try {
             await userKYC({
-                name,
-                residentNumber: `${residentIdFront}-${residentIdBack}`,
-                issueDate
+                name: name,
+                rrn1: residentIdFront,
+                rrn2: residentIdBack,
+                date: issueDate
             });
 
             toast.success('본인인증(KYC)이 성공적으로 접수되었습니다. 잠시 후 확인됩니다.');
