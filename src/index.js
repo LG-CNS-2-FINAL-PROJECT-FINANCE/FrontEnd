@@ -13,9 +13,9 @@ root.render(
   /*<React.StrictMode>*/
   <QueryClientProvider client={new QueryClient()}>
     {/* AuthProvider는 QueryClientProvider 안에 있어야 합니다. */}
-    <AuthProvider>
+    {/*<AuthProvider>*/}
       <App />
-    </AuthProvider>
+    {/*</AuthProvider>*/}
     <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>
   /*</React.StrictMode>*/
