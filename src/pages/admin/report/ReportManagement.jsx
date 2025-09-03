@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { privateApi as api } from '../../api/axiosInstance';
-import { AuthContext } from '../../context/AuthContext';
+import { privateApi as api } from '../../../api/axiosInstance';
+import { AuthContext } from '../../../context/AuthContext';
 
 export default function ReportManagement() {
     const { accessToken } = useContext(AuthContext); // 인증 필요 시

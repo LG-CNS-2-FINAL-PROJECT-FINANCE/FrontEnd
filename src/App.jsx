@@ -21,7 +21,7 @@ import AccountManagement from "./pages/mypage/AccountManagement.jsx";
 import EditInfo from "./pages/mypage/EditInfo.jsx";
 import MyReports from "./pages/mypage/MyReports.jsx";
 import MyEditRequest from "./pages/mypage/MyEditRequest.jsx";
-import ReportManagement from "./pages/admin/ReportManagement";
+import ReportManagement from "./pages/admin/report/ReportManagement";
 import PostManagement from "./pages/admin/postManagement/PostManagement";
 import Aml from "./pages/admin/Aml";
 import FraudDetection from "./pages/admin/FraudDetection";
