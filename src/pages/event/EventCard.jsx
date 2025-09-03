@@ -1,5 +1,3 @@
-// src/components/EventCard.jsx (수정)
-
 import React from 'react';
 
 function EventCard({ event }) {
