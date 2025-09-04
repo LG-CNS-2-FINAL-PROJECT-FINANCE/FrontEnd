@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef, useContext, useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AuthContext } from '../../../context/AuthContext';
 import { getReports } from '../../../api/report_api';
+import ReportDetailModal from './ReportDetailModal';
 
 function getReportKey(r) { /* ... */ return ''; }
 
@@ -14,6 +15,9 @@ export default function ReportManagement() {
 
     const [debouncedQuery, setDebouncedQuery] = useState('');
     const debounceTimeoutRef = useRef(null);
+
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [selectedReportId, setSelectedReportId] = useState(null);
 
     useEffect(() => {
         if (debounceTimeoutRef.current) {
@@ -69,6 +73,16 @@ export default function ReportManagement() {
         setSearchType('reportNo');
         setQuery('');
         setDebouncedQuery('');
+    };
+
+    const handleRowClick = (reportNo) => {
+        setSelectedReportId(reportNo);
+        setIsDetailModalOpen(true);
+    };
+
+    const handleCloseDetailModal = () => {
+        setIsDetailModalOpen(false);
+        setSelectedReportId(null);
     };
 
 
@@ -143,7 +157,7 @@ export default function ReportManagement() {
                                 </tr>
                             ) : (
                                 reports.map((r) => (
-                                    <tr key={getReportKey(r)} className="hover:bg-gray-50">
+                                    <tr key={getReportKey(r)} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleRowClick(r.reportNo)}>
                                         <td className="px-4 py-3 text-sm border-b">{r.reportNo ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{r.projectId ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{r.reportId ?? '-'}</td>
@@ -158,6 +172,17 @@ export default function ReportManagement() {
                     </div>
                 </div>
             </div>
+
+            {isDetailModalOpen && selectedReportId && (
+                <ReportDetailModal
+                    open={isDetailModalOpen}
+                    onClose={handleCloseDetailModal}
+                    reportId={selectedReportId}
+                    // 목록 갱신
+                    onStatusChange={() => queryClient.invalidateQueries(['reports'])}
+                />
+            )}
+
         </div>
     );
 }
