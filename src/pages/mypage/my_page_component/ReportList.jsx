@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getUserReports } from '../../../api/report_api';
 import useUser from '../../../lib/useUser';
 import dayjs from 'dayjs';
-s
+
 const ReportList = () => {
     const { user } = useUser();
 
