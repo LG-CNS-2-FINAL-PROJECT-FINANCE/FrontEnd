@@ -79,7 +79,7 @@ export default function ReportDetailModal({ open, onClose, reportNo }) {
     }, [open]);
 
 
-    if (!open || !reportId) return null;
+    if (!open || !reportNo) return null;
 
     if (isLoading) {
         return (
