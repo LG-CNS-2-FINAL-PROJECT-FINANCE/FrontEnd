@@ -14,6 +14,7 @@ function mapReport(item) {
     };
 }
 
+//신고 전체 조회
 export async function getReports(options = {}) {
     console.log('[report_api] getReports 호출됨');
     const { signal, ...restOptions } = options;
@@ -21,7 +22,7 @@ export async function getReports(options = {}) {
     try {
         const params = { ...restOptions };
 
-        const res = await privateApi.get('/monitoring/report', { params, signal });
+        const res = await privateApi.get('/monitoring/report/list', { params, signal });
         const payload = res.data;
 
         let list = [];
@@ -43,6 +44,28 @@ export async function getReports(options = {}) {
 
     } catch (error) {
         console.error('[report_api] getReports 오류:', error);
+        throw error;
+    }
+}
+
+// 신고 상세 조회
+export async function getReportDetail(reportNo, options = {}) {
+    console.log(`[report_api] getReportDetail 호출됨. ReportId: ${reportNo}`);
+    const { signal } = options;
+
+    try {
+        const res = await privateApi.get(`/monitoring/report/${reportNo}`, { signal });
+        const payload = res.data;
+
+        const reportDetail = mapReport(payload);
+        return reportDetail;
+
+    } catch (error) {
+        if (error.name === 'CanceledError') {
+            console.info(`[report_api] getReportDetail 쿼리 취소됨 (ReportId: ${reportNo})`, error);
+        } else {
+            console.error(`[report_api] getReportDetail 오류 (ReportId: ${reportNo}):`, error);
+        }
         throw error;
     }
 }

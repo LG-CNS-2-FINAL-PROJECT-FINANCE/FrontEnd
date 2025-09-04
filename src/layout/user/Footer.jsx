@@ -9,7 +9,7 @@ import { FiFigma } from "react-icons/fi";
 function Footer(){
     return(
         <div className="
-            bg-gray-100      /* background-color: #f0f0f0; */
+            bg-gray-200      /* background-color: #f0f0f0; */
             w-full           /* 부모(body)의 콘텐츠 영역 내에서 100% 너비 */
             flex             /* display: flex; */
             justify-center   /* justify-content: center; */
