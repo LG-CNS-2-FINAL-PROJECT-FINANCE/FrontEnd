@@ -11,7 +11,7 @@ function Layout() {
                 <Header />
             </header>
 
-            <main className="flex-grow px-[10%] pt-16 bg-slate-50">
+            <main className="flex-grow px-[10%] pt-16">
                 <Outlet />
             </main>
             
