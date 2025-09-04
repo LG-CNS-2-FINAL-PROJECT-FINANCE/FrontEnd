@@ -4,6 +4,7 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import { getAllDetail } from '../../../api/admin_project_api';
 import PostHoldModal from "./PostHoldModal";
 import {AuthContext} from "../../../context/AuthContext";
+import CopyIcon from '../../../component/CopyIcon';
 
 const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -93,6 +94,7 @@ function Field({ label, value, className = '' }) {
 
 export default function PostAllDetailModal({ open, onClose, postId, onStatusChange }) {
     const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
+    const [copiedMessage, setCopiedMessage] = useState({ show: false, text: '' });
 
     const { user: authUser } = useContext(AuthContext);
     const queryClient = useQueryClient();
@@ -137,6 +139,14 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
             document.body.style.overflow = 'unset';
         };
     }, [open]);
+
+    const handleCopy = (text, fieldName) => {
+        setCopiedMessage({ show: true, text: `${fieldName} 복사 완료!` });
+        // 일정 시간 후 메시지 숨김
+        setTimeout(() => {
+            setCopiedMessage({ show: false, text: '' });
+        }, 1500); // 1.5초 후 사라짐
+    };
 
 
     if (!open || !postId) return null;
@@ -226,6 +236,11 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
                 </div>
 
                 <div className="p-6">
+                    {copiedMessage.show && (
+                        <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded-lg text-blue-800 text-sm text-center animate-pulse">
+                            {copiedMessage.text}
+                        </div>
+                    )}
 
                     <div className="bg-slate-50 p-5 rounded-xl mb-6 border border-slate-200">
                         <div className="mb-4">
@@ -239,8 +254,18 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
                                 </button>
                             </div>
                             <div className="text-sm text-slate-500 space-y-1">
-                                <div>게시물 번호: {postDetail.projectId}</div>
-                                <div>사용자: {postDetail.userNo}</div>
+                                <div className="flex items-center">
+                                    <div>게시물 번호: {postDetail.projectId}</div>
+                                    <CopyIcon textToCopy={postDetail.projectId} onCopySuccess={() => handleCopy(postDetail.projectId, '게시물 번호')} />
+                                </div>
+                                <div className="flex items-center">
+                                    <div>사용자: {postDetail.userNo}</div>
+                                    <CopyIcon textToCopy={postDetail.userNo} onCopySuccess={() => handleCopy(postDetail.userNo, '사용자 번호')} />
+                                </div>
+                                <div className="flex items-center">
+                                    <div>닉네임: {postDetail.nickname}</div>
+                                    <CopyIcon textToCopy={postDetail.nickname} onCopySuccess={() => handleCopy(postDetail.nickname, '닉네임')} />
+                                </div>
                                 {postDetail.goalAmount && <div>목표 금액: {postDetail.goalAmount}</div>}
                                 {postDetail.minInvestment && <div>최저 투자금액: {postDetail.minInvestment}</div>}
                                 {postDetail.adminId && <div>관리자 ID: {postDetail.adminId}</div>}
