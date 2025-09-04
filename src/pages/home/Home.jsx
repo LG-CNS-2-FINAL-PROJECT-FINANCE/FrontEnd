@@ -125,9 +125,9 @@ function Home() {
                                 {(p.amount ?? 0).toLocaleString()}원 모금 !
                               </div>
                             </div>
-                            <div className="text-md font-semibold text-red-500">
+                            <div className="text-sm font-semibold text-red-500">
                               {(p.rate ?? p.percent ?? null) !== null
-                                ? ((p.percent) > 0 ? "+" : "") +
+                                ? ((p.percent) > 0 ? "" : "") + "모집상태 " +
                                   (p.percent) +
                                   "%"
                                 : ""}
