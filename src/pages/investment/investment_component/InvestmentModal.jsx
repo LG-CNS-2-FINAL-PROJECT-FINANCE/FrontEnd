@@ -14,6 +14,7 @@ function InvestmentModal({
   summary,
   author,
   tokenPrice,
+  nickname,
 }) {
   const [hasConfirmed, setHasConfirmed] = useState(false);  
   const [investmentAmount, setInvestmentAmount] = useState(minInvestment || 0);
@@ -142,7 +143,7 @@ function InvestmentModal({
           )}
           <div className="flex flex-col flex-grow">
             <h3 className="text-xl font-semibold mb-1">{title}</h3>
-            <p className="text-gray-600 text-sm mb-2">작성자: {author}</p>
+            <p className="text-gray-600 text-sm mb-2">작성자: {nickname}</p>
             <p className="text-gray-700 text-sm overflow-hidden text-ellipsis line-clamp-3">
               {summary}
             </p>
