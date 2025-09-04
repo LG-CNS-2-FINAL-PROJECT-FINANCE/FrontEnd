@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import useScrollLock from '../../../component/useScrollLock';
 import { useTheme } from '../../../context/ThemeContext';
+import { createReport } from '../../../api/report_api';
 
 function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitReport }) {
     const [selectedType, setSelectedType] = useState(''); // 선택된 신고 유형
     const [reportContent, setReportContent] = useState(''); // 신고 내용
+    const [isSubmitting, setIsSubmitting] = useState(false); // API 호출 중 상태
     const { themeColors } = useTheme();
 
     useScrollLock(isOpen);
     // 모달이 열려있지 않으면 아무것도 렌더링하지 않음
     if (!isOpen) return null;
 
-    // 신고 유형 목록
+    // 신고 유형 목록 (backend에서 Integer로 처리 숫자로 변경)
     const reportTypes = [
-        { value: 'user_report', label: '사용자 신고' },
-        { value: 'unhelpful_content', label: '유익하지 않은 컨텐츠' },
-        { value: 'false_info', label: '허위정보제공' },
+        { value: 1, label: '사용자 신고' },
+        { value: 2, label: '유익하지 않은 컨텐츠' },
+        { value: 3, label: '허위정보제공' },
     ];
 
     // 모달 외부 클릭 시 닫히도록 하는 함수
@@ -36,34 +39,47 @@ function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitRepor
     };
 
     // 신고하기 버튼 클릭 핸들러
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!selectedType) {
-            alert('신고 유형을 선택해주세요.');
+            toast.error('신고 유형을 선택해주세요.', { position: "bottom-right" });
             return;
         }
         if (reportContent.trim() === '') {
-            alert('신고 내용을 입력해주세요.');
+            toast.error('신고 내용을 입력해주세요.', { position: "bottom-right" });
             return;
         }
 
-        const reportData = {
-            projectId: projectNumber, // 신고 대상 프로젝트 번호
-            reporterId: reporterId,   // 신고자 ID
-            reportType: selectedType, // 선택된 신고 유형
-            reportContent: reportContent.trim(), // 신고 내용
-            timestamp: new Date().toISOString(), // 신고 시간
-        };
+        setIsSubmitting(true);
 
-        onSubmitReport(reportData); // 상위 컴포넌트로 데이터 전달
-        onClose(); // 모달 닫기
-        // 성공 메시지 띄우고 상태 초기화
-        alert('신고가 접수되었습니다. 빠른 시일 내에 처리하겠습니다.');
-        setSelectedType('');
-        setReportContent('');
+        try {
+            const reportDto = {
+                reportId: null,
+                projectId: String(projectNumber),
+                reportType: selectedType,
+                content: reportContent.trim(),
+            };
+            
+            await createReport(reportDto);
+            
+            toast.success("신고가 접수되었습니다. 빠른 시일 내에 처리하겠습니다.", {
+                position: "bottom-right",
+            });
+            
+            setSelectedType('');
+            setReportContent('');
+            onClose();
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || "신고 접수 중 오류가 발생했습니다.";
+            toast.error(errorMessage, {
+                position: "bottom-right",
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     // 제출 버튼 활성화 조건
-    const isSubmitEnabled = selectedType && reportContent.trim() !== '';
+    const isSubmitEnabled = selectedType && reportContent.trim() !== '' && !isSubmitting;
 
     return (
         <div
@@ -82,7 +98,6 @@ function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitRepor
 
                 {/* 신고 정보 요약 */}
                 <div className="mb-4 text-gray-700">
-                    <p className="mb-2"><span className="font-semibold">신고자 ID:</span> {reporterId}</p>
                     <p><span className="font-semibold">신고 프로젝트:</span> {projectNumber}</p>
                 </div>
                 <hr className="my-4" />
@@ -138,7 +153,7 @@ function ReportModal({ isOpen, onClose, projectNumber, reporterId, onSubmitRepor
                         `}
                         disabled={!isSubmitEnabled}
                     >
-                        신고하기
+                        {isSubmitting ? "처리중..." : "신고하기"}
                     </button>
                 </div>
             </div>
