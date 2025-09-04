@@ -69,3 +69,40 @@ export async function getReportDetail(reportNo, options = {}) {
         throw error;
     }
 }
+
+// 개인 신고 목록 조회
+export async function getUserReports(options = {}) {
+    console.log('[report_api] getUserReports 호출됨');
+    const { signal, ...restOptions } = options;
+
+    try {
+        const params = { ...restOptions };
+        const res = await privateApi.get('/monitoring/report/userlist', { params, signal });
+        const payload = res.data;
+
+        let list = [];
+        let total = 0;
+
+        if (Array.isArray(payload)) {
+            list = payload;
+            total = payload.length;
+        } else if (payload.content && Array.isArray(payload.content)) {
+            list = payload.content;
+            total = payload.totalElements ?? payload.total ?? list.length;
+        } else if (payload.data && Array.isArray(payload.data)) {
+            list = payload.data;
+            total = payload.total ?? list.length;
+        }
+
+        const reports = list.map(mapReport);
+        return { reports, total };
+
+    } catch (error) {
+        if (error.name === 'CanceledError') {
+            console.info('[report_api] getUserReports 쿼리 취소됨:', error.message);
+        } else {
+            console.error('[report_api] getUserReports 오류:', error);
+        }
+        throw error;
+    }
+}
