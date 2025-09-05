@@ -340,5 +340,6 @@
   "investment_modal_expected_tokens_label": "Expected Tokens",
   "investment_modal_processing_button": "Processing...",
   "investment_modal_apply_button": "Apply",
-  "investment_modal_cancel_button": "Cancel"
+  "investment_modal_cancel_button": "Cancel",
+  "investment_modal_before_check": "Check before invest"
 }

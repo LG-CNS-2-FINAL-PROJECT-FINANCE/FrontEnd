@@ -4,6 +4,7 @@ import { useTheme } from "../../../context/ThemeContext";
 import { buyInvestment as api } from "../../../api/investment_api";
 import useUser from "../../../lib/useUser";
 import { useTranslation } from 'react-i18next';
+import { IoInformationCircleOutline } from "react-icons/io5";
 
 function InvestmentModal({
   isOpen,
@@ -157,7 +158,13 @@ function InvestmentModal({
             </div>
           )}
           <div className="flex flex-col flex-grow">
-            <h3 className="text-xl font-semibold mb-1">{title}</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold mb-1">{title}</h3>
+              <div className="flex items-center text-sm gap-1">
+                <div className="text-[10px]">{t('investment_modal_before_check')}</div>
+                <IoInformationCircleOutline className="text-red-500 w-5 h-5" title="주의사항" />
+              </div>
+            </div>
             <p className="text-gray-600 text-sm mb-2">{t('investment_modal_author_label')}: {nickname}</p>
             <p className="text-gray-700 text-sm overflow-hidden text-ellipsis line-clamp-3">
               {summary}
