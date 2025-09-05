@@ -1,4 +1,4 @@
-import { privateApi } from './axiosInstance';
+import { privateApi } from "./axiosInstance";
 
 function mapReport(item) {
     return {
@@ -13,6 +13,17 @@ function mapReport(item) {
         content: item.content ?? null,              // 신고 내용
     };
 }
+
+
+// 신고하기 API
+export const createReport = async (reportData) => {
+    try {
+        const response = await privateApi.post('/monitoring/report', reportData);
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
 
 //신고 전체 조회
 export async function getReports(options = {}) {
