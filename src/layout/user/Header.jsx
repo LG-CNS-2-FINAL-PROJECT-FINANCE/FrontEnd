@@ -29,6 +29,22 @@ function Header() {
     staleTime: 60_000,
   });
 
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setOpenNotif(false);
+      }
+    };
+
+    if (openNotif) {
+      window.addEventListener("keydown", handleEsc);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [openNotif]);
+
   const [userRole, setUserRole] = useState(isLoggedIn ? user?.role : "");
   useEffect(() => {
     setUserRole(isLoggedIn ? user?.role ?? "" : "");
