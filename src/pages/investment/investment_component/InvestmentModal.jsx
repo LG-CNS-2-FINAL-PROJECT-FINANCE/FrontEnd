@@ -5,6 +5,7 @@ import { buyInvestment as api } from "../../../api/investment_api";
 import useUser from "../../../lib/useUser";
 import { useTranslation } from 'react-i18next';
 import { IoInformationCircleOutline } from "react-icons/io5";
+import HoverModal from "./HoverModal";
 
 function InvestmentModal({
   isOpen,
@@ -160,10 +161,46 @@ function InvestmentModal({
           <div className="flex flex-col flex-grow">
             <div className="flex items-center justify-between">
               <h3 className="text-xl font-semibold mb-1">{title}</h3>
-              <div className="flex items-center text-sm gap-1">
-                <div className="text-[10px]">{t('investment_modal_before_check')}</div>
-                <IoInformationCircleOutline className="text-red-500 w-5 h-5" title={t('investment_modal_danger')} />
-              </div>
+
+
+              <HoverModal
+                  content={
+                    <div className="w-full h-full flex flex-col items-center justify-center p-4"> {/* flex-col로 세로 정렬, padding 추가 */}
+                      {/* 텍스트 부분 */}
+                      <div className="mb-4 text-center"> {/* 텍스트와 동영상 사이에 간격, 중앙 정렬 */}
+                        <h3 className="text-lg font-bold text-gray-800 mb-1">
+                          {t('investment_modal_guide_title')} {/* 번역 키 사용 권장 */}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {t('investment_modal_guide_text')} {/* 번역 키 사용 권장 */}
+                        </p>
+                      </div>
+
+                      {/* 동영상 부분 */}
+                      <div className="w-full h-full flex items-center justify-center"> {/* 동영상이 차지할 공간을 정의 */}
+                        <video
+                            src="https://ddiring-cloud-bucket.s3.ap-northeast-2.amazonaws.com/zzogaemallIntro2.mp4" // 여기에 실제 동영상 URL
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="auto"
+                            className="w-full h-full object-contain rounded-lg"
+                        >
+                          <p>Your browser does not support the video tag.</p>
+                        </video>
+                      </div>
+                    </div>
+                  }
+                  position="left"
+              >
+                <div className="flex items-center text-sm gap-1 cursor-pointer">
+                  <div className="text-[10px]">{t('investment_modal_before_check')}</div>
+                  <IoInformationCircleOutline className="text-red-500 w-5 h-5" />
+                </div>
+              </HoverModal>
+
+
             </div>
             <p className="text-gray-600 text-sm mb-2">{t('investment_modal_author_label')}: {nickname}</p>
             <p className="text-gray-700 text-sm overflow-hidden text-ellipsis line-clamp-3">
@@ -223,7 +260,7 @@ function InvestmentModal({
           />
           <p className="text-right text-sm text-gray-500 mt-2">
             {t('investment_modal_expected_tokens_label')}:{" "}
-            <span className="font-semibold">{expectedTokens.toFixed(2)}개</span>
+            <span className="font-semibold">{expectedTokens.toFixed(2)}{t('unit_ea')}</span>
           </p>
         </div>
 

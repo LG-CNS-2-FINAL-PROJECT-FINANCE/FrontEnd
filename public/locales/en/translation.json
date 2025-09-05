@@ -341,6 +341,9 @@
   "investment_modal_processing_button": "Processing...",
   "investment_modal_apply_button": "Apply",
   "investment_modal_cancel_button": "Cancel",
-  "investment_modal_before_check": "Check before invest",
-  "investment_modal_danger": "Danger"
+  "investment_modal_before_check": "Check before use!",
+  "investment_modal_danger": "Investment carries risk of loss.",
+  "unit_ea": "count",
+  "investment_modal_danger_title": "Investment Advisory",
+  "investment_modal_danger_content": "Investment carries the risk of principal loss, and the outcomes are solely borne by the investor. Please invest carefully."
 }

@@ -128,7 +128,7 @@ export default function ReportManagement() {
             <div className="flex-1 p-4 bg-gray-50">
                 <div className="bg-white rounded shadow overflow-hidden">
                     <div className="px-4 py-3 border-b flex items-center justify-between">
-                        <div className="text-sm text-gray-600">x
+                        <div className="text-sm text-gray-600">
                             {isLoading ? '로딩 중...' : error ? error : `검색결과: ${reports.length}건`}
                         </div>
                     </div>
@@ -138,9 +138,9 @@ export default function ReportManagement() {
                             <thead className="bg-red-500 sticky top-0 z-10">
                             <tr>
                                 <th className="w-24 px-4 py-2 text-left text-sm font-medium border-b text-white">신고번호</th>
-                                <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b text-white">프로젝트번호</th>
-                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b text-white">신고자ID</th>
-                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b text-white">작성자ID</th>
+                                <th className="w-28 px-4 py-2 text-left text-sm font-medium border-b text-white">제목</th>
+                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b text-white">신고자</th>
+                                <th className="w-48 px-4 py-2 text-left text-sm font-medium border-b text-white">작성자</th>
                                 <th className="w-40 px-4 py-2 text-left text-sm font-medium border-b text-white">신고유형</th>
                                 <th className="w-32 px-4 py-2 text-left text-sm font-medium border-b text-white">처리상태</th>
                             </tr>
@@ -159,9 +159,9 @@ export default function ReportManagement() {
                                 reports.map((r) => (
                                     <tr key={getReportKey(r)} className="hover:bg-gray-50 cursor-pointer" onClick={() => handleRowClick(r.reportNo)}>
                                         <td className="px-4 py-3 text-sm border-b">{r.reportNo ?? '-'}</td>
-                                        <td className="px-4 py-3 text-sm border-b">{r.projectId ?? '-'}</td>
-                                        <td className="px-4 py-3 text-sm border-b">{r.reportId ?? '-'}</td>
-                                        <td className="px-4 py-3 text-sm border-b">{r.writerId ?? '-'}</td>
+                                        <td className="px-4 py-3 text-sm border-b">{r.title ?? '-'}</td>
+                                        <td className="px-4 py-3 text-sm border-b">{r.reportNickname ?? '-'}</td>
+                                        <td className="px-4 py-3 text-sm border-b">{r.writerNickname ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{r.reportType ?? '-'}</td>
                                         <td className="px-4 py-3 text-sm border-b">{r.status ?? '-'}</td>
                                     </tr>

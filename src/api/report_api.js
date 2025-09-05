@@ -4,13 +4,22 @@ function mapReport(item) {
     return {
         reportNo: item.reportNo ?? null,            //신고번호
         projectId: item.projectId ?? null,          //프로젝트번호
+        title: item.title ?? null,                  //제목
         reportId: item.reportId ?? null,            //신고자ID
+        reportNickname: item.reportNickname ?? null,//신고자닉네임
         writerId: item.writerId ?? null,            //작성자ID
+        writerNickname: item.writerNickname ?? null,//작성자닉네임
         reportType: item.reportType ?? null,        //신고유형
         status: item.status ?? null,                //처리상태
 
+
         //이 밑에꺼는 detail에서 사용
         content: item.content ?? null,              // 신고 내용
+        processContent: item.processContent ?? null,// 처리 결과
+
+
+
+
     };
 }
 
@@ -22,7 +31,7 @@ export async function getReports(options = {}) {
     try {
         const params = { ...restOptions };
 
-        const res = await privateApi.get('/monitoring/report/list', { params, signal });
+        const res = await privateApi.get('/monitoring/report/admin/list', { params, signal });
         const payload = res.data;
         console.log("payload확인", payload)
 
@@ -51,11 +60,11 @@ export async function getReports(options = {}) {
 
 // 신고 상세 조회
 export async function getReportDetail(reportNo, options = {}) {
-    console.log(`[report_api] getReportDetail 호출됨. ReportId: ${reportNo}`);
+    console.log(`[report_api] getReportDetail 호출됨. ReportNo: ${reportNo}`);
     const { signal } = options;
 
     try {
-        const res = await privateApi.get(`/monitoring/report/${reportNo}`, { signal });
+        const res = await privateApi.get(`/monitoring/report/admin/${reportNo}`, { signal });
         const payload = res.data;
         console.log("reportdetail payload 확인", payload)
 
@@ -66,7 +75,7 @@ export async function getReportDetail(reportNo, options = {}) {
         if (error.name === 'CanceledError') {
             console.info(`[report_api] getReportDetail 쿼리 취소됨 (ReportId: ${reportNo})`, error);
         } else {
-            console.error(`[report_api] getReportDetail 오류 (ReportId: ${reportNo}):`, error);
+            console.error(`[report_api] getReportDetail 오류 (ReportNo: ${reportNo}):`, error);
         }
         throw error;
     }
@@ -79,7 +88,7 @@ export async function getUserReports(options = {}) {
 
     try {
         const params = { ...restOptions };
-        const res = await privateApi.get('/monitoring/report/userlist', { params, signal });
+        const res = await privateApi.get('/monitoring/writer/list', { params, signal });
         const payload = res.data;
 
         let list = [];
@@ -108,3 +117,5 @@ export async function getUserReports(options = {}) {
         throw error;
     }
 }
+
+//상세조회 /report/writer/{reportNo}

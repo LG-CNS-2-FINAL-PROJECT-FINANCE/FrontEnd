@@ -342,6 +342,9 @@
   "investment_modal_processing_button": "처리중...",
   "investment_modal_apply_button": "신청하기",
   "investment_modal_cancel_button": "취소",
-  "investment_modal_before_check": "투자 전 확인하기",
-  "investment_modal_danger": "주의사항"
+  "investment_modal_before_check": "이용 전 확인!",
+  "investment_modal_danger": "투자 손실 위험이 있습니다.",
+  "unit_ea": "개",
+  "investment_modal_danger_title": "투자 유의사항",
+  "investment_modal_danger_content": "투자는 원금 손실의 위험이 따르며, 그 결과는 투자자 본인에게 귀속됩니다. 신중한 투자를 부탁드립니다."
 }

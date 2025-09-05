@@ -160,7 +160,9 @@ export default function ReportDetailModal({ open, onClose, reportNo }) {
                             <Field label={t('report_detail_field_report_number')} value={reportDetail.reportNo} />
                             <Field label={t('report_detail_field_project_number')} value={reportDetail.projectId} />
                             <Field label={t('report_detail_field_reporter_id')} value={reportDetail.reportId} />
+                            <Field label={t('report_detail_field_reporter_id')} value={reportDetail.reportNickname} />
                             <Field label={t('report_detail_field_writer_id')} value={reportDetail.writerId} />
+                            <Field label={t('report_detail_field_writer_id')} value={reportDetail.writerNickname} />
                             <Field label={t('report_detail_field_report_type')} value={reportDetail.reportType} />
                         </div>
 
