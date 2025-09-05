@@ -162,7 +162,7 @@ function InvestmentModal({
               <h3 className="text-xl font-semibold mb-1">{title}</h3>
               <div className="flex items-center text-sm gap-1">
                 <div className="text-[10px]">{t('investment_modal_before_check')}</div>
-                <IoInformationCircleOutline className="text-red-500 w-5 h-5" title="주의사항" />
+                <IoInformationCircleOutline className="text-red-500 w-5 h-5" title={t('investment_modal_danger')} />
               </div>
             </div>
             <p className="text-gray-600 text-sm mb-2">{t('investment_modal_author_label')}: {nickname}</p>

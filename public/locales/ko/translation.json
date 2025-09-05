@@ -342,5 +342,6 @@
   "investment_modal_processing_button": "처리중...",
   "investment_modal_apply_button": "신청하기",
   "investment_modal_cancel_button": "취소",
-  "investment_modal_before_check": "투자 전 확인하기"
+  "investment_modal_before_check": "투자 전 확인하기",
+  "investment_modal_danger": "주의사항"
 }
