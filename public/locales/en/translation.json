@@ -317,5 +317,28 @@
   "confirm_delete_modal_message2": "To proceed with deletion, please enter the post **title exactly** below",
   "confirm_delete_title_placeholder": "Enter title",
   "confirm_delete_cancel_button": "Cancel",
-  "confirm_delete_confirm_button": "Confirm Delete"
+  "confirm_delete_confirm_button": "Confirm Delete",
+
+  "investment_modal_title": "Apply for Investment",
+  "investment_modal_project_image_alt": "Project Image",
+  "investment_modal_author_label": "Author",
+
+  "investment_modal_alert_confirm_info": "Please check that you have confirmed the investment information.",
+  "investment_modal_alert_min_investment": "The minimum investment amount is {{amount}}{{unit}}.",
+  "investment_modal_alert_user_info_not_found": "User information not found. Please log in again.",
+  "investment_modal_alert_success_funding": "Investment application successfully completed!\nProject: {{title}}\nAmount: {{amount}}{{unit_won}}\nTokens: {{tokenQuantity}}{{unit_ea}}\nStatus: Funding in progress",
+  "investment_modal_alert_cancelled": "Investment application has been cancelled.\nReason: Insufficient balance or other error",
+  "investment_modal_alert_submitted": "Investment application has been submitted.\nStatus: {{status}}\nProcessing.",
+  "investment_modal_alert_success_generic": "Investment application completed!\nProject: {{title}}\nAmount: {{amount}}{{unit_won}}\nTokens: {{tokenQuantity}}{{unit_ea}}",
+  "investment_modal_alert_error": "An error occurred during investment application. Please try again.",
+
+  "investment_modal_token_price_label": "Token Price",
+  "investment_modal_min_investment_label": "Minimum Investment",
+  "investment_modal_confirm_checkbox_label": "I have confirmed the information about this project.",
+  "investment_modal_investment_amount_label": "Investment Amount",
+  "investment_modal_investment_amount_placeholder": "Enter investment amount ({{unit_won}})",
+  "investment_modal_expected_tokens_label": "Expected Tokens",
+  "investment_modal_processing_button": "Processing...",
+  "investment_modal_apply_button": "Apply",
+  "investment_modal_cancel_button": "Cancel"
 }

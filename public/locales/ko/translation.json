@@ -318,5 +318,28 @@
   "confirm_delete_modal_message2": "삭제를 진행하려면 아래에 게시물 **제목을 정확히** 입력해주세요",
   "confirm_delete_title_placeholder": "제목 입력",
   "confirm_delete_cancel_button": "취소",
-  "confirm_delete_confirm_button": "삭제 확인"
+  "confirm_delete_confirm_button": "삭제 확인",
+
+  "investment_modal_title": "투자 신청하기",
+  "investment_modal_project_image_alt": "프로젝트 이미지",
+  "investment_modal_author_label": "작성자",
+
+  "investment_modal_alert_confirm_info": "투자에 대한 정보를 확인했음을 체크해 주세요.",
+  "investment_modal_alert_min_investment": "최소 투자 금액은 {{amount}}{{unit}}입니다.",
+  "investment_modal_alert_user_info_not_found": "사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.",
+  "investment_modal_alert_success_funding": "투자 신청이 성공적으로 완료되었습니다!\n프로젝트: {{title}}\n투자금액: {{amount}}{{unit_won}}\n토큰수량: {{tokenQuantity}}{{unit_ea}}\n상태: 펀딩 진행중",
+  "investment_modal_alert_cancelled": "투자 신청이 취소되었습니다.\n사유: 잔액 부족 또는 기타 오류",
+  "investment_modal_alert_submitted": "투자 신청이 접수되었습니다.\n상태: {{status}}\n처리 중입니다.",
+  "investment_modal_alert_success_generic": "투자 신청이 완료되었습니다!\n프로젝트: {{title}}\n투자금액: {{amount}}{{unit_won}}\n토큰수량: {{tokenQuantity}}{{unit_ea}}",
+  "investment_modal_alert_error": "투자 신청 중 오류가 발생했습니다. 다시 시도해주세요.",
+
+  "investment_modal_token_price_label": "토큰 하나 가격",
+  "investment_modal_min_investment_label": "최소 투자 금액",
+  "investment_modal_confirm_checkbox_label": "해당 프로젝트의 정보를 확인했습니다.",
+  "investment_modal_investment_amount_label": "투자 금액",
+  "investment_modal_investment_amount_placeholder": "투자 금액을 입력하세요 ({{unit_won}})",
+  "investment_modal_expected_tokens_label": "예상 토큰 수량",
+  "investment_modal_processing_button": "처리중...",
+  "investment_modal_apply_button": "신청하기",
+  "investment_modal_cancel_button": "취소"
 }
