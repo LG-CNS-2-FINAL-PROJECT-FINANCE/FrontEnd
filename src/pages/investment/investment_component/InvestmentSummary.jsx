@@ -228,6 +228,7 @@ function InvestmentSummary({
         summary={summary}
         author={author}
         tokenPrice={tokenPrice}
+        nickname={nickname}
       />
 
       <InvestmentCancelModal
