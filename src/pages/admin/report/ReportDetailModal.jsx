@@ -31,7 +31,7 @@ function Field({ label, value, className = '' }) {
         <div className={className}>
             <div className="space-y-1">
                 <div className="text-slate-500 font-medium">{label}</div>
-                <div className="text-slate-900 bg-white px-3 py-2 rounded-lg border border-slate-200 break-words whitespace-pre-wrap"> {/* 줄바꿈, 긴 텍스트 처리 */}
+                <div className="text-slate-900 bg-white px-3 py-2 rounded-lg border border-slate-200 break-words">
                     {value || '-'}
                 </div>
             </div>
