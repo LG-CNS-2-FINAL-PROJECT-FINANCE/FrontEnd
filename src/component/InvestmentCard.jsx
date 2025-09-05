@@ -37,7 +37,7 @@ function InvestmentCard({ project, imageUrl, disableNavigation }) {
 
     // 카드 내용 (공통)
     const cardContent = (
-        <div className="block bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md hover:scale-100 transition-all duration-300">
+        <div className="block bg-white rounded-[3px] shadow-[0px_9px_16px_rgba(159,162,191,0.08),0px_2px_2px_rgba(159,162,191,0.12)] overflow-hidden hover:shadow-md hover:scale-100 transition-all duration-300">
             <div className="w-full h-40 bg-gray-300 flex items-center justify-center text-gray-500 text-sm">
                 {imageUrl ? (
                     <img src={imageUrl} alt={project.name} className="w-full h-full object-cover" />

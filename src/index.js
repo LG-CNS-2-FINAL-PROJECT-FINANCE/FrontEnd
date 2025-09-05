@@ -6,6 +6,8 @@ import reportWebVitals from "./reportWebVitals";
 import { AuthProvider } from "./context/AuthContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import i18n from './i18n';
+import { I18nextProvider } from 'react-i18next';
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -14,7 +16,9 @@ root.render(
   <QueryClientProvider client={new QueryClient()}>
     {/* AuthProvider는 QueryClientProvider 안에 있어야 합니다. */}
     {/*<AuthProvider>*/}
-      <App />
+      <I18nextProvider i18n={i18n}>
+          <App />
+      </I18nextProvider>
     {/*</AuthProvider>*/}
     <ReactQueryDevtools initialIsOpen={false} />
   </QueryClientProvider>

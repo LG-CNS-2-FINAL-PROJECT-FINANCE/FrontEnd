@@ -24,6 +24,7 @@ export async function getReports(options = {}) {
 
         const res = await privateApi.get('/monitoring/report/list', { params, signal });
         const payload = res.data;
+        console.log("payload확인", payload)
 
         let list = [];
         let total = 0;
@@ -56,6 +57,7 @@ export async function getReportDetail(reportNo, options = {}) {
     try {
         const res = await privateApi.get(`/monitoring/report/${reportNo}`, { signal });
         const payload = res.data;
+        console.log("reportdetail payload 확인", payload)
 
         const reportDetail = mapReport(payload);
         return reportDetail;

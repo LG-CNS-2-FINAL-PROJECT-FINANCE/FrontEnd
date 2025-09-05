@@ -5,8 +5,10 @@ import {useNavigate} from "react-router-dom";
 import {useQuery, useQueryClient} from "@tanstack/react-query";
 import {getMyProductPv} from "../../../api/myPage_api";
 import useUser from "../../../lib/useUser";
+import { useTranslation } from 'react-i18next';
 
 const MyProductPreview = () => {
+    const { t } = useTranslation();
 
     const navigate = useNavigate();
     const queryClient = useQueryClient();
@@ -29,8 +31,8 @@ const MyProductPreview = () => {
         if (ddayNum === undefined || ddayNum === null || ddayNum === '') return '';
         ddayNum = Number(ddayNum);
 
-        if (ddayNum < 0) return '마감';
-        if (ddayNum === 0) return 'Day';
+        if (ddayNum < 0) return t('dday_closed');
+        if (ddayNum === 0) return t('dday_today');
         return `${ddayNum}`;
     };
 
@@ -61,20 +63,20 @@ const MyProductPreview = () => {
 
     if (isLoading) {
         return <div className="container mx-auto py-8 text-center text-lg">
-            상품 내역 로딩 중...
+            {t('my_product_preview_loading_message')}
         </div>;
     }
 
     if (isError) {
-        return <div className="container mx-auto py-8 text-center text-red-500">에러 발생: {error?.message || '상품을 불러올 수 없습니다.'}</div>;
+        return <div className="container mx-auto py-8 text-center text-red-500">{t('my_product_preview_error_message', { errorMessage: error?.message || t('my_product_preview_error_fallback')})}</div>;
     }
 
     if (!fetchedData || fetchedData.length === 0) {
         return (
             <div className="container mx-auto py-8">
-                <h2 className="text-2xl font-bold mb-4">등록 상품 내역</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('my_product_preview_title')}</h2>
                 <div className="border border-gray-200 rounded-lg p-6 relative w-full text-center text-gray-500">
-                    등록된 상품이 없습니다.
+                    {t('my_product_preview_no_products')}
                 </div>
             </div>
         );
@@ -83,7 +85,7 @@ const MyProductPreview = () => {
     return(
         <>
             <div>
-                <h2 className="text-2xl font-bold mb-4">등록 상품 내역</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('my_product_preview_title')}</h2>
                 <div
                     className="border border-gray-200 rounded-lg p-6 relative w-full"
                 >
@@ -105,7 +107,7 @@ const MyProductPreview = () => {
                                         projectId: investment.projectId,
                                         name: investment.title,
                                         // amount: formatAmount(investment.amount),
-                                        dday: calculateDday(investment.deadline),
+                                        dday: calculateDday(investment.deadline, t),
                                         progress: investment.progress,
                                         views: investment.views,
                                         status: investment.status,

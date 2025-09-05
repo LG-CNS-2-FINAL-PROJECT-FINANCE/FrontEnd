@@ -128,7 +128,7 @@ export default function ReportManagement() {
             <div className="flex-1 p-4 bg-gray-50">
                 <div className="bg-white rounded shadow overflow-hidden">
                     <div className="px-4 py-3 border-b flex items-center justify-between">
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-600">x
                             {isLoading ? '로딩 중...' : error ? error : `검색결과: ${reports.length}건`}
                         </div>
                     </div>
@@ -177,7 +177,7 @@ export default function ReportManagement() {
                 <ReportDetailModal
                     open={isDetailModalOpen}
                     onClose={handleCloseDetailModal}
-                    reportId={selectedReportId}
+                    reportNo={selectedReportId}
                     // 목록 갱신
                     onStatusChange={() => queryClient.invalidateQueries(['reports'])}
                 />

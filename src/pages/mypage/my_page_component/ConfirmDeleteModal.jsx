@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteRequest } from '../../../api/myPage_api';
+import { useTranslation } from 'react-i18next';
 
 // 모달 내부에서 사용할 작은 Spinner 컴포넌트
 const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
@@ -12,9 +13,24 @@ const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
 
 
 export default function ConfirmDeleteModal({ open, onClose, requestId, titleToMatch, onDeleted }) {
+    const { t } = useTranslation();
     const [typedTitle, setTypedTitle] = useState('');
     const [localError, setLocalError] = useState('');
     const queryClient = useQueryClient();
+
+    useEffect(() => {
+        if (!open) return;
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                onClose();
+            }
+        };
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [open, onClose]);
 
 
     const deleteMutation = useMutation({
@@ -24,7 +40,7 @@ export default function ConfirmDeleteModal({ open, onClose, requestId, titleToMa
             onClose();
         },
         onError: (error) => {
-            setLocalError(error?.response?.data?.message || '삭제 요청 실패: 알 수 없는 오류');
+            setLocalError(error?.response?.data?.message || t('confirm_delete_mutation_error_fallback'));
             console.error('게시물 삭제 요청 실패:', error);
         },
     });
@@ -34,7 +50,7 @@ export default function ConfirmDeleteModal({ open, onClose, requestId, titleToMa
     const handleSubmit = () => {
         setLocalError('');
         if (typedTitle.trim() !== titleToMatch.trim()) {
-            setLocalError('제목이 일치하지 않습니다. 정확히 입력해주세요.');
+            setLocalError(t('confirm_delete_title_mismatch_error'));
             return;
         }
         deleteMutation.mutate(requestId);
@@ -57,15 +73,15 @@ export default function ConfirmDeleteModal({ open, onClose, requestId, titleToMa
 
             <div className="relative bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm transform transition-all duration-300 scale-100">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold">삭제 요청 확인</h2>
+                    <h2 className="text-xl font-bold">{t('confirm_delete_modal_title')}</h2>
                     <button onClick={onClose} className="text-slate-500 hover:text-slate-800 text-lg">
                         ×
                     </button>
                 </div>
 
                 <p className="text-sm text-gray-700 mb-4">
-                    이 게시물을 삭제 요청하시겠습니까? <br/>
-                    삭제를 진행하려면 아래에 게시물 **제목을 정확히** 입력해주세요:
+                    {t('confirm_delete_modal_message1')} <br/>
+                    {t('confirm_delete_modal_message2')}
                 </p>
                 <p className="font-semibold mb-2">{titleToMatch}</p>
 
@@ -74,7 +90,7 @@ export default function ConfirmDeleteModal({ open, onClose, requestId, titleToMa
                     value={typedTitle}
                     onChange={(e) => setTypedTitle(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder="제목 입력"
+                    placeholder={t('confirm_delete_title_placeholder')}
                     className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                     disabled={deleteMutation.isLoading}
                 />
@@ -89,7 +105,7 @@ export default function ConfirmDeleteModal({ open, onClose, requestId, titleToMa
                         className="px-4 py-2 rounded-md border border-slate-300 hover:bg-slate-50"
                         disabled={deleteMutation.isLoading}
                     >
-                        취소
+                        {t('confirm_delete_cancel_button')}
                     </button>
                     <button
                         onClick={handleSubmit}
@@ -98,7 +114,7 @@ export default function ConfirmDeleteModal({ open, onClose, requestId, titleToMa
                         } text-white`}
                         disabled={deleteMutation.isLoading || typedTitle.trim() === ''} // 입력 없으면 비활성화
                     >
-                        {deleteMutation.isLoading ? <Spinner /> : '삭제 확인'}
+                        {deleteMutation.isLoading ? <Spinner /> : t('confirm_delete_confirm_button')}
                     </button>
                 </div>
             </div>

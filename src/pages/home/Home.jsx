@@ -4,6 +4,8 @@ import TopProjectsSection from "./TopProjectsSection";
 import { useQuery } from "@tanstack/react-query";
 import { getProjectsRankingByAmount, getProjectsRankingByView } from "../../api/project_api";
 
+import { useTranslation } from 'react-i18next';
+
 const eventImages = [
   "/assets/event_1.png",
   "/assets/event_2.png",
@@ -12,6 +14,7 @@ const eventImages = [
 ];
 
 function Home() {
+  const { t } = useTranslation();
   const [eventCurrent, setEventCurrent] = useState(0);
   const { data: projectsByAmount, isLoading: projectsByAmountLoading, isError: projectsByAmountError } = useQuery({
       queryKey: ["projects", "ranking", "amount"],
@@ -74,7 +77,7 @@ function Home() {
         </div>
         <div className="w-[30%] flex flex-col gap-6">
           <div className="flex flex-col items-start">
-            <h1 className="font-bold text-xl mb-4">👑실시간 베스트👑</h1>
+            <h1 className="font-bold text-xl mb-4">{t('home_realtime_best_title')}</h1>
             <div className="w-full rounded-xl bg-white border p-4">
               {projectsByAmountLoading && (
                 <div className="animate-pulse space-y-3">
@@ -89,7 +92,7 @@ function Home() {
 
               {projectsByAmountError && (
                 <div className="text-sm text-red-500">
-                  랭킹 데이터를 불러오지 못했습니다.
+                  {t('home_ranking_data_error')}
                 </div>
               )}
 
@@ -104,7 +107,7 @@ function Home() {
                     if (list.length === 0)
                       return (
                         <div className="text-sm text-gray-400 py-6 text-center">
-                          데이터가 없습니다.
+                          {t('home_no_data_message')}
                         </div>
                       );
                     return (
@@ -119,15 +122,15 @@ function Home() {
                             </span>
                             <div className="flex-1 min-w-0">
                               <div className="text-md mb-2 truncate">
-                                {p.title || p.projectName || "프로젝트"}
+                                {p.title || p.projectName || t('home_project_placeholder')}
                               </div>
                               <div className="text-xs font-semibold text-red-500">
-                                {(p.amount ?? 0).toLocaleString()}원 모금 !
+                                {(p.amount ?? 0).toLocaleString()}{t('unit_won')} {t('home_amount_raised_suffix')}
                               </div>
                             </div>
                             <div className="text-sm font-semibold text-red-500">
                               {(p.rate ?? p.percent ?? null) !== null
-                                ? ((p.percent) > 0 ? "" : "") + "모집상태 " +
+                                ? ((p.percent) > 0 ? "" : "") + t('home_collection_status_prefix') + " " +
                                   (p.percent) +
                                   "%"
                                 : ""}
@@ -151,7 +154,7 @@ function Home() {
                   <img
                       key={i}
                       src={src}
-                      alt={`Slide ${i}`}
+                      alt={t('home_event_slide_alt', { index: i + 1 })}
                       className="w-[400px] h-[400px] object-cover flex-shrink-0 cursor-pointer"
                       draggable={false}
                   />
@@ -161,12 +164,12 @@ function Home() {
             <div
                 className="absolute inset-y-0 left-0 w-1/2 cursor-pointer"
                 onClick={goPrev}
-                aria-label="previous"
+                aria-label={t('home_event_previous_slide_label')}
             />
             <div
                 className="absolute inset-y-0 right-0 w-1/2 cursor-pointer"
                 onClick={goNext}
-                aria-label="next"
+                aria-label={t('home_event_next_slide_label')}
             />
             {/* 인디케이터 */}
             <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
@@ -177,7 +180,7 @@ function Home() {
                       className={`w-2.5 h-2.5 rounded-full transition ${
                           i === eventCurrent ? "bg-white" : "bg-white/40"
                       }`}
-                      aria-label={`slide ${i + 1}`}
+                      aria-label={t('home_event_slide_indicator_label', { index: i + 1 })}
                   />
               ))}
             </div>

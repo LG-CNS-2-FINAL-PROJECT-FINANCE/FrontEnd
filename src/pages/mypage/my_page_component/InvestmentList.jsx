@@ -5,9 +5,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import useUser from "../../../lib/useUser";
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import {FaTrashAlt} from "react-icons/fa";
+import { useTranslation } from 'react-i18next';
 
 const InvestmentList = ({}) => {
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
 
     const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] = useState(false);
     const [selectedProductToDelete, setSelectedProductToDelete] = useState(null);
@@ -57,25 +59,33 @@ const InvestmentList = ({}) => {
         if (ddayNum === undefined || ddayNum === null || ddayNum === '') return '';
         ddayNum = Number(ddayNum);
 
-        if (ddayNum < 0) return '마감';
-        if (ddayNum === 0) return 'Day';
+        if (ddayNum < 0) return t('dday_closed');
+        if (ddayNum === 0) return t('dday_today');
         return `${ddayNum}`;
     };
 
     if (isLoading) {
-        return <div className="container mx-auto py-8 text-center text-lg">투자 내역 로딩 중...</div>;
+        return <div className="container mx-auto py-8 text-center text-lg">
+            {userRole === CREATOR ? t('investment_preview_loading_product_requests') : t('investment_preview_loading_investment_history')}
+        </div>;
     }
 
     if (isError) {
-        return <div className="container mx-auto py-8 text-center text-red-500">에러 발생: {error?.message || '투자 내역을 불러올 수 없습니다.'}</div>;
+        return (
+            <div className="container mx-auto py-8 text-center text-red-500">
+                {t('investment_preview_error_message', { errorMessage: error?.message || t('investment_preview_error_fallback')})}
+            </div>
+        );
     }
 
     if (!fetchedData || fetchedData.length === 0) {
         return (
             <div className="container mx-auto py-8">
-                <h2 className="text-2xl font-bold mb-4">투자 내역</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                    {userRole === CREATOR ? t('investment_preview_product_requests_title') : t('investment_preview_investment_history_title')}
+                </h2>
                 <div className="border border-gray-200 rounded-lg p-6 relative w-full text-center text-gray-500">
-                    투자 내역이 없습니다.
+                    {userRole === CREATOR ? t('investment_preview_no_product_requests') : t('investment_preview_no_investment_history')}
                 </div>
             </div>
         );
@@ -103,9 +113,9 @@ const InvestmentList = ({}) => {
             <div>
                 {/* Investment List Title */}
 
-                <h2 className="text-2xl font-bold mb-4">상품 요청 내역</h2>
-                <h3 className="text-right text-xs text-gray-500 px-2">요청은 프로젝트당 하나씩 요청할 수 있습니다.</h3>
-                <h3 className="text-right text-xs text-red-500 px-2">(요청 신청을 취소하고 싶으시면 오른쪽 상단 휴지통을 눌러 취소하세요.)</h3>
+                <h2 className="text-2xl font-bold mb-4">{t('investment_preview_product_requests_title')}</h2>
+                <h3 className="text-right text-xs text-gray-500 px-2">{t('investment_list_creator_request_limit')}</h3>
+                <h3 className="text-right text-xs text-red-500 px-2">{t('investment_list_creator_cancel_request_guide')}</h3>
 
                 {/* Full Investment List with Thin Gray Border - full width */}
                 <div
@@ -123,7 +133,7 @@ const InvestmentList = ({}) => {
                                         projectId: investment.requestId,
                                         name: investment.title,
                                         amount: formatAmount(investment.amount),
-                                        dday: calculateDday(investment.deadline),
+                                        dday: calculateDday(investment.deadline, t),
                                         progress: investment.progress,
                                         views: investment.views,
                                         status: investment.status,
@@ -150,7 +160,7 @@ const InvestmentList = ({}) => {
 
             <div>
                 {/* Investment List Title */}
-                <h2 className="text-2xl font-bold mb-4">투자 내역</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('investment_preview_investment_history_title')}</h2>
 
                 {/* Full Investment List with Thin Gray Border - full width */}
                 <div
@@ -167,7 +177,7 @@ const InvestmentList = ({}) => {
                                         projectId: investment.projectId,
                                         name: investment.title,
                                         amount: formatAmount(investment.amount),
-                                        dday: calculateDday(investment.deadline),
+                                        dday: calculateDday(investment.deadline, t),
                                         progress: investment.progress,
                                         views: investment.views,
                                         status: investment.status,
