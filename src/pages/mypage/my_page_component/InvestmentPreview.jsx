@@ -7,10 +7,12 @@ import { getMyInvestmentList, getMyProductList } from '../../../api/myPage_api';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import ConfirmDeleteModal from './ConfirmDeleteModal';
 import {FaTrashAlt} from "react-icons/fa";
+import { useTranslation } from 'react-i18next';
 
 const InvestmentPreview = ({}) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
+    const { t } = useTranslation();
 
     const [displayedInvestments, setDisplayedInvestments] = useState([]);
 
@@ -42,8 +44,8 @@ const InvestmentPreview = ({}) => {
         if (ddayNum === undefined || ddayNum === null || ddayNum === '') return '';
         ddayNum = Number(ddayNum);
 
-        if (ddayNum < 0) return '마감';
-        if (ddayNum === 0) return 'Day';
+        if (ddayNum < 0) return t('dday_closed');
+        if (ddayNum === 0) return t('dday_today');
         return `${ddayNum}`;
     };
 
@@ -75,20 +77,20 @@ const InvestmentPreview = ({}) => {
 
     if (isLoading) {
         return <div className="container mx-auto py-8 text-center text-lg">
-            {userRole === CREATOR ? "상품 요청 내역" : "투자 내역"} 로딩 중...
+            {userRole === CREATOR ? t('investment_preview_loading_product_requests') : t('investment_preview_loading_investment_history')}
         </div>;
     }
 
     if (isError) {
-        return <div className="container mx-auto py-8 text-center text-red-500">에러 발생: {error?.message || '상품을 불러올 수 없습니다.'}</div>;
+        return <div className="container mx-auto py-8 text-center text-red-500">{t('investment_preview_error_message', { errorMessage: error?.message || t('investment_preview_error_fallback')})}</div>;
     }
 
     if (!fetchedData || fetchedData.length === 0) {
         return (
             <div className="container mx-auto py-8">
-                <h2 className="text-2xl font-bold mb-4">{userRole === CREATOR ? "상품 요청 내역" : "투자 내역"}</h2>
+                <h2 className="text-2xl font-bold mb-4">{userRole === CREATOR ? t('investment_preview_product_requests_title') : t('investment_preview_investment_history_title')}</h2>
                 <div className="border border-gray-200 rounded-lg p-6 relative w-full text-center text-gray-500">
-                    {userRole === CREATOR ? "요청된 상품이 없습니다." : "투자 내역이 없습니다."}
+                    {userRole === CREATOR ? t('investment_preview_no_product_requests') : t('investment_preview_no_investment_history')}
                 </div>
             </div>
         );
@@ -115,7 +117,7 @@ const InvestmentPreview = ({}) => {
             {userRole === CREATOR ? (
                 // 창작자일경우
                 <div>
-                    <h2 className="text-2xl font-bold mb-4">상품 요청 내역</h2>
+                    <h2 className="text-2xl font-bold mb-4">{t('investment_preview_product_requests_title')}</h2>
                     <div
                         className="border border-gray-200 rounded-lg p-6 relative w-full"
                     >
@@ -137,7 +139,7 @@ const InvestmentPreview = ({}) => {
                                             projectId: investment.requestId,
                                             name: investment.title,
                                             amount: formatAmount(investment.amount),
-                                            dday: calculateDday(investment.deadline),
+                                            dday: calculateDday(investment.deadline, t),
                                             progress: investment.progress,
                                             views: investment.views,
                                             status: investment.status,
@@ -163,7 +165,7 @@ const InvestmentPreview = ({}) => {
             ) : (
                 // 투자자일경우
                 <div>
-                    <h2 className="text-2xl font-bold mb-4">투자 내역</h2>
+                    <h2 className="text-2xl font-bold mb-4">{t('investment_preview_investment_history_title')}</h2>
                     <div
                         className="border border-gray-200 rounded-lg p-6 relative w-full"
                     >
@@ -189,7 +191,7 @@ const InvestmentPreview = ({}) => {
                                             projectId: investment.projectId,
                                             name: investment.title,
                                             amount: formatAmount(investment.amount),
-                                            dday: calculateDday(investment.deadline),
+                                            dday: calculateDday(investment.deadline, t),
                                             progress: investment.progress,
                                             views: investment.views,
                                             status: investment.status,

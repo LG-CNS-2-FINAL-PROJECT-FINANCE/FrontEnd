@@ -3,6 +3,9 @@ import useScrollLock from "../../../component/useScrollLock";
 import { useTheme } from "../../../context/ThemeContext";
 import { buyInvestment as api } from "../../../api/investment_api";
 import useUser from "../../../lib/useUser";
+import { useTranslation } from 'react-i18next';
+import { IoInformationCircleOutline } from "react-icons/io5";
+import HoverModal from "./HoverModal";
 
 function InvestmentModal({
   isOpen,
@@ -16,6 +19,8 @@ function InvestmentModal({
   tokenPrice,
   nickname,
 }) {
+
+  const { t } = useTranslation();
   const [hasConfirmed, setHasConfirmed] = useState(false);  
   const [investmentAmount, setInvestmentAmount] = useState(minInvestment || 0);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,20 +58,20 @@ function InvestmentModal({
   // 실제 투자 신청 버튼 클릭
   const handleApplyInvestment = async () => {
     if (!hasConfirmed) {
-      alert("투자에 대한 정보를 확인했음을 체크해 주세요.");
+      alert(t('investment_modal_alert_confirm_info'));
       return;
     }
     
     const minInvestmentValue = minInvestment || 0;
     if (investmentAmount < minInvestmentValue) {
-      alert(`최소 투자 금액은 ${minInvestmentValue.toLocaleString()}원입니다.`);
+      alert(t('investment_modal_alert_min_investment', { amount: minInvestmentValue.toLocaleString(), unit: t('unit_won') }));
       return;
     }
 
     // Use email as user identifier since userSeq is not available
     const userIdentifier = user?.email;
     if (!userIdentifier) {
-      alert("사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.");
+      alert(t('investment_modal_alert_user_info_not_found'));
       return;
     }
 
@@ -92,21 +97,33 @@ function InvestmentModal({
       if (response && response.invStatus) {
         const status = response.invStatus;
         if (status === 'FUNDING') {
-          alert(`투자 신청이 성공적으로 완료되었습니다!\n프로젝트: ${title}\n투자금액: ${investmentAmount.toLocaleString()}원\n토큰수량: ${tokenQuantity}개\n상태: 펀딩 진행중`);
+          alert(t('investment_modal_alert_success_funding', {
+            title: title,
+            amount: investmentAmount.toLocaleString(),
+            tokenQuantity: tokenQuantity,
+            unit_won: t('unit_won'),
+            unit_ea: t('unit_ea')
+          }));
         } else if (status === 'CANCELLED') {
-          alert(`투자 신청이 취소되었습니다.\n사유: 잔액 부족 또는 기타 오류`);
+          alert(t('investment_modal_alert_cancelled'));
         } else {
-          alert(`투자 신청이 접수되었습니다.\n상태: ${status}\n처리 중입니다.`);
+          alert(t('investment_modal_alert_submitted', { status: status }));
         }
       } else {
-        alert(`투자 신청이 완료되었습니다!\n프로젝트: ${title}\n투자금액: ${investmentAmount.toLocaleString()}원\n토큰수량: ${tokenQuantity}개`);
+        alert(t('investment_modal_alert_success_generic', {
+          title: title,
+          amount: investmentAmount.toLocaleString(),
+          tokenQuantity: tokenQuantity,
+          unit_won: t('unit_won'),
+          unit_ea: t('unit_ea')
+        }));
       }
-      
+
       onClose();
-      
+
     } catch (error) {
       console.error('Investment error:', error);
-      alert('투자 신청 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert(t('investment_modal_alert_error'));
     } finally {
       setIsLoading(false);
     }
@@ -128,7 +145,7 @@ function InvestmentModal({
           &times;
         </button>
 
-        <h2 className="text-2xl font-bold mb-4 text-center">투자 신청하기</h2>
+        <h2 className="text-2xl font-bold mb-4 text-center">{t('investment_modal_title')}</h2>
         <hr className="mb-6" />
 
         <div className="flex items-start gap-4 mb-6">
@@ -136,14 +153,56 @@ function InvestmentModal({
             <div className="flex-shrink-0 w-28 h-28">
               <img
                 src={imageUrl}
-                alt="프로젝트 이미지"
+                alt={t('investment_modal_project_image_alt')}
                 className="w-full h-full object-cover rounded-md"
               />
             </div>
           )}
           <div className="flex flex-col flex-grow">
-            <h3 className="text-xl font-semibold mb-1">{title}</h3>
-            <p className="text-gray-600 text-sm mb-2">작성자: {nickname}</p>
+            <div className="flex items-center justify-between">
+              <h3 className="text-xl font-semibold mb-1">{title}</h3>
+
+
+              <HoverModal
+                  content={
+                    <div className="w-full h-full flex flex-col items-center justify-center p-4"> {/* flex-col로 세로 정렬, padding 추가 */}
+                      {/* 텍스트 부분 */}
+                      <div className="mb-4 text-center"> {/* 텍스트와 동영상 사이에 간격, 중앙 정렬 */}
+                        <h3 className="text-lg font-bold text-gray-800 mb-1">
+                          {t('investment_modal_guide_title')} {/* 번역 키 사용 권장 */}
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          {t('investment_modal_guide_text')} {/* 번역 키 사용 권장 */}
+                        </p>
+                      </div>
+
+                      {/* 동영상 부분 */}
+                      <div className="w-full h-full flex items-center justify-center"> {/* 동영상이 차지할 공간을 정의 */}
+                        <video
+                            src="https://ddiring-cloud-bucket.s3.ap-northeast-2.amazonaws.com/zzogaemallIntro2.mp4" // 여기에 실제 동영상 URL
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                            preload="auto"
+                            className="w-full h-full object-contain rounded-lg"
+                        >
+                          <p>Your browser does not support the video tag.</p>
+                        </video>
+                      </div>
+                    </div>
+                  }
+                  position="left"
+              >
+                <div className="flex items-center text-sm gap-1 cursor-pointer">
+                  <div className="text-[10px]">{t('investment_modal_before_check')}</div>
+                  <IoInformationCircleOutline className="text-red-500 w-5 h-5" />
+                </div>
+              </HoverModal>
+
+
+            </div>
+            <p className="text-gray-600 text-sm mb-2">{t('investment_modal_author_label')}: {nickname}</p>
             <p className="text-gray-700 text-sm overflow-hidden text-ellipsis line-clamp-3">
               {summary}
             </p>
@@ -153,15 +212,15 @@ function InvestmentModal({
 
         <div className="mb-6">
           <div className="flex justify-between items-center text-lg font-bold mb-2">
-            <span className="text-gray-800">토큰 하나 가격:</span>
+            <span className="text-gray-800">{t('investment_modal_token_price_label')}:</span>
             <span className="text-red-600">
-              {(tokenPrice || 0).toLocaleString()}원
+              {(tokenPrice || 0).toLocaleString()}{t('unit_won')}
             </span>
           </div>
           <div className="flex justify-between items-center text-base mb-4">
-            <span className="text-gray-700">최소 투자 금액:</span>
+            <span className="text-gray-700">{t('investment_modal_min_investment_label')}:</span>
             <span className="text-blue-600 font-semibold">
-              {(minInvestment || 0).toLocaleString()}원
+              {(minInvestment || 0).toLocaleString()}{t('unit_won')}
             </span>
           </div>
 
@@ -177,7 +236,7 @@ function InvestmentModal({
               htmlFor="hasConfirmed"
               className="text-gray-800 font-semibold cursor-pointer"
             >
-              해당 프로젝트의 정보를 확인했습니다.
+              {t('investment_modal_confirm_checkbox_label')}
             </label>
           </div>
         </div>
@@ -187,7 +246,7 @@ function InvestmentModal({
             htmlFor="investmentAmount"
             className="block text-gray-700 text-base font-bold mb-2"
           >
-            투자 금액:
+            {t('investment_modal_investment_amount_label')}:
           </label>
           <input
             type="number"
@@ -195,13 +254,13 @@ function InvestmentModal({
             name="investmentAmount"
             value={investmentAmount}
             onChange={handleAmountChange}
-            placeholder="투자 금액을 입력하세요 (원)"
+            placeholder={t('investment_modal_investment_amount_placeholder', { unit_won: t('unit_won') })}
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             min={minInvestment || 0}
           />
           <p className="text-right text-sm text-gray-500 mt-2">
-            예상 토큰 수량:{" "}
-            <span className="font-semibold">{expectedTokens.toFixed(2)}개</span>
+            {t('investment_modal_expected_tokens_label')}:{" "}
+            <span className="font-semibold">{expectedTokens.toFixed(2)}{t('unit_ea')}</span>
           </p>
         </div>
 
@@ -217,14 +276,14 @@ function InvestmentModal({
               }
                         `}
           >
-            {isLoading ? '처리중...' : '신청하기'}
+            {isLoading ? t('investment_modal_processing_button') : t('investment_modal_apply_button')}
           </button>
           <button
             onClick={onClose}
             disabled={isLoading}
             className="bg-gray-300 text-gray-800 py-2 px-6 rounded-md hover:bg-gray-400 transition-colors font-semibold flex-1 max-w-[120px] disabled:opacity-50"
           >
-            취소
+            {t('investment_modal_cancel_button')}
           </button>
         </div>
       </div>

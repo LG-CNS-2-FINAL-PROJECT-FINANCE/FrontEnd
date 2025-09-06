@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { getReportDetail } from '../../../api/report_api';
+import { useTranslation } from 'react-i18next';
 
 const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -30,7 +31,7 @@ function Field({ label, value, className = '' }) {
         <div className={className}>
             <div className="space-y-1">
                 <div className="text-slate-500 font-medium">{label}</div>
-                <div className="text-slate-900 bg-white px-3 py-2 rounded-lg border border-slate-200 break-words whitespace-pre-wrap"> {/* 줄바꿈, 긴 텍스트 처리 */}
+                <div className="text-slate-900 bg-white px-3 py-2 rounded-lg border border-slate-200 break-words">
                     {value || '-'}
                 </div>
             </div>
@@ -39,6 +40,9 @@ function Field({ label, value, className = '' }) {
 }
 
 export default function ReportDetailModal({ open, onClose, reportNo }) {
+
+    const { t } = useTranslation();
+
     useEffect(() => {
         if (!open) return;
         const handleKeyDown = (e) => {
@@ -85,7 +89,7 @@ export default function ReportDetailModal({ open, onClose, reportNo }) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-700/60">
                 <Spinner className="w-8 h-8 text-white" />
-                <p className="ml-2 text-white">데이터 로딩 중...</p>
+                <p className="ml-2 text-white">{t('report_detail_loading_data_message')}</p>
             </div>
         );
     }
@@ -94,8 +98,8 @@ export default function ReportDetailModal({ open, onClose, reportNo }) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-700/60">
                 <div className="bg-white p-6 rounded-2xl shadow-xl">
-                    <p className="text-rose-600">오류 발생: {queryError?.message || '상세 정보를 불러올 수 없습니다.'}</p>
-                    <button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-200 rounded-lg">닫기</button>
+                    <p className="text-rose-600">{t('report_detail_error_modal_prefix')} {queryError?.message || t('report_detail_error_modal_fallback')}</p>
+                    <button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-200 rounded-lg">{t('report_detail_close_button')}</button>
                 </div>
             </div>
         );
@@ -105,8 +109,8 @@ export default function ReportDetailModal({ open, onClose, reportNo }) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-700/60">
                 <div className="bg-white p-6 rounded-2xl shadow-xl">
-                    <p className="text-rose-600">해당 신고 내역을 찾을 수 없습니다.</p>
-                    <button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-200 rounded-lg">닫기</button>
+                    <p className="text-rose-600">{t('report_detail_no_record_found')}</p>
+                    <button onClick={onClose} className="mt-4 px-4 py-2 bg-slate-200 rounded-lg">{t('report_detail_close_button')}</button>
                 </div>
             </div>
         );
@@ -125,18 +129,16 @@ export default function ReportDetailModal({ open, onClose, reportNo }) {
             />
 
             <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg transform transition-all duration-300 scale-100
-                            max-h-[90vh] overflow-y-auto hide-scrollbar">
+                            max-h-[90vh] overflow-y-auto scrollbar-hide">
 
                 <div className="bg-red-500 p-6 rounded-t-2xl text-white">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                             <div>
                                 <h2 className="text-xl font-bold mb-1">
-                                    신고 상세 정보
+                                    {t('report_detail_modal_title')}
                                 </h2>
-                                <p className="text-rose-100 text-sm">
-                                    신고번호: {reportDetail.reportNo}
-                                </p>
+                                <p className="text-rose-100 text-sm">{t('report_detail_report_number_label')}: {reportDetail.reportNo}</p>
                             </div>
                         </div>
                         {/*<div className="flex items-center gap-3">
@@ -153,18 +155,20 @@ export default function ReportDetailModal({ open, onClose, reportNo }) {
 
                 <div className="p-6">
                     <div className="bg-slate-50 p-5 rounded-xl mb-6 border border-slate-200">
-                        <h3 className="text-lg font-semibold text-slate-900 mb-4">기본 정보</h3>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-4">{t('report_detail_basic_info_title')}</h3>
                         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                            <Field label="신고번호" value={reportDetail.reportNo} />
-                            <Field label="프로젝트번호" value={reportDetail.projectId} />
-                            <Field label="신고자 ID" value={reportDetail.reportId} />
-                            <Field label="작성자 ID" value={reportDetail.writerId} />
-                            <Field label="신고 유형" value={reportDetail.reportType} />
+                            <Field label={t('report_detail_field_report_number')} value={reportDetail.reportNo} />
+                            <Field label={t('report_detail_field_project_number')} value={reportDetail.projectId} />
+                            <Field label={t('report_detail_field_reporter_id')} value={reportDetail.reportId} />
+                            <Field label={t('report_detail_field_reporter_id')} value={reportDetail.reportNickname} />
+                            <Field label={t('report_detail_field_writer_id')} value={reportDetail.writerId} />
+                            <Field label={t('report_detail_field_writer_id')} value={reportDetail.writerNickname} />
+                            <Field label={t('report_detail_field_report_type')} value={reportDetail.reportType} />
                         </div>
 
                         {reportDetail.content && (
                             <div className="mb-4">
-                                <Field label="신고 내용" value={reportDetail.content} className="col-span-2" />
+                                <Field label={t('report_detail_field_report_content')} value={reportDetail.content} className="col-span-2" />
                             </div>
                         )}
                     </div>
@@ -176,7 +180,7 @@ export default function ReportDetailModal({ open, onClose, reportNo }) {
                                 onClick={onClose}
                                 className="px-4 py-2 rounded-lg font-medium text-sm transition-colors duration-200 bg-white text-slate-600 border border-slate-300 hover:bg-slate-50" // ActionButton 직접 클래스 삽입
                             >
-                                닫기
+                                {t('report_detail_close_button')}
                             </button>
                         </div>
                     </div>

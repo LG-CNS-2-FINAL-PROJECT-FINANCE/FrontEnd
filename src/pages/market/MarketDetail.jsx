@@ -10,8 +10,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getInvestmentsDetail } from "../../api/project_api";
 import { getMyTradeDoneHistoryByProjectId, getMyTradeYetHistoryByProjectId, getTokenTradeDoneHistoryByProjectId, getTokenTradePurchaseHistory, getTokenTradeSellHistory } from "../../api/market_api";
 import { formatKST,toKSTDateTime } from "../../lib/toKSTDateTime";
+import { useTranslation } from 'react-i18next';
 
 function MarketDetail() {
+
+  const { t } = useTranslation();
+
   const { id } = useParams();
   const [mainImage, setMainImage] = useState(null); // 메인 표시 이미지
   const { data:product, isLoading:productLoading, isError:productError } = useQuery({
@@ -61,23 +65,23 @@ function MarketDetail() {
   });
 
   const openPurchase = () => {
-    setTradeType("구매");
+    setTradeType(t("market_detail_purchase_modal_type"));
     setIsTradeModalOpen(true);
   };
   const openSell = () => {
-    setTradeType("판매");
+    setTradeType(t("market_detail_sell_modal_type"));
     setIsTradeModalOpen(true);
   };
   const closeTradeModal = () => setIsTradeModalOpen(false);
 
   const handlePurchaseConfirm = (payload) => {
     // TODO: API 연동
-    console.log("구매 요청:", payload);
+    console.log(t("market_detail_purchase_request_log"), payload);
     setIsTradeModalOpen(false);
   };
   const handleSellConfirm = (payload) => {
     // TODO: API 연동
-    console.log("판매 요청:", payload);
+    console.log(t("market_detail_sell_request_log"), payload);
     setIsTradeModalOpen(false);
   };
 
@@ -151,12 +155,12 @@ function MarketDetail() {
     return (
       <div className="flex w-full h-[calc(100vh+240px)] items-center justify-center">
         <div className="text-center">
-          <p className="text-lg font-semibold text-red-600 mb-2">상품 정보를 불러오지 못했습니다.</p>
+          <p className="text-lg font-semibold text-red-600 mb-2">{t('market_detail_product_fetch_error')}</p>
           <button
             onClick={() => window.location.reload()}
             className="px-5 py-2 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600"
           >
-            새로고침
+            {t('market_detail_reload_button')}
           </button>
         </div>
       </div>
@@ -184,11 +188,11 @@ function MarketDetail() {
             <img
               className="w-full h-full object-cover transition duration-300"
               src={mainImage}
-              alt="product main image"
+              alt={t('market_detail_product_main_image_alt')}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-neutral-400 text-sm">
-              이미지 없음
+              {t('market_detail_no_image')}
             </div>
           )}
         </div>
@@ -212,7 +216,7 @@ function MarketDetail() {
               <img
                   className="w-full h-full object-cover"
                   src={img}
-                  alt={`thumbnail ${idx + 1}`}
+                  alt={t('market_detail_thumbnail_alt', { index: idx + 1 })}
                   draggable={false}
                 />
                 {isActive && (
@@ -222,7 +226,7 @@ function MarketDetail() {
             );
           }):null}
         </div>
-        <h1 className="text-3xl font-bold mb-6">프로젝트 상세설명</h1>
+        <h1 className="text-3xl font-bold mb-6">{t('market_detail_project_description_title')}</h1>
         <p>{product.description}</p>
         <InvestmentFiles files={product.files} />
       </div>
@@ -237,7 +241,7 @@ function MarketDetail() {
             }`}
             onClick={() => setFirstTab(0)}
           >
-            거래
+            {t('market_detail_tab_trade')}
           </button>
           <span className="text-gray-400">|</span>
           <button
@@ -246,7 +250,7 @@ function MarketDetail() {
             }`}
             onClick={() => setFirstTab(1)}
           >
-            거래내역
+            {t('market_detail_tab_trade_history')}
           </button>
         </div>
 
@@ -254,27 +258,27 @@ function MarketDetail() {
         {firstTab === 0 ? (
           <>
             <div className="mb-4">
-              <div className="text-lg text-gray-700 font-bold">즉시 구매가</div>
-              <div className="text-3xl font-bold mb-4 mt-1">20,423 원</div>
+              <div className="text-lg text-gray-700 font-bold">{t('market_detail_buy_now_price')}</div>
+              <div className="text-3xl font-bold mb-4 mt-1">20,423 {t('unit_won')}</div>
               <div className="flex gap-6 text-left w-full">
                 <div className="flex-1">
-                  <div className="text-sm text-gray-400">최근 거래가</div>
+                  <div className="text-sm text-gray-400">{t('market_detail_recent_trade_price')}</div>
                   <div className="text-gray-700 text-sm">
-                    {product.tokenPrice ? product.tokenPrice.toLocaleString() : "-"} 원
+                    {product.tokenPrice ? product.tokenPrice.toLocaleString() : "-"} {t('unit_won')}
                   </div>
                 </div>
                 <div className="flex-1 border-l pl-4">
-                  <div className="text-sm text-gray-400">발매가</div>
+                  <div className="text-sm text-gray-400">{t('market_detail_release_price')}</div>
                   <div className="text-gray-700 text-sm">
-                    {(product.goalAmount / product.minInvestment).toLocaleString()} 원
+                    {(product.goalAmount / product.minInvestment).toLocaleString()} {t('unit_won')}
                   </div>
                 </div>
                 <div className="flex-1 border-l pl-4">
-                  <div className="text-sm text-gray-400 mb-1">프로젝트 번호</div>
+                  <div className="text-sm text-gray-400 mb-1">{t('market_detail_project_number')}</div>
                   <div className="text-gray-700 text-xs">{product.projectId}</div>
                 </div>
                 <div className="flex-1 border-l pl-4">
-                  <div className="text-sm text-gray-400">출시일</div>
+                  <div className="text-sm text-gray-400">{t('market_detail_release_date')}</div>
                   <div className="text-gray-700 text-sm">{product.startDate}</div>
                 </div>
               </div>
@@ -285,18 +289,18 @@ function MarketDetail() {
                 onClick={openPurchase}
                 className="w-full bg-red-500 text-white font-bold rounded-lg px-8 py-3"
               >
-                구매
+                {t('market_detail_purchase_button')}
               </button>
               <button
                 onClick={openSell}
                 className="w-full bg-red-100 text-red-500 font-bold rounded-lg px-8 py-3"
               >
-                판매
+                {t('market_detail_sell_button')}
               </button>
             </div>
 
             <div className="mb-6">
-              <div className="font-bold mb-2">시세</div>
+              <div className="font-bold mb-2">{t('market_detail_market_price_chart_title')}</div>
               <SalesChart tradeHistory={!tradeHistoryLoading ? [...tradeHistory].reverse() : null} />
             </div>
 
@@ -308,7 +312,7 @@ function MarketDetail() {
                   }`}
                   onClick={() => setSecondTab(0)}
                 >
-                  체결 거래
+                  {t('market_detail_executed_trades_tab')}
                 </button>
                 <span className="text-gray-300">|</span>
                 <button
@@ -317,7 +321,7 @@ function MarketDetail() {
                   }`}
                   onClick={() => setSecondTab(1)}
                 >
-                  구매 입찰
+                  {t('market_detail_sell_bids_tab')}
                 </button>
                 <span className="text-gray-300">|</span>
                 <button
@@ -340,9 +344,9 @@ function MarketDetail() {
                   </colgroup>
                   <thead>
                     <tr className="text-gray-500 text-left">
-                      <th className="px-3 py-2 font-normal">토큰 수량</th>
-                      <th className="px-3 py-2 font-normal">체결가</th>
-                      <th className="px-3 py-2 font-normal">거래일시</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_token_quantity_header')}</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_trade_price_header')}</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_trade_time_header')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -370,7 +374,7 @@ function MarketDetail() {
                           colSpan={3}
                           className="px-3 py-6 text-center text-sm text-neutral-400"
                         >
-                          최근 거래가 없습니다.
+                          {t('market_detail_no_recent_trades')}
                         </td>
                       </tr>
                     )}
@@ -386,9 +390,9 @@ function MarketDetail() {
                   </colgroup>
                   <thead>
                     <tr className="text-gray-500 text-left">
-                      <th className="px-3 py-2 font-normal">토큰 수량</th>
-                      <th className="px-3 py-2 font-normal">입찰가</th>
-                      <th className="px-3 py-2 font-normal">등록시간</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_token_quantity_header')}</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_bid_price_header')}</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_registration_time_header')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -416,7 +420,7 @@ function MarketDetail() {
                             colSpan={3}
                             className="px-3 py-6 text-center text-sm text-neutral-400"
                           >
-                            구매 입찰이 없습니다.
+                            {t('market_detail_no_purchase_bids')}
                           </td>
                         </tr>
                       )}
@@ -432,9 +436,9 @@ function MarketDetail() {
                   </colgroup>
                   <thead>
                     <tr className="text-gray-500 text-left">
-                      <th className="px-3 py-2 font-normal">토큰 수량</th>
-                      <th className="px-3 py-2 font-normal">호가</th>
-                      <th className="px-3 py-2 font-normal">등록시간</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_token_quantity_header')}</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_ask_price_header')}</th>
+                      <th className="px-3 py-2 font-normal">{t('market_detail_registration_time_header')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -462,7 +466,7 @@ function MarketDetail() {
                             colSpan={3}
                             className="px-3 py-6 text-center text-sm text-neutral-400"
                           >
-                            판매 입찰이 없습니다.
+                            {t('market_detail_no_sell_bids')}
                           </td>
                         </tr>
                       )}
