@@ -340,7 +340,7 @@ function MarketDetail() {
                   </colgroup>
                   <thead>
                     <tr className="text-gray-500 text-left">
-                      <th className="px-3 py-2 font-normal">토큰 수량</th>
+                      <th className="px-3 py-2 font-normal">체결량</th>
                       <th className="px-3 py-2 font-normal">체결가</th>
                       <th className="px-3 py-2 font-normal">거래일시</th>
                     </tr>

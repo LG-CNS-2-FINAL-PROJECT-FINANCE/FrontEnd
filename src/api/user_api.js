@@ -104,9 +104,9 @@ export const secessionUser = async () => {
 export async function userKYC(kycData) {
   console.log('[user_api] 백엔드 KYC 인증 요청 시작:', kycData);
   try {
-    const response = await privateApi.post('/test/kyc/apick/resident-id/verify', kycData);
-    console.log('[user_api] 백엔드로부터 KYC 인증 응답:', response.data);
-    return response.data;
+    //const response = await privateApi.post('/test/kyc/apick/resident-id/verify', kycData);
+    //console.log('[user_api] 백엔드로부터 KYC 인증 응답:', response.data);
+    //return response.data;
   } catch (error) {
     console.error('[user_api] 백엔드 KYC 인증 요청 실패:', error.response?.data || error.message);
     throw error.response?.data || new Error('KYC 인증 요청 중 오류가 발생했습니다.');

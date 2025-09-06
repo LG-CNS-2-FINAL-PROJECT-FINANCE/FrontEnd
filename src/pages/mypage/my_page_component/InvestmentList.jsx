@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect} from 'react';
 import InvestmentCard from '../../../component/InvestmentCard';
 import { getMyInvestmentList, getMyProductList } from '../../../api/myPage_api';
 import { useQuery, useQueryClient } from "@tanstack/react-query";
