@@ -14,13 +14,13 @@ import Asset from "./pages/asset/Asset.jsx";
 import RoleSelectionPage from "./pages/role/RoleSelectionPage";
 import AdminLogin from "./pages/admin/login/AdminLogin";
 import UserManagement from "./pages/admin/userManagement/UserManagement";
-import MyPage from "./pages/mypage/MyPage.jsx";
-import MyInvestments from "./pages/mypage/MyInvestments.jsx";
-import MyFavorites from "./pages/mypage/MyFavorites.jsx";
-import AccountManagement from "./pages/mypage/AccountManagement.jsx";
-import EditInfo from "./pages/mypage/EditInfo.jsx";
-import MyReports from "./pages/mypage/MyReports.jsx";
-import MyEditRequest from "./pages/mypage/MyEditRequest.jsx";
+import MyPage from "./pages/myPage/MyPage.jsx";
+import MyInvestments from "./pages/myPage/MyInvestments.jsx";
+import MyFavorites from "./pages/myPage/MyFavorites.jsx";
+import AccountManagement from "./pages/myPage/AccountManagement.jsx";
+import EditInfo from "./pages/myPage/EditInfo.jsx";
+import MyReports from "./pages/myPage/MyReports.jsx";
+import MyEditRequest from "./pages/myPage/MyEditRequest.jsx";
 import ReportManagement from "./pages/admin/report/ReportManagement";
 import PostManagement from "./pages/admin/postManagement/PostManagement";
 import Aml from "./pages/admin/Aml";
@@ -30,14 +30,12 @@ import SystemMonitoring from "./pages/admin/SystemMonitoring";
 import ProductRegistration from "./pages/product/ProductRegistration.jsx";
 import ProductEdit from "./pages/product/ProductEdit.jsx";
 import { ThemeProvider } from "./context/ThemeContext.jsx";
-import MyProduct from "./pages/mypage/MyProduct.jsx";
+import MyProduct from "./pages/myPage/MyProduct.jsx";
 import KakaoConfirm from "./pages/login/KakaoConfirm.jsx";
 import { useQueryClient } from "@tanstack/react-query";
-import PostAllManagement from "./pages/admin/postManagement/PostAllManagement"
-import {AuthProvider} from "./context/AuthContext";
+import PostAllManagement from "./pages/admin/postManagement/PostAllManagement";
+import { AuthProvider } from "./context/AuthContext";
 import EventPage from "./pages/event/EventPage";
-
-
 
 function App() {
   return (
@@ -53,7 +51,10 @@ function App() {
               <Route index element={<Home />}></Route>
               {/*로그인 페이지*/}
               <Route path="/login/:id" element={<Login />}></Route>
-              <Route path="/login/kakaoConfirm" element={<KakaoConfirm />}></Route>
+              <Route
+                path="/login/kakaoConfirm"
+                element={<KakaoConfirm />}
+              ></Route>
               {/*역할 선택 페이지*/}
               <Route path="/select-role" element={<RoleSelectionPage />} />
 
@@ -62,7 +63,12 @@ function App() {
               <Route path="investment/:id" element={<InvestmentDetail />} />
 
               {/*Product Registration*/}
-              {<Route path="/product-registration" element={<ProductRegistration />} />}
+              {
+                <Route
+                  path="/product-registration"
+                  element={<ProductRegistration />}
+                />
+              }
               <Route path="/product-edit/:id" element={<ProductEdit />} />
 
               {/*Market*/}
@@ -73,7 +79,10 @@ function App() {
               <Route path="/my-profile" element={<MyPage />} />
               <Route path="/my-investments" element={<MyInvestments />} />
               <Route path="/my-favorites" element={<MyFavorites />} />
-              <Route path="/account-management" element={<AccountManagement />} />
+              <Route
+                path="/account-management"
+                element={<AccountManagement />}
+              />
               <Route path="/edit-info" element={<EditInfo />} />
               <Route path="/my-reports" element={<MyReports />} />
               <Route path="/my-edit-request" element={<MyEditRequest />} />
@@ -84,21 +93,27 @@ function App() {
 
               {/*Evnet*/}
               <Route path="/event" element={<EventPage />} />
-
             </Route>
 
-            {/*관리자 로그인 페이지*/}{/*얘는 헤더가 없음*/}
-            <Route path="/admin/login" element={
-              <AuthProvider>
-                <AdminLogin />
-              </AuthProvider>
-            } />
+            {/*관리자 로그인 페이지*/}
+            {/*얘는 헤더가 없음*/}
+            <Route
+              path="/admin/login"
+              element={
+                <AuthProvider>
+                  <AdminLogin />
+                </AuthProvider>
+              }
+            />
             {/*관리자 페이지 헤더*/}
-            <Route path="/admin" element={
-              <AuthProvider>
-                <AdminLayout />
-              </AuthProvider>
-            }>
+            <Route
+              path="/admin"
+              element={
+                <AuthProvider>
+                  <AdminLayout />
+                </AuthProvider>
+              }
+            >
               <Route path="user" element={<UserManagement />}></Route>
               <Route path="reports" element={<ReportManagement />}></Route>
               <Route path="posts" element={<PostManagement />}></Route>
@@ -106,8 +121,10 @@ function App() {
               <Route path="aml" element={<Aml />}></Route>
               <Route path="frauddetection" element={<FraudDetection />}></Route>
               <Route path="settings" element={<Setting />}></Route>
-              <Route path="systemmonitoring" element={<SystemMonitoring />}></Route>
-
+              <Route
+                path="systemmonitoring"
+                element={<SystemMonitoring />}
+              ></Route>
             </Route>
           </Routes>
         </div>
