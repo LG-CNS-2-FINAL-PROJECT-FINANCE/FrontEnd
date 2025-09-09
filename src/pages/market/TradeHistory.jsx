@@ -101,7 +101,7 @@ export default function TradeHistory({ projectId, myTradeDoneHistory, myTradeYet
       {/* 리스트 */}
       <div className="space-y-4">
         {filtered.map((item,i) => {
-          const price = historyTab===0?item.tradePrice:item.purchasePrice;
+          const price = historyTab===0?item.tradePrice:item.purchasePrice/item.tokenQuantity;
           const qty   = item.tokenQuantity;
           const type  = historyTab===0?item.tradeType:item.ordersType;
           return (

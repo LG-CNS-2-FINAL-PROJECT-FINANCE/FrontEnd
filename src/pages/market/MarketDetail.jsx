@@ -259,7 +259,12 @@ function MarketDetail() {
           <>
             <div className="mb-4">
               <div className="text-lg text-gray-700 font-bold">{t('market_detail_buy_now_price')}</div>
-              <div className="text-3xl font-bold mb-4 mt-1">20,423 {t('unit_won')}</div>
+              <div className="text-3xl font-bold mb-4 mt-1">
+                {!tradeHistoryLoading && tradeHistory?.length > 0 
+                  ? `${tradeHistory[tradeHistory.length - 1]?.tradePrice?.toLocaleString() || "-"}${t('unit_won')}`
+                  : `${product.tokenPrice?.toLocaleString() || "-"}${t('unit_won')}`
+                }
+              </div>
               <div className="flex gap-6 text-left w-full">
                 <div className="flex-1">
                   <div className="text-sm text-gray-400">{t('market_detail_recent_trade_price')}</div>
@@ -330,7 +335,7 @@ function MarketDetail() {
                   }`}
                   onClick={() => setSecondTab(2)}
                 >
-                  판매 입찰
+                  {t('market_detail_selling_bids_tab')}
                 </button>
               </div>
 
@@ -403,7 +408,7 @@ function MarketDetail() {
                               {r.tokenQuantity.toLocaleString()}
                             </td>
                             <td className="px-3 py-2 text-left text-red-600 font-semibold">
-                              {r.purchasePrice.toLocaleString()}
+                              {r.purchasePrice/r.tokenQuantity.toLocaleString()}
                             </td>
                             <td className="px-3 py-2 text-left whitespace-nowrap">
                               {formatKST(toKSTDateTime(r.registedAt))}
@@ -449,7 +454,7 @@ function MarketDetail() {
                               {r.tokenQuantity.toLocaleString()}
                             </td>
                             <td className="px-3 py-2 text-left text-red-600 font-semibold">
-                              {r.purchasePrice.toLocaleString()}
+                              {r.purchasePrice/r.tokenQuantity.toLocaleString()}
                             </td>
                             <td className="px-3 py-2 text-left whitespace-nowrap">
                               {formatKST(toKSTDateTime(r.registedAt))}

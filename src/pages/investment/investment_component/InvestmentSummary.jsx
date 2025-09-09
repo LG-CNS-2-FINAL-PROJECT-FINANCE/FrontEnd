@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import InvestmentModal from "./InvestmentModal";
 import InvestmentCancelModal from "./InvestmentCancelModal";
 import StopRequestModal from "./StopRequestModal";
+import DistributeRequestModal from "./DistributeRequestModal";
 import ReportModal from "./ReportModal";
 import { useTheme } from "../../../context/ThemeContext";
 import { toggleFavorite } from "../../../api/favorites_api";
@@ -34,6 +35,7 @@ function InvestmentSummary({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isStopModalOpen, setIsStopModalOpen] = useState(false);
+  const [isDistributeModalOpen, setIsDistributeModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isFavoriteLoading, setIsFavoriteLoading] = useState(false);
   const { themeColors } = useTheme();
@@ -127,6 +129,11 @@ function InvestmentSummary({
     setIsStopModalOpen(false);
   };
 
+  //분배 요청 모달 닫기
+  const closeDistributeModal = () => {
+    setIsDistributeModalOpen(false);
+  };
+
   //신고하기 모달 닫기
   const closeReportModal = () => {
     setIsReportModalOpen(false);
@@ -155,7 +162,7 @@ function InvestmentSummary({
               {/* 분배요청 버튼 - 프로젝트 소유자만 보임 (CREATOR + matching userSeq) */}
               {isProjectOwner && (
                 <button
-                  onClick={() => alert("분배 요청을 보냅니다.")}
+                  onClick={() => setIsDistributeModalOpen(true)}
                   className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
                 >
                   {t('investment_summary_distribute_request_button')}
@@ -242,6 +249,13 @@ function InvestmentSummary({
       <StopRequestModal
         isOpen={isStopModalOpen}
         onClose={closeStopModal}
+        projectId={projectNumber}
+        title={title}
+      />
+
+      <DistributeRequestModal
+        isOpen={isDistributeModalOpen}
+        onClose={closeDistributeModal}
         projectId={projectNumber}
         title={title}
       />
