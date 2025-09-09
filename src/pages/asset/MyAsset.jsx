@@ -307,10 +307,10 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
             <table className="w-full text-sm rounded-lg">
               <thead className="border-b border-gray-200">
                 <tr className="text-gray-500 text-left">
-                  <th className="py-2 font-normal w-1/5">Project Id</th>
-                  <th className="font-normal w-1/5">Amount</th>
-                  <th className="font-normal w-1/5">Price</th>
-                  <th className="font-normal w-1/5">Token Name</th>
+                  <th className="py-2 font-normal w-1/5">프로젝트명</th>
+                  <th className="font-normal w-1/5">수량</th>
+                  <th className="font-normal w-1/5">가격</th>
+                  <th className="font-normal w-1/5">토큰명</th>
                 </tr>
               </thead>
               <tbody>
@@ -335,10 +335,10 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
                 ) : (
                   walletToken.map((token, index) => (
                     <tr key={index} className="border-b border-gray-100">
-                      <td className="py-4 w-1/5">{token.projectId}</td>
+                      <td className="py-4 w-1/5">{token.title}</td>
                       <td className="w-1/5">{token.amount}</td>
-                      <td className="w-1/5">{token.tokenPriceInKRW}</td>
-                      <td className="text-blue-500 w-1/5">{token.tokenName}</td>
+                      <td className="w-1/5">{token.price}</td>
+                      <td className="text-blue-500 w-1/5">{token.name}</td>
                     </tr>
                   ))
                 )}
@@ -352,11 +352,11 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
             <table className="w-full text-sm rounded-lg">
               <thead className="border-b border-gray-200">
                 <tr className="text-gray-500 text-left">
-                  <th className="py-2 font-normal w-1/5">Project Id</th>
-                  <th className="font-normal w-1/5">Amount</th>
-                  <th className="font-normal w-1/5">Price</th>
-                  <th className="font-normal w-1/5">Date</th>
-                  <th className="font-normal w-1/5">Trade Type</th>
+                  <th className="py-2 font-normal w-1/5">프로젝트명</th>
+                  <th className="font-normal w-1/5">수량</th>
+                  <th className="font-normal w-1/5">가격</th>
+                  <th className="font-normal w-1/5">날짜</th>
+                  <th className="font-normal w-1/5">매도/매수</th>
                 </tr>
               </thead>
               <tbody>
@@ -384,7 +384,7 @@ const { data:walletToken, isLoading:walletTokenLoading, isError:walletTokenError
                     const { date, time } = toKSTDateTime(history.tradedAt);
                     return (
                       <tr key={index} className="border-b border-gray-100">
-                        <td className="py-4 w-1/5">{history.projectId}</td>
+                        <td className="py-4 w-1/5">{history.title}</td>
                         <td className=" w-1/5">
                           {history.tokenQuantity}
                         </td>

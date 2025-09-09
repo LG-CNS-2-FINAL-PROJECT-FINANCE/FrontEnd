@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {IoIosAdd} from "react-icons/io";
 import InvestmentCard from "../../../component/InvestmentCard";
 import {useNavigate} from "react-router-dom";
-import {useQuery, useQueryClient} from "@tanstack/react-query";
+import {useQuery} from "@tanstack/react-query";
 import {getMyProductPv} from "../../../api/myPage_api";
 import useUser from "../../../lib/useUser";
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,6 @@ const MyProductPreview = () => {
     const { t } = useTranslation();
 
     const navigate = useNavigate();
-    const queryClient = useQueryClient();
 
     const [displayedInvestments, setDisplayedInvestments] = useState([]);
 
