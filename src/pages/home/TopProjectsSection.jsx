@@ -4,8 +4,12 @@ import { Link } from 'react-router-dom';
 import InvestmentCard from '../../component/InvestmentCard';
 import formatAmount from '../../lib/formatAmount';
 import calculateDday from '../../lib/calculateDday';
+import { useTranslation } from 'react-i18next';
 
 function TopProjectsSection({ projectsByView, projectsByViewLoading, projectsByViewError }) {
+
+    const { t } = useTranslation();
+
   // 데이터 형태 방어 (react-query 응답 또는 바로 배열)
   const list = Array.isArray(projectsByView?.data)
     ? projectsByView.data
@@ -16,7 +20,7 @@ function TopProjectsSection({ projectsByView, projectsByViewLoading, projectsByV
   return (
     <div className="w-full">
       <div className="flex items-center justify-between mt-4 mb-8">
-        <span className="text-xl font-bold">TOP 조회수</span>
+        <span className="text-xl font-bold">{t('top_projects_section_title')}</span>
         <Link to="/investment">
           <FaPlus className="text-gray-500 hover:text-gray-700 cursor-pointer mr-2" />
         </Link>
@@ -41,14 +45,14 @@ function TopProjectsSection({ projectsByView, projectsByViewLoading, projectsByV
       {/* 에러 */}
       {projectsByViewError && !projectsByViewLoading && (
         <div className="border rounded-xl p-8 text-center text-sm text-red-500">
-          조회수 데이터를 불러오지 못했습니다.
+            {t('top_projects_section_view_data_error')}
         </div>
       )}
 
       {/* 빈 상태 */}
       {!projectsByViewLoading && !projectsByViewError && list.length === 0 && (
         <div className="border rounded-xl p-8 text-center text-sm text-gray-400">
-          표시할 데이터가 없습니다.
+            {t('top_projects_section_no_data')}
         </div>
       )}
 
@@ -63,7 +67,7 @@ function TopProjectsSection({ projectsByView, projectsByViewLoading, projectsByV
                     projectId: investment.projectId,
                     name: investment.title,
                     amount: formatAmount(investment.amount),
-                    dday: calculateDday(investment.deadline),
+                    dday: calculateDday(investment.deadline, t),
                     progress: investment.percent,
                     // imageUrl: investment.imageUrl,
                     views: investment.viewCount,

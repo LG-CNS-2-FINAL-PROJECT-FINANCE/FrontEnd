@@ -3,8 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { MdOutlineEmail } from "react-icons/md";
 import { IoCalendarNumberSharp } from "react-icons/io5";
 import useUser from "../../../lib/useUser";
+import { useTranslation } from 'react-i18next';
 
 const UserProfile = () => {
+
+    const { t } = useTranslation();
+
     const navigate = useNavigate();
 
     const { user } = useUser();
@@ -37,7 +41,7 @@ const UserProfile = () => {
                 style={{ left: '30px', top: '380px', width: '170px' }}
                 onClick={handleAccountManagement}
             >
-                계정관리
+                {t('user_profile_account_management_button')}
             </button>
             
             {/* Information Box */}
@@ -45,7 +49,7 @@ const UserProfile = () => {
                 className="absolute border-2 border-gray-200 rounded-lg p-4 bg-white"
                 style={{ left: '30px', top: '450px', width: '170px' }}
             >
-                <h3 className="font-bold text-base mb-3 text-gray-800">정보</h3>
+                <h3 className="font-bold text-base mb-3 text-gray-800">{t('user_profile_info_box_title')}</h3>
                 
                 {/* Email */}
                 <div className="flex items-center mb-3">

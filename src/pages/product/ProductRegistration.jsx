@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { createProductRequest, validateProductForm, uploadFileToS3 } from '../../api/project_registration_api';
 import RegisterConfirmation from './RegisterConfirmation';
 import useUser from '../../lib/useUser';
+import { useTranslation } from 'react-i18next';
+
 
 function ProductRegistration() {
     // Get user data including nickname
     const { user } = useUser();
     const nickname = user?.nickname;
+    const { t } = useTranslation();
 
     const [formData, setFormData] = useState({
         title: '',
@@ -57,7 +60,7 @@ function ProductRegistration() {
             }
         } catch (error) {
             console.error('Document upload error:', error);
-            setUploadError('문서 파일 업로드에 실패했습니다: ' + error.message);
+            setUploadError(t('product_registration_upload_error_document_fail', { errorMessage: error.message }));
             setDocumentFile(null);
         } finally {
             setIsUploadingDocument(false);
@@ -79,7 +82,7 @@ function ProductRegistration() {
             }
         } catch (error) {
             console.error('Image upload error:', error);
-            setUploadError('이미지 파일 업로드에 실패했습니다: ' + error.message);
+            setUploadError(t('product_registration_upload_error_image_fail', { errorMessage: error.message }));
             setImageFile(null);
         } finally {
             setIsUploadingImage(false);
@@ -95,13 +98,13 @@ function ProductRegistration() {
 
         // Check if uploads are still in progress
         if (isUploadingDocument || isUploadingImage) {
-            setSubmitError('파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.');
+            setSubmitError(t('product_registration_submit_error_file_upload_in_progress'));
             return;
         }
 
         // Check if nickname is available from user data
         if (!nickname) {
-            setSubmitError('사용자 정보를 불러올 수 없습니다. 로그인 상태를 확인해주세요.');
+            setSubmitError(t('product_registration_submit_error_user_info_missing'));
             return;
         }
 
@@ -134,7 +137,7 @@ function ProductRegistration() {
                 setSubmitError(result.error);
             }
         } catch (error) {
-            setSubmitError('예상치 못한 오류가 발생했습니다. 다시 시도해주세요.');
+            setSubmitError(t('product_registration_submit_error_unexpected'));
         } finally {
             setIsSubmitting(false);
         }
@@ -145,7 +148,7 @@ function ProductRegistration() {
             <div className="max-w-4xl mx-auto bg-white">
                 {/* Page Title */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-800 text-center">투자 상품 등록</h1>
+                    <h1 className="text-3xl font-bold text-gray-800 text-center">{t('product_registration_page_title')}</h1>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">
@@ -156,7 +159,7 @@ function ProductRegistration() {
                             {submitError}
                         </div>
                     )}
-                    
+
                     {/* Upload Error Message */}
                     {uploadError && (
                         <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg text-orange-800 flex items-center gap-2">
@@ -166,13 +169,13 @@ function ProductRegistration() {
                     )}
                     {/* 제목 - 상품명 입력 */}
                     <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">제목</label>
+                        <label className="block text-lg font-semibold text-gray-700">{t('product_registration_title_label')}</label>
                         <input
                             type="text"
                             name="title"
                             value={formData.title}
                             onChange={handleInputChange}
-                            placeholder="상품명 입력"
+                            placeholder={t('product_registration_title_placeholder')}
                             required
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                         />
@@ -181,7 +184,7 @@ function ProductRegistration() {
                     {/* 투자 기간 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
-                            <label className="block text-lg font-semibold text-gray-700">시작일</label>
+                            <label className="block text-lg font-semibold text-gray-700">{t('product_registration_start_date_label')}</label>
                             <input
                                 type="date"
                                 name="startDate"
@@ -192,7 +195,7 @@ function ProductRegistration() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="block text-lg font-semibold text-gray-700">종료일</label>
+                            <label className="block text-lg font-semibold text-gray-700">{t('product_registration_end_date_label')}</label>
                             <input
                                 type="date"
                                 name="endDate"
@@ -206,7 +209,7 @@ function ProductRegistration() {
 
                     {/* 문서 업로드 */}
                     <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">문서 업로드</label>
+                        <label className="block text-lg font-semibold text-gray-700">{t('product_registration_document_upload_label')}</label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
                             <input
                                 type="file"
@@ -224,30 +227,30 @@ function ProductRegistration() {
                                         : 'text-gray-700 hover:bg-gray-200'
                                 }`}
                             >
-                                {isUploadingDocument ? '업로드 중...' : '파일선택'}
+                                {isUploadingDocument ? t('product_registration_uploading_text') : t('product_registration_select_file_button')}
                             </label>
-                            
+
                             {isUploadingDocument && (
                                 <p className="mt-2 text-sm text-blue-600">
-                                    문서 업로드 중...
+                                    {t('product_registration_uploading_document_message')}
                                 </p>
                             )}
-                            
+
                             {documentFile && documentUploadUrl && (
                                 <p className="mt-2 text-sm text-green-600">
-                                    업로드 완료: {documentFile.name}
+                                    {t('product_registration_upload_complete_prefix')}{documentFile.name}
                                 </p>
                             )}
-                            
+
                             {!documentFile && !isUploadingDocument && (
-                                <p className="mt-2 text-sm text-gray-500">PDF, DOC, DOCX 파일을 선택해주세요</p>
+                                <p className="mt-2 text-sm text-gray-500">{t('product_registration_document_file_info')}</p>
                             )}
                         </div>
                     </div>
 
                     {/* 이미지 업로드 */}
                     <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">이미지 업로드</label>
+                        <label className="block text-lg font-semibold text-gray-700">{t('product_registration_image_upload_label')}</label>
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors">
                             <input
                                 type="file"
@@ -265,35 +268,37 @@ function ProductRegistration() {
                                         : 'text-gray-700 hover:bg-gray-200'
                                 }`}
                             >
-                                {isUploadingImage ? '업로드 중...' : '이미지 선택'}
+                                {isUploadingImage ? t('product_registration_uploading_text') : t('product_registration_select_image_button')}
                             </label>
                             
                             {isUploadingImage && (
                                 <p className="mt-2 text-sm text-blue-600">
-                                    이미지 업로드 중...
+                                    {t('product_registration_uploading_image_message')}
                                 </p>
                             )}
                             
                             {imageFile && imageUploadUrl && (
                                 <p className="mt-2 text-sm text-green-600">
-                                    업로드 완료: {imageFile.name}
+                                    {t('product_registration_upload_complete_prefix')}{imageFile.name}
                                 </p>
                             )}
                             
                             {!imageFile && !isUploadingImage && (
-                                <p className="mt-2 text-sm text-gray-500">JPG, PNG, GIF 이미지를 선택해주세요</p>
+                                <p className="mt-2 text-sm text-gray-500">
+                                    {t('product_registration_image_file_info')}
+                                </p>
                             )}
                         </div>
                     </div>
 
                     {/* 상세설명 */}
                     <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">상세설명</label>
+                        <label className="block text-lg font-semibold text-gray-700">{t('product_registration_description_label')}</label>
                         <textarea
                             name="description"
                             value={formData.description}
                             onChange={handleInputChange}
-                            placeholder="상품에 대한 상세한 설명을 입력해주세요"
+                            placeholder={t('product_registration_description_placeholder')}
                             rows="6"
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-vertical"
                         />
@@ -301,12 +306,12 @@ function ProductRegistration() {
 
                     {/* 상품요약 */}
                     <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">상품요약</label>
+                        <label className="block text-lg font-semibold text-gray-700">{t('product_registration_summary_label')}</label>
                         <textarea
                             name="summary"
                             value={formData.summary}
                             onChange={handleInputChange}
-                            placeholder="상품을 간략하게 요약해주세요"
+                            placeholder={t('product_registration_summary_placeholder')}
                             rows="3"
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-vertical"
                         />
@@ -314,26 +319,26 @@ function ProductRegistration() {
 
                     {/* 모집금액 */}
                     <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">모집금액</label>
+                        <label className="block text-lg font-semibold text-gray-700">{t('product_registration_goal_amount_label')}</label>
                         <input
                             type="number"
                             name="goalAmount"
                             value={formData.goalAmount}
                             onChange={handleInputChange}
-                            placeholder="목표 모집금액을 입력해주세요 (원)"
+                            placeholder={t('product_registration_goal_amount_placeholder', { unit_won: t('unit_won') })}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                         />
                     </div>
 
                     {/* 최소투자금액 */}
                     <div className="space-y-2">
-                        <label className="block text-lg font-semibold text-gray-700">최소투자금액</label>
+                        <label className="block text-lg font-semibold text-gray-700">{t('product_registration_min_investment_label')}</label>
                         <input
                             type="number"
                             name="minInvestment"
                             value={formData.minInvestment}
                             onChange={handleInputChange}
-                            placeholder="최소 투자금액을 입력해주세요 (원)"
+                            placeholder={t('product_registration_min_investment_placeholder', { unit_won: t('unit_won') })}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
                         />
                     </div>
@@ -354,7 +359,7 @@ function ProductRegistration() {
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
                                 </svg>
                             )}
-                            {isSubmitting ? '등록 중...' : '등록하기'}
+                            {isSubmitting ? t('product_registration_submitting_text') : t('product_registration_register_button')}
                         </button>
                     </div>
                 </form>

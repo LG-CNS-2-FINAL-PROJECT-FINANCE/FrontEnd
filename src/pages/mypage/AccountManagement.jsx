@@ -9,9 +9,12 @@ import { useQueryClient } from "@tanstack/react-query";
 import useUser from "../../lib/useUser";
 import { toast } from "react-toastify";
 import {useState} from "react";
+import { useTranslation } from 'react-i18next';
 
 const EditInfo = () => {
   const navigate = useNavigate();
+
+  const { t } = useTranslation();
 
   const queryClient = useQueryClient();
 
@@ -24,12 +27,12 @@ const EditInfo = () => {
   const handleSecession = async () => {
     try {
       await secessionUser();
-      toast.success("회원 탈퇴가 완료되었습니다.");
+      toast.success(t('edit_info_secession_success_toast'));
       logout();
       queryClient.removeQueries({ queryKey: ["me"] });
       navigate("/login/1");
     } catch (error) {
-      toast.warn("회원 탈퇴 중 오류가 발생했습니다.");
+      toast.warn(t('edit_info_secession_fail_toast'));
       console.error(error);
     } finally {
       setShowSecessionModal(false);
@@ -56,7 +59,7 @@ const EditInfo = () => {
             {/* Bull Image */}
             <img
                 src={user?.role === "CREATOR" ? "/assets/pig.png" : "/assets/bull.png"}
-                alt={user?.role === "CREATOR" ? "Pig" : "Bull"}
+                alt={user?.role === "CREATOR" ? t("header_creator_icon_alt") : t("header_investor_icon_alt")}
               className="object-cover rounded-full shadow-lg"
               style={{ width: "120px", height: "120px" }}
             />
@@ -70,22 +73,22 @@ const EditInfo = () => {
                 className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-100"
                 onClick={() => handleNavigation("/edit-info")}
               >
-                회원 정보 수정
+                {t('edit_info_menu_edit_profile')}
                 <LuUserPen className="text-gray-600" size={20} />
               </div>
               <div
                 className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-100"
                 onClick={() => handleNavigation("/my-reports")}
               >
-                신고내역
+                {t('edit_info_menu_my_reports')}
                 <MdReportGmailerrorred className="text-gray-600" size={20} />
               </div>
               <div onClick={() => { logout(); queryClient.removeQueries({queryKey:["me"]}); navigate("/login/1"); }} className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-100">
-                로그아웃
+                {t('edit_info_menu_logout')}
                 <MdOutlineLogout className="text-gray-600" size={20} />
               </div>
               <div onClick={() => setShowSecessionModal(true)} className="w-full py-2 pl-4 pr-4 text-gray-900 font-bold border-b border-gray-800 flex justify-between items-center cursor-pointer hover:bg-gray-100">
-                회원탈퇴
+                {t('edit_info_menu_secession')}
                 <MdOutlineManageAccounts className="text-gray-600" size={20} />
               </div>
             </div>
@@ -96,21 +99,21 @@ const EditInfo = () => {
       {showSecessionModal && (
           <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
             <div className="bg-white rounded-lg p-6 w-96">
-              <h2 className="text-lg font-bold mb-4">정말 탈퇴하시겠습니까?</h2>
-              <p className="mb-6 text-gray-600">탈퇴하면 모든 데이터가 삭제됩니다.</p>
-              <p className="mb-6 text-red-400 text-sm">※단 사용자님의 계정은 60일까지 보관됩니다. <br /> 60일안에 재접속하시게 되시면 다시 활성화됩니다.</p>
+              <h2 className="text-lg font-bold mb-4">{t('edit_info_secession_modal_title')}</h2>
+              <p className="mb-6 text-gray-600">{t('edit_info_secession_modal_desc1')}</p>
+              <p className="mb-6 text-red-400 text-sm">{t('edit_info_secession_modal_desc2')}</p>
               <div className="flex justify-end gap-2">
                 <button
                     className="px-4 py-2 bg-gray-200 rounded"
                     onClick={() => setShowSecessionModal(false)}
                 >
-                  취소
+                  {t('edit_info_secession_modal_cancel_button')}
                 </button>
                 <button
                     className="px-4 py-2 bg-red-500 text-white rounded"
                     onClick={handleSecession}
                 >
-                  탈퇴
+                  {t('edit_info_secession_modal_confirm_button')}
                 </button>
               </div>
             </div>

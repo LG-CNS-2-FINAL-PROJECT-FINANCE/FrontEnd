@@ -3,9 +3,14 @@ import UserProfile from './my_page_component/UserProfile';
 import useUser from "../../lib/useUser";
 import { toast } from "react-toastify";
 import {editUser} from "../../api/user_api";
+import { useTranslation } from 'react-i18next';
 
 
 const AccountManagement = () => {
+
+    const { t } = useTranslation();
+
+
     const [formData, setFormData] = useState({
         nickname: ''
     });
@@ -25,7 +30,7 @@ const AccountManagement = () => {
 
     const handleEditNickname = async () => {
         if (!formData.nickname) {
-            toast.warn("닉네임을 입력해주세요!");
+            toast.warn(t('account_management_nickname_input_warning'));
             return;
         }
         try {
@@ -33,12 +38,12 @@ const AccountManagement = () => {
             console.log("✅ 닉네임 수정 성공:", res);
 
             setFormData({nickname: ""});
-            toast.success("닉네임이 수정되었습니다!");
+            toast.success(t('account_management_nickname_success_toast'));
 
             window.location.reload();
         } catch (err) {
             console.error("❌ 닉네임 수정 실패:", err);
-            toast.error("닉네임 수정에 실패했습니다.");
+            toast.error(t('account_management_nickname_fail_toast'));
         }
     };
 
@@ -66,7 +71,7 @@ const AccountManagement = () => {
                         {/* Bull Image */}
                         <img
                             src={user?.role === "CREATOR" ? "/assets/pig.png" : "/assets/bull.png"}
-                            alt={user?.role === "CREATOR" ? "Pig" : "Bull"}
+                            alt={user?.role === "CREATOR" ? t("header_creator_icon_alt") : t("header_investor_icon_alt")}
                             className="object-cover rounded-full shadow-lg"
                             style={{ width: '120px', height: '120px' }}
                         />
@@ -82,9 +87,9 @@ const AccountManagement = () => {
                             <div>
                                 <div className="flex items-center justify-between mb-2">
                                     <label className="text-sm font-medium text-gray-700">
-                                        이메일
+                                        {t('account_management_email_label')}
                                     </label>
-                                    <span className="text-red-500 text-xs">수정불가</span>
+                                    <span className="text-red-500 text-xs">{t('account_management_uneditable_text')}</span>
                                 </div>
                                 <input
                                     type="text"
@@ -97,7 +102,7 @@ const AccountManagement = () => {
                             {/* Nickname Input (Only editable field) */}
                             <div className="">
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    닉네임
+                                    {t('account_management_nickname_label')}
                                 </label>
                                 <div className="flex items-center space-x-2">
                                     <input
@@ -106,7 +111,7 @@ const AccountManagement = () => {
                                         value={formData.nickname ?? ""}
                                         onChange={handleInputChange}
                                         className="w-full border-b border-gray-300 focus:border-blue-500 outline-none py-2 bg-transparent"
-                                        placeholder="닉네임을 입력해주세요."
+                                        placeholder={t('account_management_nickname_placeholder')}
                                     />
                                     <button
                                         onClick={handleEditNickname}
@@ -124,7 +129,7 @@ const AccountManagement = () => {
                                             : "border-gray-200 bg-white text-gray-400"
                                         }`}
                                     >
-                                        남성
+                                        {t('account_management_gender_male')}
                                     </div>
 
                                     {/* 여성 */}
@@ -133,7 +138,7 @@ const AccountManagement = () => {
                                         : "border-gray-200 bg-white text-gray-400"
                                     }`}
                                     >
-                                        여성
+                                        {t('account_management_gender_female')}
                                     </div>
                                 </div>
                             </div>
@@ -143,9 +148,9 @@ const AccountManagement = () => {
                             <div>
                                 <div className="flex items-center justify-between mb-2">
                                     <label className="block text-sm font-medium text-gray-700">
-                                        생년월일
+                                        {t('account_management_birthdate_label')}
                                     </label>
-                                    <span className="text-red-500 text-xs">수정불가</span>
+                                    <span className="text-red-500 text-xs">{t('account_management_uneditable_text')}</span>
                                 </div>
                                 <input
                                     type="text"

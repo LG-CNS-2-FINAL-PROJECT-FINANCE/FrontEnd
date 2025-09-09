@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { useTranslation } from 'react-i18next';
 
 function InvestmentDescription({ imageUrl, summary, description }) {
+    const { t } = useTranslation();
+
     const [currentIndex, setCurrentIndex] = useState(0);
 
     const images = imageUrl;
@@ -31,13 +34,13 @@ function InvestmentDescription({ imageUrl, summary, description }) {
 
     return (
         <div className="bg-white py-6 rounded-lg mt-10">
-            <h2 className="text-2xl font-bold mb-4">프로젝트 상세</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('investment_detail_project_detail_title')}</h2>
 
             {hasImages ? (
                 <div className="relative w-full mb-6">
                     <img
                         src={currentImageSrc.startsWith('http') ? currentImageSrc : `/${currentImageSrc}`}
-                        alt="프로젝트 이미지"
+                        alt={t('investment_detail_project_image_alt')}
                         className="w-full rounded-lg max-h-96 object-contain mx-auto"
                     />
                     {images.length > 1 && (
@@ -71,13 +74,13 @@ function InvestmentDescription({ imageUrl, summary, description }) {
                     )}
                 </div>
             ) : (
-                <p className="text-gray-600 mb-6 text-center">표시할 이미지가 없습니다.</p>
+                <p className="text-gray-600 mb-6 text-center">{t('investment_detail_no_image_message')}</p>
             )}
 
-            <h3 className="text-xl font-semibold mb-3">프로젝트 요약</h3>
+            <h3 className="text-xl font-semibold mb-3">{t('investment_detail_summary_title')}</h3>
             <p className="text-gray-700 leading-relaxed mb-6">{summary}</p>
 
-            <h3 className="text-xl font-semibold mb-3">상세 설명</h3>
+            <h3 className="text-xl font-semibold mb-3">{t('investment_detail_description_title')}</h3>
             <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                 {description}
             </p>

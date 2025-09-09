@@ -2,8 +2,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import Ballpit from "../../component/Ballpit";
 import MarketCard from "../../component/MarketCard";
 import { getMarketProducts } from "../../api/market_api";
+import { useTranslation } from 'react-i18next';
 
 function Market() {
+
+    const { t } = useTranslation();
+
     const { data: products, isLoading: productsLoading, isError: productsError } = useQuery({
       queryKey: ["products"],
       queryFn: getMarketProducts,
@@ -37,18 +41,18 @@ function Market() {
           <div className="relative">
             <span className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-orange-400/40 via-amber-300/30 to-yellow-300/40 blur-xl" aria-hidden="true"></span>
             <h1 className="relative text-4xl md:text-5xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-orange-600 via-amber-500 to-yellow-400 drop-shadow-sm">
-              2차 거래 시장
+                {t('market_hero_title')}
             </h1>
           </div>
           <p className="mt-4 text-sm md:text-base text-neutral-600 font-medium">
-            블록체인을 활용한 사용자간의 거래
+              {t('market_hero_description')}
           </p>
           <div className="mt-6 h-1 w-40 rounded-full bg-gradient-to-r from-orange-500 via-amber-400 to-yellow-300 animate-pulse" />
         </div>
       </div>
       {/* End Hero */}
 
-      <h2 className="text-2xl font-bold">상품 리스트</h2>
+      <h2 className="text-2xl font-bold">{t('market_product_list_title')}</h2>
       {/* Products Section */}
       {productsLoading && (
         // Skeleton
@@ -68,20 +72,20 @@ function Market() {
 
       {productsError && (
         <div className="mt-4 mb-12 rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-700">
-          <p className="font-lg mb-2">상품을 불러오지 못했습니다.</p>
-          <p className="mb-4">{"알 수 없는 오류가 발생했습니다."}</p>
+          <p className="font-lg mb-2">{t('market_fetch_error_main_message')}</p>
+          <p className="mb-4">{t('market_fetch_error_detail_message')}</p>
           <button
             onClick={() => queryClient.invalidateQueries({ queryKey: ["products"] })}
             className="px-4 py-2 rounded-md bg-red-600 text-white text-sm hover:bg-red-700"
           >
-            다시 시도
+              {t('market_retry_button')}
           </button>
         </div>
       )}
 
       {!productsLoading && !productsError && products?.length === 0 && (
         <div className="mt-4 mb-12 rounded-lg border border-neutral-200 p-10 text-center text-neutral-500">
-          등록된 상품이 없습니다.
+            {t('market_no_products_message')}
         </div>
       )}
 

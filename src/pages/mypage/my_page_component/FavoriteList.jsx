@@ -3,8 +3,11 @@ import InvestmentCard from '../../../component/InvestmentCard';
 import {getMyFavoriteList} from '../../../api/favorite_api';
 import { useQuery } from "@tanstack/react-query";
 import useUser from "../../../lib/useUser";
+import { useTranslation } from 'react-i18next';
 
 const FavoriteList = ({}) => {
+
+    const { t } = useTranslation();
 
     const { user } = useUser();
 
@@ -42,25 +45,29 @@ const FavoriteList = ({}) => {
         if (ddayNum === undefined || ddayNum === null || ddayNum === '') return '';
         ddayNum = Number(ddayNum);
 
-        if (ddayNum < 0) return '마감';
-        if (ddayNum === 0) return 'Day';
+        if (ddayNum < 0) return t('dday_closed');
+        if (ddayNum === 0) return t('dday_today');
         return `${ddayNum}`;
     };
 
     if (isLoading) {
-        return <div className="container mx-auto py-8 text-center text-lg">즐겨 찾기 로딩 중...</div>;
+        return <div className="container mx-auto py-8 text-center text-lg">{t('favorite_preview_loading_message')}</div>;
     }
 
     if (isError) {
-        return <div className="container mx-auto py-8 text-center text-red-500">에러 발생: {error?.message || '즐겨찾기를 불러올 수 없습니다.'}</div>;
+        return (
+            <div className="container mx-auto py-8 text-center text-red-500">
+                {t('favorite_preview_error_message', { errorMessage: error?.message || t('favorite_list_error_fallback')})}
+            </div>
+        );
     }
 
     if (!fetchedData || fetchedData.length === 0) {
         return (
             <div className="container mx-auto py-8">
-                <h2 className="text-2xl font-bold mb-4">즐겨 찾기</h2>
+                <h2 className="text-2xl font-bold mb-4">{t('favorite_preview_title')}</h2>
                 <div className="border border-gray-200 rounded-lg p-6 relative w-full text-center text-gray-500">
-                    즐겨찾기가 없습니다.
+                    {t('favorite_list_no_favorites')}
                 </div>
             </div>
         );
@@ -69,7 +76,7 @@ const FavoriteList = ({}) => {
     return (
         <div>
             {/* Favorites List Title */}
-            <h2 className="text-2xl font-bold mb-4">즐겨찾기</h2>
+            <h2 className="text-2xl font-bold mb-4">{t('favorite_preview_title')}</h2>
             
             {/* Full Favorites List with Thin Gray Border - full width */}
             <div 
@@ -86,7 +93,7 @@ const FavoriteList = ({}) => {
                                     projectId: investment.projectId,
                                     name: investment.title,
                                     amount: formatAmount(investment.amount),
-                                    dday: calculateDday(investment.deadline),
+                                    dday: calculateDday(investment.deadline, t),
                                     progress: investment.progress,
                                     views: investment.views,
                                     status: investment.status,

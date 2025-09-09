@@ -1,7 +1,11 @@
 import React from "react";
 import { FaFilePdf, FaFileExcel, FaDownload } from "react-icons/fa"; // 파일 타입에 따른 아이콘
+import { useTranslation } from 'react-i18next';
 
 function InvestmentFiles({ files }) {
+
+    const { t } = useTranslation();
+
   const getFileIcon = (fileName) => {
     if (!fileName || typeof fileName !== 'string') {
       return <FaDownload className="text-gray-500" />;
@@ -20,16 +24,16 @@ function InvestmentFiles({ files }) {
 
   if (!files || !Array.isArray(files) || files.length === 0) {
     return (
-        <div className="bg-white rounded-lg mt-10">
-          <h2 className="text-2xl font-bold mb-4">첨부 파일</h2>
-          <p className="text-gray-600">첨부 파일이 없습니다.</p>
+        <div className="bg-white rounded-lg mt-10 py-6">
+          <h2 className="text-2xl font-bold mb-4">{t('investment_files_title')}</h2>
+          <p className="text-gray-600">{t('investment_files_none')}</p>
         </div>
     );
   }
 
   return (
-      <div className="bg-white rounded-lg mt-10">
-        <h2 className="text-2xl font-bold mb-4">첨부 파일</h2>
+      <div className="bg-white py-6 rounded-lg mt-10">
+        <h2 className="text-2xl font-bold mb-4">{t('investment_files_title')}</h2>
         <ul>
           {files.map((file, index) => {
             if (!file || !file.name || typeof file.name !== 'string' || !file.url || typeof file.url !== 'string') {
@@ -53,7 +57,7 @@ function InvestmentFiles({ files }) {
                       download={file.name}
                       className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm hover:bg-blue-600 flex items-center"
                   >
-                    <FaDownload className="inline-block mr-1" /> 상세보기
+                    <FaDownload className="inline-block mr-1" />  {t('investment_files_view_details_button')}
                   </a>
                 </li>
             );
