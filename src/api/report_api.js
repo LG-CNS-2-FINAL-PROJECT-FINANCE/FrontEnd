@@ -99,7 +99,7 @@ export async function getUserReports(options = {}) {
 
     try {
         const params = { ...restOptions };
-        const res = await privateApi.get('/monitoring/writer/list', { params, signal });
+        const res = await privateApi.get('/monitoring/report/writer/list', { params, signal });
         const payload = res.data;
 
         let list = [];

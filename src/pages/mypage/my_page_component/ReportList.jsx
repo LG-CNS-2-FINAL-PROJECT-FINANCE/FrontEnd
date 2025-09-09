@@ -66,36 +66,58 @@ const ReportList = () => {
     }
 
     return (
-        <div className="w-full">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">{t('report_list_my_reports_title', { total: total})}</h2>
-            <div className="border border-gray-300 rounded-lg p-6 bg-white">
-                <div className="space-y-4">
-                    {reports && reports.length > 0 ? (
-                        reports.map((report) => (
-                            <div key={report.reportId} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors duration-200">
-                                <div className="flex justify-between items-start mb-2">
-                                    <h3 className="text-lg font-semibold text-gray-800">{report.reportType} | {t('report_list_project_label')}: {report.projectId}</h3>
-                                    <span className={`px-2 py-1 text-xs rounded-full ${getStatusClasses(report.status)}`}>
-                                        {report.status === 'PROCESSED' ? t('report_status_processed') :
-                                            report.status === 'PENDING' ? t('report_status_pending') :
-                                                report.status === 'REJECTED' ? t('report_status_rejected') :
-                                                    report.status}
-                                    </span>
-                                </div>
+        <>
+            {user?.role === 'USER' && (
+                <div className="w-full">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                        {t('report_list_my_reports_title', { total: total })}
+                    </h2>
+                    <div className="border border-gray-300 rounded-lg p-6 bg-white">
+                        <div className="space-y-4">
+                            {reports && reports.length > 0 ? (
+                                reports.map((report) => (
+                                    <div
+                                        key={report.reportId}
+                                        className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors duration-200"
+                                    >
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="text-lg font-semibold text-gray-800">
+                                                {report.reportType} | {t('report_list_project_label')}:{' '}
+                                                {report.projectId}
+                                            </h3>
+                                            <span
+                                                className={`px-2 py-1 text-xs rounded-full ${getStatusClasses(report.status)}`}
+                                            >
+                      {report.status === 'PROCESSED'
+                          ? t('report_status_processed')
+                          : report.status === 'PENDING'
+                              ? t('report_status_pending')
+                              : report.status === 'REJECTED'
+                                  ? t('report_status_rejected')
+                                  : report.status}
+                    </span>
+                                        </div>
 
-                                <div className="text-sm text-gray-600 mb-2">
-                                    <p><span className="font-medium">{t('report_list_reporter_id_label')}:</span> {report.reportId}</p>
+                                        <div className="text-sm text-gray-600 mb-2">
+                                            <p>
+                      <span className="font-medium">
+                        {t('report_list_reporter_id_label')}:
+                      </span>{' '}
+                                                {report.reportId}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-center text-gray-500 py-12">
+                                    {t('report_list_no_reports')}
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="text-center text-gray-500 py-12">
-                            {t('report_list_no_reports')}
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
-            </div>
-        </div>
+            )}
+        </>
     );
 };
 
