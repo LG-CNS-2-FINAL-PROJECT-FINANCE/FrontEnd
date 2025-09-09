@@ -1,10 +1,11 @@
 import React, {useState, useEffect, useContext} from 'react';
 import dayjs from 'dayjs';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import { getAllDetail } from '../../../api/admin_project_api';
+import {buttonPostClosed, getAllDetail} from '../../../api/admin_project_api';
 import PostHoldModal from "./PostHoldModal";
 import {AuthContext} from "../../../context/AuthContext";
 import CopyIcon from '../../../component/CopyIcon';
+import {toast} from "react-toastify";
 
 const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -35,7 +36,7 @@ const StatusBadge = ({ status = 'PENDING' }) => {
 };
 
 // 액션 버튼 (승인/거절 버튼을 제거하므로 이 액션 버튼도 제거될 수 있음)
-const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children, icon }) => {
+const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children, icon, closed }) => {
     const variants = {
         approve: disabled || loading
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -43,6 +44,9 @@ const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children
         reject: disabled || loading
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : 'bg-rose-600 text-white hover:bg-rose-700',
+        closed: closed || loading
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300'
+            : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50',
         secondary: disabled || loading
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed border border-gray-300'
             : 'bg-white text-slate-600 border border-slate-300 hover:bg-slate-50',
@@ -64,10 +68,7 @@ const ActionButton = ({ kind = 'secondary', loading, disabled, onClick, children
         </button>
     );
 };
-// --- Helpers end ---
 
-
-// --- Utility functions (PostDetailModal에서 복사) ---
 function formatDate(d) {
     if (!d) return null;
     try {
@@ -92,7 +93,7 @@ function Field({ label, value, className = '' }) {
     );
 }
 
-export default function PostAllDetailModal({ open, onClose, postId, onStatusChange }) {
+export default function PostAllDetailModal({ open, onClose, postId, onStatusChange, projectId }) {
     const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
     const [copiedMessage, setCopiedMessage] = useState({ show: false, text: '' });
 
@@ -182,7 +183,6 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
         );
     }
 
-
     const closeOnBackdrop = (e) => {
         if (e.target === e.currentTarget) onClose();
     };
@@ -199,6 +199,16 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
     };
 
     const isCurrentHeld = postDetail?.projectVisibility === 'HOLD';
+
+    const handleCloseProject = async () => {
+        try {
+            await buttonPostClosed(postDetail.projectId);
+            toast.success("프로젝트가 종료되었습니다.");
+        } catch (error) {
+            alert("프로젝트 종료 중 오류가 발생했습니다."); // 에러 처리
+            console.error(error);
+        }
+    };
 
 
     return (
@@ -290,7 +300,13 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
                     </div>
 
                     <div className="space-y-4">
-                        <div className="pt-4 border-t border-slate-200 flex justify-end">
+                        <div className="pt-4 border-t border-slate-200 flex justify-end gap-2">
+                            <ActionButton
+                                kind="closed"
+                                onClick={handleCloseProject}
+                            >
+                                프로젝트 종료
+                            </ActionButton>
                             <ActionButton
                                 kind="secondary"
                                 onClick={onClose}

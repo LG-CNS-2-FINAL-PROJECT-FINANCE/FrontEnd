@@ -218,3 +218,19 @@ export async function togglePostHoldStatus(projectId, adminId, holdReason) {
         throw error;
     }
 }
+
+
+export async  function buttonPostClosed(projectId){
+    console.log(`[admin_project_api] buttonPostClosed 호출됨. ProjectId: ${projectId}`);
+
+    const payload = {};
+
+    try {
+        const res = await api.post(`/product/closed/${projectId}`);
+        console.log(`[admin_project_api] buttonPostClosed 응답:`, res.data);
+        return res.data;
+    } catch (error){
+        console.error(`[admin_project_api buttonPostClosed 오류 (ProjectId: ${projectId}):`, error)
+        throw error;
+    }
+}
