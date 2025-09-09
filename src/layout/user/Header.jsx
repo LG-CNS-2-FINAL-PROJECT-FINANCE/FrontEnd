@@ -177,27 +177,32 @@ function Header() {
 
         {/* --- 알림 패널 --- */}
         {openNotif && (
-            <div className="fixed inset-0 z-50 flex justify-end">
-              <div
-                  className="absolute inset-0 bg-black bg-opacity-30"
+            <div className="fixed inset-0 z-50">
+              {/*<div
+                  className="absolute inset-0 h-screen bg-black bg-opacity-40"
                   onClick={() => setOpenNotif(false)}
-              />
-              <div className="relative w-[380px] h-full bg-white shadow-2xl rounded-l-2xl flex flex-col animate-slide-in">
-                <div className="flex items-center justify-between px-5 py-4 border-b">
-                  <h2 className="text-lg font-bold">{t("header_notifications_title")}</h2>
+              />*/}
+              <div
+                  className={`fixed top-0 right-0 w-[400px] h-screen bg-white shadow-2xl rounded-l-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${ // 너비 확장, 부드러운 애니메이션
+                      openNotif ? "translate-x-0" : "translate-x-full"
+                  }`}
+              >
+                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+                  <h2 className="text-xl font-bold text-gray-800">{t("header_notifications_title")}</h2>
                   <IoMdClose
                       className="w-5 h-5 text-gray-600 cursor-pointer hover:text-red-500 transition"
                       onClick={() => setOpenNotif(false)}
                   />
                 </div>
+
                 <div className="flex-1 overflow-y-auto p-5">
                   {notifLoading && (
                       <div className="space-y-4">
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div key={i} className="animate-pulse">
-                              <div className="h-4 w-28 bg-gray-200 rounded mb-2" />
-                              <div className="h-3 w-56 bg-gray-200 rounded mb-1" />
-                              <div className="h-3 w-40 bg-gray-200 rounded" />
+                              <div className="h-5 w-3/4 bg-gray-200 rounded mb-2" />
+                              <div className="h-4 w-full bg-gray-200 rounded mb-1" />
+                              <div className="h-4 w-5/6 bg-gray-200 rounded" />
                             </div>
                         ))}
                       </div>
