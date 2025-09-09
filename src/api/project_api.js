@@ -39,7 +39,7 @@ function mapToInvestmentCardData(item) {
 export async function getInvestments(options = {}) {
     try {
         const { signal, ...restOptions } = options;
-        const res = await authedGet('/product', { signal, ...restOptions });
+        const res = await authedGet('/product/open', { signal, ...restOptions });
 
         const payload = res.data;
 
