@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import SalesChart from "../SalesChart";
 import { toast } from "react-toastify";
 import useScrollLock from "../../../component/useScrollLock";
@@ -21,6 +21,19 @@ export default function MarketSellModal({ tradeHistory, tradeHistoryLoading, pro
   const handlePriceChange = (e) => setPriceStr((d => d ? format(d) : "")(onlyDigits(e.target.value)));
   const handleQtyChange = (e) => setQtyStr((d => d ? format(d) : "")(onlyDigits(e.target.value)));
 
+  useEffect(() => {
+        if (!isOpen) return;
+
+            const handleEsc = (e) => {
+            if (e.key === "Escape") {
+                onClose?.();
+              }
+          };
+
+            window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+      }, [isOpen, onClose]);
+
   const mutation = useMutation({
     mutationFn: (payload) => tradeSell(payload),
     onSuccess: () => {
@@ -29,6 +42,7 @@ export default function MarketSellModal({ tradeHistory, tradeHistoryLoading, pro
       queryClient.refetchQueries({ queryKey: ["sellBidHistory", projectId] });
       queryClient.refetchQueries({ queryKey: ["tradeHistory", projectId] });
       onClose?.();
+      window.location.reload();
     },
     onError: () => {
       toast.error(`판매 요청에 실패하였습니다.`, { position: "bottom-right" });

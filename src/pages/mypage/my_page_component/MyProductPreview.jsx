@@ -16,7 +16,7 @@ const MyProductPreview = () => {
 
 
     const handleMoreClick = () => {
-        navigate('/my-product');
+        window.location.href = ('/my-product');
     }
 
     const { user } = useUser();
