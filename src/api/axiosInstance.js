@@ -18,8 +18,7 @@ const clearTokens = () => {
 // 2-1) 인스턴스
 export const publicApi = axios.create({
   // Local환경에서의 BaseUrl
-  baseURL:
-    "http://k8s-default-apigatew-a52d40d11e-1570962045.ap-northeast-2.elb.amazonaws.com/",
+  baseURL: "http://192.168.0.222:8080/api",
   withCredentials: false,
 });
 
