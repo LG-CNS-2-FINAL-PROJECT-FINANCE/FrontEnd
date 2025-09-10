@@ -174,7 +174,7 @@ function InvestmentSummary({
                       className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
                   >
                     {projectStatus === 'DISTRIBUTION_READY'
-                        ? '수익금 예치하기'
+                        ? '수익금 예치'
                         : t('investment_summary_distribute_request_button')}
                   </button>
               )}
