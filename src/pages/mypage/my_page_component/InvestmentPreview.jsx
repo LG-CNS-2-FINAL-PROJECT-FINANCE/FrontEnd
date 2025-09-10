@@ -20,7 +20,7 @@ const InvestmentPreview = ({}) => {
     const [selectedProductToDelete, setSelectedProductToDelete] = useState(null);
 
     const handleMoreClick = () => {
-        navigate('/my-investments');
+        window.location.href = ('/my-investments');
     };
 
     const { user } = useUser();

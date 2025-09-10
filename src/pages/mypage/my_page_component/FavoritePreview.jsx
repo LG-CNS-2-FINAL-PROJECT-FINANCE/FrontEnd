@@ -60,7 +60,7 @@ const FavoritePreview = ({}) => {
     }, [fetchedData]);
 
     const handleMoreClick = () => {
-        navigate('/my-favorites');
+        window.location.href = ('/my-favorites');
     };
 
     if (isLoading) {
