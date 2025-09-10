@@ -13,6 +13,7 @@ export default function EscrowModal({ projectId, isOpen, onClose }) {
             await postProfit({ buyPrice, projectId });
             alert("수익금 예치 완료!");
             onClose();
+            window.location.reload();
         } catch (err) {
             alert("예치 실패. 다시 시도해주세요.");
         } finally {
