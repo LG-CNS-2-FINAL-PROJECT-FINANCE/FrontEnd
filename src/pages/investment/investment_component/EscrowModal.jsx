@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { postProfit } from "../../../api/project_api";
+import {toast} from "react-toastify";
 
 export default function EscrowModal({ projectId, isOpen, onClose }) {
     const [buyPrice, setBuyPrice] = useState("");
@@ -11,11 +12,11 @@ export default function EscrowModal({ projectId, isOpen, onClose }) {
         try {
             setLoading(true);
             await postProfit({ buyPrice, projectId });
-            alert("수익금 예치 완료!");
+            toast.success("수익금 예치 완료!");
             onClose();
             window.location.reload();
         } catch (err) {
-            alert("예치 실패. 다시 시도해주세요.");
+            toast.error("예치 실패. 다시 시도해주세요.");
         } finally {
             setLoading(false);
         }

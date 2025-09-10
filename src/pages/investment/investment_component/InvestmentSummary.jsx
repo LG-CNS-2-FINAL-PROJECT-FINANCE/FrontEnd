@@ -180,6 +180,13 @@ function InvestmentSummary({
                         : t('investment_summary_distribute_request_button')}
                   </button>
               )}
+              {isProjectOwner && projectStatus === 'DISTRIBUTION_READY' &&(
+                  <button
+                      className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
+                  >
+                    수익금 회수
+                  </button>
+                )}
 
               <button
                 onClick={handleInvest}
