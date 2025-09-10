@@ -161,7 +161,9 @@ function InvestmentSummary({
         </div>
 
         <div className="flex flex-col space-y-2">
-          {(isProjectOwner || user?.role !== 'CREATOR') && (
+          {(isProjectOwner || user?.role !== 'CREATOR') &&
+              projectStatus !== 'DISTRIBUTING' &&
+              projectStatus !== 'CLOSED' && (
             <div className="flex justify-end space-x-2">
               {/* 분배요청 버튼 - 프로젝트 소유자만 보임 (CREATOR + matching userSeq) */}
               {isProjectOwner && (
