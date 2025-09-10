@@ -169,4 +169,43 @@ export const submitUpdateRequest = async ({ projectId, formData, reason, documen
             throw new Error('수정 요청 처리 중 오류가 발생했습니다.');
         }
     }
+
+
+};
+
+// Submit distribution request for a project
+export const submitDistributionRequest = async ({ projectId, document = [], image = [], distributionAmount, distributionSummary }) => {
+    try {
+        // Filter out empty strings from arrays
+        const cleanDocument = document.filter(doc => doc && doc.trim() !== '');
+        const cleanImage = image.filter(img => img && img.trim() !== '');
+        
+        const response = await privateApi.post('/product/request/distribution', {
+            projectId: projectId,
+            document: cleanDocument,
+            image: cleanImage,
+            distributionAmount: distributionAmount,
+            distributionSummary: distributionSummary
+        });
+        
+        return {
+            success: true,
+            data: response.data,
+            requestId: response.data?.requestId || response.data
+        };
+        
+    } catch (error) {
+        console.error('Distribution request API Error:', error);
+        
+        // Handle specific error cases
+        if (error.response?.status === 400) {
+            throw new Error(error.response.data?.message || '잘못된 요청입니다.');
+        } else if (error.response?.status === 403) {
+            throw new Error('권한이 없습니다. (CREATOR 권한 필요)');
+        } else if (error.response?.status === 409) {
+            throw new Error('이미 대기 중인 요청이 있습니다.');
+        } else {
+            throw new Error('분배 요청 처리 중 오류가 발생했습니다.');
+        }
+    }
 };

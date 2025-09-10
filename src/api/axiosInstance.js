@@ -18,7 +18,8 @@ const clearTokens = () => {
 // 2-1) 인스턴스
 export const publicApi = axios.create({
   // Local환경에서의 BaseUrl
-  baseURL: "http://192.168.0.222:8080/api",
+  baseURL:
+    "http://192.168.0.222:8080/api",
   withCredentials: false,
 });
 
