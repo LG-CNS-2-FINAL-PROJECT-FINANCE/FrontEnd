@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
 
 import ScrollToTop from "./pages/common/ScrollToTop.js";
 import Layout from "./layout/user/Layout.jsx";
@@ -38,6 +40,26 @@ import { AuthProvider } from "./context/AuthContext";
 import EventPage from "./pages/event/EventPage";
 
 function App() {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", (event) => {
+        if (event.data?.type === "SHOW_NOTIFICATION") {
+          const payload = event.data.payload;
+          const title = payload.notification?.title || "알림";
+          const body = payload.notification?.body || "내용 없음";
+
+          toast.info(`${title} - ${body}`, {
+            position: "bottom-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          });
+        }
+      });
+    }
+  }, []);
   return (
     <ThemeProvider>
       <BrowserRouter>
