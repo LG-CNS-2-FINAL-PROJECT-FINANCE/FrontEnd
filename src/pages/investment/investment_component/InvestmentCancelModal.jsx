@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import useScrollLock from "../../../component/useScrollLock";
 import { getMyInvestments, cancelInvestment } from "../../../api/investment_api";
+import {toast} from "react-toastify";
 
 function InvestmentCancelModal({
 isOpen,
@@ -30,7 +31,7 @@ const fetchMyInvestments = async () => {
         
     } catch (error) {
         console.error('Failed to fetch investments:', error);
-        alert('투자 내역을 불러오는데 실패했습니다.');
+        toast.error('투자 내역을 불러오는데 실패했습니다.');
     } finally {
         setIsLoading(false);
     }
@@ -55,16 +56,16 @@ const handleCancelInvestment = async () => {
             projectId: projectId,                             
         });
     
-    alert('투자 취소가 완료되었습니다.');
+    toast.success('투자 취소가 완료되었습니다.');
     onClose();
     window.location.reload();
     
     } catch (error) {
     console.error('Cancel investment error:', error);
     if (error.response?.status === 400) {
-        alert('투자 취소에 실패했습니다. 이미 취소된 투자이거나 취소할 수 없는 상태입니다.');
+        toast.warn('투자 취소에 실패했습니다. 이미 취소된 투자이거나 취소할 수 없는 상태입니다.');
     } else {
-        alert('투자 취소 중 오류가 발생했습니다. 다시 시도해주세요.');
+        toast.error('투자 취소 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
     } finally {
     setIsCancelling(false);

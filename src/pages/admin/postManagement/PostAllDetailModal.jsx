@@ -205,7 +205,7 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
             await buttonPostClosed(postDetail.projectId);
             toast.success("프로젝트가 종료되었습니다.");
         } catch (error) {
-            alert("프로젝트 종료 중 오류가 발생했습니다."); // 에러 처리
+            toast.error("프로젝트 종료 중 오류가 발생했습니다."); // 에러 처리
             console.error(error);
         }
     };

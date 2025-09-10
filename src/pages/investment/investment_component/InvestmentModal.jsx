@@ -6,6 +6,7 @@ import useUser from "../../../lib/useUser";
 import { useTranslation } from 'react-i18next';
 import { IoInformationCircleOutline } from "react-icons/io5";
 import HoverModal from "./HoverModal";
+import {toast} from "react-toastify";
 
 function InvestmentModal({
   isOpen,
@@ -58,20 +59,20 @@ function InvestmentModal({
   // 실제 투자 신청 버튼 클릭
   const handleApplyInvestment = async () => {
     if (!hasConfirmed) {
-      alert(t('investment_modal_alert_confirm_info'));
+      toast.warn('investment_modal_alert_confirm_info');
       return;
     }
     
     const minInvestmentValue = minInvestment || 0;
     if (investmentAmount < minInvestmentValue) {
-      alert(t('investment_modal_alert_min_investment', { amount: minInvestmentValue.toLocaleString(), unit: t('unit_won') }));
+      toast.warn(t('investment_modal_alert_min_investment', { amount: minInvestmentValue.toLocaleString(), unit: t('unit_won') }));
       return;
     }
 
     // Use email as user identifier since userSeq is not available
     const userIdentifier = user?.email;
     if (!userIdentifier) {
-      alert(t('investment_modal_alert_user_info_not_found'));
+      toast.warn(t('investment_modal_alert_user_info_not_found'));
       return;
     }
 
@@ -97,7 +98,7 @@ function InvestmentModal({
       if (response && response.invStatus) {
         const status = response.invStatus;
         if (status === 'FUNDING') {
-          alert(t('investment_modal_alert_success_funding', {
+          toast.success(t('investment_modal_alert_success_funding', {
             title: title,
             amount: investmentAmount.toLocaleString(),
             tokenQuantity: tokenQuantity,
@@ -105,12 +106,12 @@ function InvestmentModal({
             unit_ea: t('unit_ea')
           }));
         } else if (status === 'CANCELLED') {
-          alert(t('investment_modal_alert_cancelled'));
+          toast.success(t('investment_modal_alert_cancelled'));
         } else {
-          alert(t('investment_modal_alert_submitted', { status: status }));
+          toast.success(t('investment_modal_alert_submitted', { status: status }));
         }
       } else {
-        alert(t('investment_modal_alert_success_generic', {
+        toast.success(t('investment_modal_alert_success_generic', {
           title: title,
           amount: investmentAmount.toLocaleString(),
           tokenQuantity: tokenQuantity,
@@ -124,7 +125,7 @@ function InvestmentModal({
 
     } catch (error) {
       console.error('Investment error:', error);
-      alert(t('investment_modal_alert_error'));
+      toast.error(t('investment_modal_alert_error'));
     } finally {
       setIsLoading(false);
     }
