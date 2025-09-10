@@ -57,6 +57,8 @@ function InvestmentDetail() {
                 imageUrl={investment.imageUrl}
                 summary={investment.summary}
                 tokenPrice={investment.tokenPrice}
+                projectStatus={investment.projectStatus}
+                projectVisiblity={investment.projectVisibility}
             />
 
             {/* 2. 투자 목표 및 진행 */}

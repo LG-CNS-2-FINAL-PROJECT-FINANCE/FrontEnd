@@ -42,7 +42,7 @@ function InvestmentDescription({ imageUrl, summary, description }) {
     };
 
     return (
-        <div className="bg-gradient-to-br from-white to-gray-50 shadow-xl rounded-2xl border border-gray-200 overflow-hidden mt-10">
+        <div className="bg-gradient-to-br from-white to-gray-50 shadow-sm rounded-2xl border border-gray-200 overflow-hidden mt-10">
             {/* Header Section */}
             <div className={`px-8 py-6 ${role === 'CREATOR' ? 'bg-blue-600' : 'bg-red-600'}`}>
                 <h2 className="text-3xl font-bold text-white flex items-center gap-3">

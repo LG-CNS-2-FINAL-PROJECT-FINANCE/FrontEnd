@@ -16,6 +16,7 @@ import { useTheme } from "../../../context/ThemeContext";
 import { toggleFavorite } from "../../../api/favorites_api";
 import useUser from "../../../lib/useUser";
 import { useTranslation } from 'react-i18next';
+import EscrowModal from "./EscrowModal";
 
 function InvestmentSummary({
   title,
@@ -30,6 +31,8 @@ function InvestmentSummary({
   summary,
   tokenPrice,
   reporterId,
+                             projectStatus,
+                             projectVisiblity,
 }) {
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,6 +44,7 @@ function InvestmentSummary({
   const { themeColors } = useTheme();
   const { user } = useUser();
   const navigate = useNavigate();
+  const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
 
   const { t } = useTranslation();
   
@@ -161,12 +165,18 @@ function InvestmentSummary({
             <div className="flex justify-end space-x-2">
               {/* 분배요청 버튼 - 프로젝트 소유자만 보임 (CREATOR + matching userSeq) */}
               {isProjectOwner && (
-                <button
-                  onClick={() => setIsDistributeModalOpen(true)}
-                  className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
-                >
-                  {t('investment_summary_distribute_request_button')}
-                </button>
+                  <button
+                      onClick={() =>
+                          projectStatus === 'DISTRIBUTION_READY'
+                              ? setIsEscrowModalOpen(true)
+                              : setIsDistributeModalOpen(true)
+                      }
+                      className="border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 py-2 px-3 rounded-md font-semibold flex items-center transition-colors"
+                  >
+                    {projectStatus === 'DISTRIBUTION_READY'
+                        ? '수익금 예치하기'
+                        : t('investment_summary_distribute_request_button')}
+                  </button>
               )}
 
               <button
@@ -225,6 +235,12 @@ function InvestmentSummary({
         </div>
       </div>
       <hr className="my-4" />
+
+      <EscrowModal
+          projectId={projectNumber}
+          isOpen={isEscrowModalOpen}
+          onClose={() => setIsEscrowModalOpen(false)}
+      />
 
       <InvestmentModal
         isOpen={isModalOpen}
