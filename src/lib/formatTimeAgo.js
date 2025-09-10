@@ -1,10 +1,20 @@
 import dayjs from "dayjs";
+import { toKSTDateTime } from "./toKSTDateTime";
 
 export default function formatTimeAgo(sentAt) {
-  if (!dayjs(sentAt).isValid()) return "";
+  if (!sentAt) return "";
 
-  const now = dayjs();
-  const past = dayjs(sentAt);
+  // Convert both current time and sentAt to KST
+  const nowKST = toKSTDateTime(new Date(), { asString: true });
+  const pastKST = toKSTDateTime(sentAt, { asString: true });
+
+  if (!nowKST || !pastKST) return "";
+
+  const now = dayjs(nowKST);
+  const past = dayjs(pastKST);
+  
+  if (!now.isValid() || !past.isValid()) return "";
+
   const diffMinutes = now.diff(past, "minute");
   const diffHours = now.diff(past, "hour");
   const diffDays = now.diff(past, "day");
