@@ -120,6 +120,7 @@ function InvestmentModal({
       }
 
       onClose();
+      window.location.reload();
 
     } catch (error) {
       console.error('Investment error:', error);

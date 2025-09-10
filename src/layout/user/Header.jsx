@@ -62,30 +62,31 @@ function Header() {
         <div className="flex justify-between items-center max-w-7xl mx-auto py-3 px-6">
           {/* --- Left: Logo + Nav --- */}
           <div className="flex items-center space-x-10">
+            {/*헤더 로고*/}
             <img
                 src="/assets/logo.png"
                 alt={t("header_logo_alt")}
                 className="w-24 h-auto hover:cursor-pointer transition-transform hover:scale-105"
-                onClick={() => navigate("/")}
+                onClick={() => window.location.href = "/"}
             />
-
+            {/*자산 조회*/}
             <nav className="hidden md:flex items-center space-x-8 text-sm font-semibold text-gray-700">
             <span
                 className="hover:text-red-500 hover:underline cursor-pointer transition"
-                onClick={() => navigate("/asset")}
+                onClick={() => window.location.href = ("/asset")}
             >
               {t("header_asset_inquiry")}
             </span>
               <span
                   className="hover:text-red-500 hover:underline cursor-pointer transition"
-                  onClick={() => navigate("/investment")}
+                  onClick={() => window.location.href =("/investment")}
               >
               {t("header_investment_products")}
             </span>
               <span
                   className="hover:text-red-500 hover:underline cursor-pointer transition"
                   onClick={() =>
-                      navigate(userRole === "CREATOR" ? "/product-registration" : "/market")
+                      window.location.href = (userRole === "CREATOR" ? "/product-registration" : "/market")
                   }
               >
               {userRole === "CREATOR"
@@ -155,14 +156,14 @@ function Header() {
                           src="/assets/bull.png"
                           alt={t("header_investor_icon_alt")}
                           className="w-10 h-10 cursor-pointer hover:scale-105 transition-transform"
-                          onClick={() => navigate("/my-profile")}
+                          onClick={() => window.location.href = ("/my-profile")}
                       />
                   ) : userRole === "CREATOR" ? (
                       <img
                           src="/assets/pig.png"
                           alt={t("header_creator_icon_alt")}
                           className="w-10 h-10 cursor-pointer hover:scale-105 transition-transform"
-                          onClick={() => navigate("/my-profile")}
+                          onClick={() => window.location.href = ("/my-profile")}
                       />
                   ) : (
                       <LuUserRound
