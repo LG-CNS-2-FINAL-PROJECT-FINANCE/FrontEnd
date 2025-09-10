@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import {useEffect, useMemo, useState} from "react";
 import SalesChart from "../SalesChart";
 import { toast } from "react-toastify";
 import useScrollLock from "../../../component/useScrollLock";
@@ -53,6 +53,19 @@ export default function MarketPurchaseModal({ tradeHistory,tradeHistoryLoading, 
       });
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        onClose?.();
+      }
+    };
+
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, [isOpen, onClose]);
 
   const submit = () => {
     mutation.mutate({projectId, purchasePrice:price, tokenQuantity:qty, ordersType:1 });
