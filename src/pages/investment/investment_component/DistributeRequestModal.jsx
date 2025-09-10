@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import useScrollLock from "../../../component/useScrollLock";
 import { toast } from "react-toastify";
+import { submitDistributionRequest } from "../../../api/project_registration_api";
 
 function DistributeRequestModal({ isOpen, onClose, projectId, title }) {
     const [reason, setReason] = useState("");
@@ -38,27 +39,20 @@ function DistributeRequestModal({ isOpen, onClose, projectId, title }) {
         try {
             const fileNames = files.map(file => file.name);
             
-            // TODO: API 호출 - 분배 요청 API가 준비되면 여기에 추가
-            // await submitDistributeRequest({
-            //     projectId,
-            //     document: fileNames,
-            //     image: null,
-            //     distributionAmount: parseFloat(distributionAmount),
-            //     distributionSummary: distributionSummary.trim()
-            // });
-
-            console.log("분배 요청 데이터:", {
+            // Call the distribution request API
+            await submitDistributionRequest({
                 projectId,
                 document: fileNames,
-                image: null,
-                distributionAmount: parseFloat(distributionAmount)
+                image: [],
+                distributionAmount: parseFloat(distributionAmount),
+                distributionSummary: reason.trim() // Using reason as distributionSummary
             });
 
             toast.success("분배 요청이 접수되었습니다.");
             resetForm();
             onClose();
         } catch (error) {
-            const errorMessage = error.response?.data?.message || "분배 요청 처리 중 오류가 발생했습니다.";
+            const errorMessage = error.message || "분배 요청 처리 중 오류가 발생했습니다.";
             toast.error(errorMessage);
         } finally {
             setIsSubmitting(false);

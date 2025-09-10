@@ -65,6 +65,7 @@ function InvestmentDetail() {
                 minInvestment={investment.minInvestment}
                 targetAmount={investment.targetAmount}
                 progress={investment.progress}
+                deadline={investment.deadline}
             />
 
             {/* 프로젝트 상세 설명 */}

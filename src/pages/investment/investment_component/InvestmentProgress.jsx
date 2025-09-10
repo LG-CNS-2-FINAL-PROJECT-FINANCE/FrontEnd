@@ -8,6 +8,7 @@ function InvestmentProgress({
   minInvestment,
   targetAmount,
   progress,
+  deadline,
 }) {
     const { t } = useTranslation();
   const { themeColors } = useTheme();
@@ -24,6 +25,25 @@ function InvestmentProgress({
   const isNearCompletion = progress >= 80;
   const progressColor = isNearCompletion ? 'from-green-500 to-emerald-600' : 'from-blue-500 to-purple-600';
 
+  // Determine status based on deadline value
+  let investmentStatus;
+  let statusColor;
+  
+  if (deadline >= 1) {
+    investmentStatus = '투자 진행중';
+    statusColor = 'bg-blue-100 text-blue-700';
+  } else if (deadline === 0) {
+    investmentStatus = '투자 마감일';
+    statusColor = 'bg-orange-100 text-orange-700';
+  } else if (deadline < 0) {
+    investmentStatus = '투자 모집 종료';
+    statusColor = 'bg-red-100 text-red-700';
+  } else {
+    // Fallback for undefined/null deadline
+    investmentStatus = '투자 진행중';
+    statusColor = 'bg-blue-100 text-blue-700';
+  }
+
   return (
     <div className="bg-white border-2 border-gray-100 rounded-xl overflow-hidden mb-8">
       {/* Header Section - Different design from Description */}
@@ -38,10 +58,8 @@ function InvestmentProgress({
               <p className="text-sm text-gray-600">실시간 투자 현황</p>
             </div>
           </div>
-          <div className={`px-4 py-2 rounded-lg text-sm font-medium ${
-            isNearCompletion ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
-          }`}>
-            {isNearCompletion ? '목표 달성 임박' : '투자 진행 중'}
+          <div className={`px-4 py-2 rounded-lg text-sm font-medium ${statusColor}`}>
+            {investmentStatus}
           </div>
         </div>
       </div>
@@ -86,7 +104,7 @@ function InvestmentProgress({
             <div className="flex items-center gap-2">
               <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${progressColor}`}></div>
               <span className="text-sm font-medium text-gray-600">
-                {isNearCompletion ? '목표 달성 임박!' : '투자 진행 중'}
+                {investmentStatus}
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
