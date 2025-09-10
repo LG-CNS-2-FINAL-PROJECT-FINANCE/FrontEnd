@@ -2,6 +2,7 @@ import React from "react";
 import { useTheme } from "../../../context/ThemeContext";
 import { useTranslation } from 'react-i18next';
 import { FaChartLine, FaBullseye, FaCoins, FaWallet } from "react-icons/fa";
+import useUser from '../../../lib/useUser'
 
 function InvestmentProgress({
   currentAmount,
@@ -20,10 +21,17 @@ function InvestmentProgress({
     }).format(amount);
   };
 
+  const { user } = useUser();
+
   // Calculate progress animation delay
   const progressBarWidth = Math.min(progress, 100);
   const isNearCompletion = progress >= 80;
-  const progressColor = isNearCompletion ? 'from-green-500 to-emerald-600' : 'from-blue-500 to-purple-600';
+  const progressColor =
+      user?.role === "USER"
+          ? "from-red-500 to-red-600"    // USER → 빨강
+          : user?.role === "CREATOR"
+              ? "from-blue-500 to-blue-600"  // CREATOR → 파랑
+              : "from-gray-400 to-gray-500";
 
   // Determine status based on deadline value
   let investmentStatus;
