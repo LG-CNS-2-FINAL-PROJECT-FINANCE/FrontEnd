@@ -24,7 +24,7 @@ function Header() {
 
   const [openNotif, setOpenNotif] = useState(false);
   const {
-    data: notifications = [],
+    data: notifications,
     isLoading: notifLoading,
     isError: notifError,
   } = useQuery({
@@ -160,7 +160,9 @@ function Header() {
                   className="w-7 h-7 text-gray-500 hover:text-gray-700 cursor-pointer transition"
                   onClick={() => setOpenNotif((o) => !o)}
                 />
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
+                {!notifLoading && (notifications?.length ?? 0) > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
+                )}
               </div>
             </div>
           )}
@@ -272,7 +274,7 @@ function Header() {
                           <IoMdClose
                             onClick={async () => {
                               await deleteNotification(id);
-                              queryClient.invalidateQueries({
+                              queryClient.refetchQueries({
                                 queryKey: ["notifications"],
                               });
                             }}
