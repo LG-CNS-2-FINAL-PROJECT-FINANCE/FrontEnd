@@ -38,6 +38,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import PostAllManagement from "./pages/admin/postManagement/PostAllManagement";
 import { AuthProvider } from "./context/AuthContext";
 import EventPage from "./pages/event/EventPage";
+import AssetTokenDetail from "./pages/asset/AssetTokenDetail.jsx";
 
 function App() {
   useEffect(() => {
@@ -112,8 +113,12 @@ function App() {
 
               {/*Asset*/}
               <Route path="/asset" element={<Asset />} />
+              <Route
+                path="/asset/token/:tokenId"
+                element={<AssetTokenDetail />}
+              />
 
-              {/*Evnet*/}
+              {/*Event*/}
               <Route path="/event" element={<EventPage />} />
             </Route>
 
