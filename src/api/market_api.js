@@ -45,6 +45,7 @@ export const getTokenTradeDoneHistoryByProjectId = async (projectId) => {
 export const getTokenTradePurchaseHistory = async (projectId) => {
   try {
     const response = await privateApi.get(`/market/trade/${projectId}/purchase`);
+    console.log('구매요청 확인', response);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -55,6 +56,7 @@ export const getTokenTradePurchaseHistory = async (projectId) => {
 export const getTokenTradeSellHistory = async (projectId) => {
   try {
     const response = await privateApi.get(`/market/trade/${projectId}/sell`);
+    console.log('판매요청 확인', response);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -66,6 +68,7 @@ export const getTokenTradeSellHistory = async (projectId) => {
 export const deleteTokenTrade = async (data) => {
   try {
     const response = await privateApi.post(`/market/trade/order/delete`, data );
+    console.log('삭제 요청 확인', response);
     return response.data;
   } catch (error) {
     console.error(error);
