@@ -18,21 +18,21 @@ const clearTokens = () => {
 // 2-1) 인스턴스
 export const publicApi = axios.create({
   // Local환경에서의 BaseUrl
-  baseURL:
-    "http://192.168.0.222:8080/api",
+  baseURL: "https://zzogaemol.kro.kr/api",
+
   withCredentials: false,
 });
 
 // 2-2) 인스턴스
 export const privateApi = axios.create({
   // Local환경에서의 BaseUrl
-  baseURL: "http://192.168.0.222:8080/api",
+  baseURL: "https://zzogaemol.kro.kr/api",
   withCredentials: false,
 });
 
 // 3) 리프레시 전용 클라이언트 (응답 인터셉터 타지 않게 분리)
 const refreshClient = axios.create({
-  baseURL: "http://192.168.0.222:8080/api",
+  baseURL: "https://zzogaemol.kro.kr/api",
   withCredentials: false,
 });
 

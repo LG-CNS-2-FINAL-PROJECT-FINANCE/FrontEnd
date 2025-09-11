@@ -13,6 +13,7 @@ export const getMarketProducts = async () => {
 
 export const tradeSell = async (data) => {
   try {
+    console.log("TradeData:", data);
     const response = await privateApi.post(`/market/trade/sell`, data);
     console.log("response", response);
     return response.data;
@@ -56,7 +57,6 @@ export const getTokenTradePurchaseHistory = async (projectId) => {
 export const getTokenTradeSellHistory = async (projectId) => {
   try {
     const response = await privateApi.get(`/market/trade/${projectId}/sell`);
-    console.log('판매요청 확인', response);
     return response.data;
   } catch (error) {
     console.error(error);
@@ -75,7 +75,6 @@ export const deleteTokenTrade = async (data) => {
     throw error;
   }
 };
-
 
 export const getTokenTradeDoneHistoryByUserId = async () => {
   try {
@@ -110,7 +109,9 @@ export const getTokenOrderHistoryByUserIdAndTradeType = async (tradeType) => {
 // 프로젝트별 체결 거래 내역 조회
 export const getMyTradeDoneHistoryByProjectId = async (projectId) => {
   try {
-    const response = await privateApi.get(`/market/trade/${projectId}/user/history`);
+    const response = await privateApi.get(
+      `/market/trade/${projectId}/user/history`
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -121,7 +122,9 @@ export const getMyTradeDoneHistoryByProjectId = async (projectId) => {
 // 프로젝트별 미체결 거래 내역 조회
 export const getMyTradeYetHistoryByProjectId = async (projectId) => {
   try {
-    const response = await privateApi.get(`/market/trade/${projectId}/user/list`);
+    const response = await privateApi.get(
+      `/market/trade/${projectId}/user/list`
+    );
     return response.data;
   } catch (error) {
     console.error(error);
