@@ -42,7 +42,6 @@ export default function MarketSellModal({ tradeHistory, tradeHistoryLoading, pro
       queryClient.refetchQueries({ queryKey: ["sellBidHistory", projectId] });
       queryClient.refetchQueries({ queryKey: ["tradeHistory", projectId] });
       onClose?.();
-      window.location.reload();
     },
     onError: () => {
       toast.error(`판매 요청에 실패하였습니다.`, { position: "bottom-right" });

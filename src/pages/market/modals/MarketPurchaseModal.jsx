@@ -44,8 +44,6 @@ export default function MarketPurchaseModal({ tradeHistory,tradeHistoryLoading, 
       queryClient.refetchQueries({ queryKey: ["sellBidHistory", projectId] });
       queryClient.refetchQueries({ queryKey: ["tradeHistory", projectId] });
       onClose?.();
-      //구매 성공 새로고침
-      window.location.reload();
     },
     onError: (error) => {
       toast.error(`구매 요청에 실패하였습니다.`, {
