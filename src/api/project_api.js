@@ -30,6 +30,8 @@ function mapToInvestmentCardData(item) {
         minInvestment: item.minInvestment, //최소금액
         account: item.account, //계좌번호
         // favorites: item.favorites, //좋아요 유무 -> userSeq가 담김 현재 사용X
+        projectStatus: item.projectStatus ?? null,
+        projectVisibility: item.projectVisibility ?? null,
 
 
     };
@@ -235,3 +237,24 @@ export const searchAdminProduct = async(options = {}) => {
         throw error;
     }
 }
+
+//수익금 예치
+export const postProfit = async ({ buyPrice, projectId, ordersId = 1, transType = 4 }) => {
+    try {
+        const payload = {
+            transType,   // 거래 타입 (고정값 4)
+            ordersId,    // 주문 ID (기본값 1)
+            buyPrice,    // 매수가
+            projectId,   // 프로젝트 ID
+        };
+
+        const res = await privateApi.post('/asset/market/profit', payload);
+        console.log('res 확인용', res)
+
+
+        return res.data;
+    } catch (error) {
+        console.error('[project_api] postProfit 오류:', error);
+        throw error;
+    }
+};

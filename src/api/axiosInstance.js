@@ -19,6 +19,7 @@ const clearTokens = () => {
 export const publicApi = axios.create({
   // Local환경에서의 BaseUrl
   baseURL: "https://zzogaemol.kro.kr/api",
+
   withCredentials: false,
 });
 

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FaChevronLeft, FaChevronRight, FaImage, FaInfoCircle, FaFileAlt } from "react-icons/fa";
 import { useTranslation } from 'react-i18next';
+import { useTheme } from "../../../context/ThemeContext";
 
 function InvestmentDescription({ imageUrl, summary, description }) {
     const { t } = useTranslation();
+    const { themeColors, role } = useTheme();
 
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isImageLoaded, setIsImageLoaded] = useState(false);
@@ -40,9 +42,9 @@ function InvestmentDescription({ imageUrl, summary, description }) {
     };
 
     return (
-        <div className="bg-gradient-to-br from-white to-gray-50 shadow-xl rounded-2xl border border-gray-200 overflow-hidden mt-10">
+        <div className="bg-gradient-to-br from-white to-gray-50 shadow-sm rounded-2xl border border-gray-200 overflow-hidden mt-10">
             {/* Header Section */}
-            <div className="bg-indigo-600 px-8 py-6">
+            <div className={`px-8 py-6 ${role === 'CREATOR' ? 'bg-blue-600' : 'bg-red-600'}`}>
                 <h2 className="text-3xl font-bold text-white flex items-center gap-3">
                     <FaInfoCircle className="text-slate-300" />
                     {t('investment_detail_project_detail_title')}
@@ -127,12 +129,12 @@ function InvestmentDescription({ imageUrl, summary, description }) {
                 {/* Summary Section */}
                 <div className="mb-10">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <FaInfoCircle className="text-blue-600 text-xl" />
+                        <div className="p-2 rounded-lg">
+                            <FaInfoCircle className={`${role === 'CREATOR' ? 'text-blue-600' : 'text-red-600'} text-xl`} />
                         </div>
                         <h3 className="text-2xl font-bold text-gray-800">{t('investment_detail_summary_title')}</h3>
                     </div>
-                    <div className="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-6 shadow-sm">
+                    <div className={`bg-blue-50 border-l-4 ${role === 'CREATOR' ? 'border-blue-500' : 'border-red-500'} rounded-r-xl p-6 shadow-sm`}>
                         <p className="text-gray-700 leading-relaxed text-lg font-medium">{summary}</p>
                     </div>
                 </div>
@@ -140,7 +142,7 @@ function InvestmentDescription({ imageUrl, summary, description }) {
                 {/* Description Section */}
                 <div>
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="p-2 bg-purple-100 rounded-lg">
+                        <div className="p-2rounded-lg">
                             <FaFileAlt className="text-purple-600 text-xl" />
                         </div>
                         <h3 className="text-2xl font-bold text-gray-800">{t('investment_detail_description_title')}</h3>
