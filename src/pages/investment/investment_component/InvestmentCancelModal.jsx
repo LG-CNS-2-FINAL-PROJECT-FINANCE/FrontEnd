@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import useScrollLock from "../../../component/useScrollLock";
 import { getMyInvestments, cancelInvestment } from "../../../api/investment_api";
 import {toast} from "react-toastify";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 function InvestmentCancelModal({
 isOpen,
@@ -58,6 +59,7 @@ const handleCancelInvestment = async () => {
     
     toast.success('투자 취소가 완료되었습니다.');
     onClose();
+    await wait(5000);
     window.location.reload();
     
     } catch (error) {

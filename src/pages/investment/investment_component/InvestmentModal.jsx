@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { IoInformationCircleOutline } from "react-icons/io5";
 import HoverModal from "./HoverModal";
 import {toast} from "react-toastify";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 function InvestmentModal({
   isOpen,
@@ -121,6 +122,7 @@ function InvestmentModal({
       }
 
       onClose();
+      await wait(5000);
       window.location.reload();
 
     } catch (error) {
