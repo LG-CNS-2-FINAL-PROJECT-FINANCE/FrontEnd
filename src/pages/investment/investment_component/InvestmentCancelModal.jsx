@@ -59,7 +59,7 @@ const handleCancelInvestment = async () => {
     
     toast.success('투자 취소가 완료되었습니다.');
     onClose();
-    await wait(5000);
+    await wait(3000);
     window.location.reload();
     
     } catch (error) {

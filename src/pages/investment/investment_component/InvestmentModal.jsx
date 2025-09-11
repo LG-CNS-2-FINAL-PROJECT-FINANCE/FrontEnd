@@ -122,7 +122,7 @@ function InvestmentModal({
       }
 
       onClose();
-      await wait(5000);
+      await wait(3000);
       window.location.reload();
 
     } catch (error) {

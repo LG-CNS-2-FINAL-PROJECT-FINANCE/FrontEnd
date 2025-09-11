@@ -6,6 +6,7 @@ import PostHoldModal from "./PostHoldModal";
 import {AuthContext} from "../../../context/AuthContext";
 import CopyIcon from '../../../component/CopyIcon';
 import {toast} from "react-toastify";
+import {wait} from "@testing-library/user-event/dist/utils";
 
 const Spinner = ({ className = 'w-4 h-4 text-white' }) => (
     <svg className={`animate-spin ${className}`} viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -206,6 +207,10 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
         try {
             await buttonPostClosed(postDetail.projectId);
             toast.success("프로젝트가 종료되었습니다.");
+
+            onClose();
+            await wait(3000);
+            window.location.reload();
         } catch (error) {
             toast.error("프로젝트 종료 중 오류가 발생했습니다."); // 에러 처리
             console.error(error);
@@ -358,8 +363,7 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
                             </div>
                         )}
                         <div className="pt-4 border-t border-slate-200 flex justify-end gap-2">
-                            {postDetail.projectStatus === 'DISTRIBUTING' ? (
-                                // ✅ 분배하기 버튼만 노출
+                            {postDetail.projectStatus === 'DISTRIBUTING' && (
                                 <ActionButton
                                     kind="approve"
                                     onClick={handleDistribute}
@@ -368,14 +372,15 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
                                 >
                                     분배하기
                                 </ActionButton>
-                            ) : (
+                            )}
+
                             <ActionButton
                                 kind="closed"
                                 onClick={handleCloseProject}
                             >
                                 프로젝트 종료
                             </ActionButton>
-                                )}
+
                             <ActionButton
                                 kind="secondary"
                                 onClick={onClose}
