@@ -4,7 +4,6 @@ export const getMarketProducts = async () => {
   try {
     const response = await publicApi.get(`/product/market/trading`);
     return response.data.content;
-    
   } catch (error) {
     console.error(error);
     throw error;
@@ -13,6 +12,7 @@ export const getMarketProducts = async () => {
 
 export const tradeSell = async (data) => {
   try {
+    console.log("TradeData:", data);
     const response = await privateApi.post(`/market/trade/sell`, data);
     console.log("response", response);
     return response.data;
@@ -44,7 +44,9 @@ export const getTokenTradeDoneHistoryByProjectId = async (projectId) => {
 
 export const getTokenTradePurchaseHistory = async (projectId) => {
   try {
-    const response = await privateApi.get(`/market/trade/${projectId}/purchase`);
+    const response = await privateApi.get(
+      `/market/trade/${projectId}/purchase`
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -62,17 +64,15 @@ export const getTokenTradeSellHistory = async (projectId) => {
   }
 };
 
-
 export const deleteTokenTrade = async (data) => {
   try {
-    const response = await privateApi.post(`/market/trade/order/delete`, data );
+    const response = await privateApi.post(`/market/trade/order/delete`, data);
     return response.data;
   } catch (error) {
     console.error(error);
     throw error;
   }
 };
-
 
 export const getTokenTradeDoneHistoryByUserId = async () => {
   try {
@@ -107,7 +107,9 @@ export const getTokenOrderHistoryByUserIdAndTradeType = async (tradeType) => {
 // 프로젝트별 체결 거래 내역 조회
 export const getMyTradeDoneHistoryByProjectId = async (projectId) => {
   try {
-    const response = await privateApi.get(`/market/trade/${projectId}/user/history`);
+    const response = await privateApi.get(
+      `/market/trade/${projectId}/user/history`
+    );
     return response.data;
   } catch (error) {
     console.error(error);
@@ -118,7 +120,9 @@ export const getMyTradeDoneHistoryByProjectId = async (projectId) => {
 // 프로젝트별 미체결 거래 내역 조회
 export const getMyTradeYetHistoryByProjectId = async (projectId) => {
   try {
-    const response = await privateApi.get(`/market/trade/${projectId}/user/list`);
+    const response = await privateApi.get(
+      `/market/trade/${projectId}/user/list`
+    );
     return response.data;
   } catch (error) {
     console.error(error);
