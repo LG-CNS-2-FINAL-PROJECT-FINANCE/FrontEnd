@@ -17,6 +17,7 @@ import { toggleFavorite } from "../../../api/favorites_api";
 import useUser from "../../../lib/useUser";
 import { useTranslation } from 'react-i18next';
 import EscrowModal from "./EscrowModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 function InvestmentSummary({
   title,
@@ -47,6 +48,7 @@ function InvestmentSummary({
   const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
 
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   
   // User 확인 - role Creator인지, author 작성자인지
   const isProjectOwner = user?.role === 'CREATOR' && user?.userSeq === author;
@@ -145,6 +147,27 @@ function InvestmentSummary({
 
   const handleReportSubmit = (reportData) => {
     console.log("신고 데이터:", reportData);
+  };
+
+  const handleEscrowConfirmed = () => {
+    // 해당 프로젝트의 상세 정보를 가져오는 쿼리 키를 무효화
+    queryClient.invalidateQueries(['project', projectNumber]); // 'project' 또는 'projectDetail'로 사용하실 수 있습니다.
+    queryClient.invalidateQueries(['projects']); // 모든 프로젝트 목록이나 개별 프로젝트 캐시 (Home.jsx 등에서 사용)
+
+    // 프로젝트 랭킹이 변경될 가능성이 있다면 랭킹 쿼리도 무효화
+    queryClient.invalidateQueries(['projectRanking']);
+
+    // 만약 사용자의 '내 상품 목록'에 해당 프로젝트의 상태가 표시된다면 그것도 무효화
+    // (이때 user.email이 필요하므로 user 객체를 사용할 수 있어야 함)
+    if (user?.email) {
+      queryClient.invalidateQueries(['myProductList', user.email]);
+      // 투자 내역도 포함된다면 (유저가 이 프로젝트에 투자했을 경우)
+      queryClient.invalidateQueries(['myInvestmentsList', user.email]);
+    }
+
+    // 기타 필요한 쿼리 (예: 자산 현황 등)
+    queryClient.invalidateQueries(['account']); // 자산 계정 정보
+    queryClient.invalidateQueries(['wallet']);  // 지갑 정보
   };
 
   return (
@@ -249,6 +272,7 @@ function InvestmentSummary({
           projectId={projectNumber}
           isOpen={isEscrowModalOpen}
           onClose={() => setIsEscrowModalOpen(false)}
+          onConfirmed={handleEscrowConfirmed}
       />
 
       <InvestmentModal
