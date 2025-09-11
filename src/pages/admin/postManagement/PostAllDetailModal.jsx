@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useContext} from 'react';
 import dayjs from 'dayjs';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
-import {buttonPostClosed, getAllDetail} from '../../../api/admin_project_api';
+import {buttonPostClosed, getAllDetail, postDistribution} from '../../../api/admin_project_api';
 import PostHoldModal from "./PostHoldModal";
 import {AuthContext} from "../../../context/AuthContext";
 import CopyIcon from '../../../component/CopyIcon';
@@ -96,6 +96,8 @@ function Field({ label, value, className = '' }) {
 export default function PostAllDetailModal({ open, onClose, postId, onStatusChange, projectId }) {
     const [isHoldModalOpen, setIsHoldModalOpen] = useState(false);
     const [copiedMessage, setCopiedMessage] = useState({ show: false, text: '' });
+    const [isDistributing, setIsDistributing] = useState(false);
+    const [buyPrice, setBuyPrice] = useState("");
 
     const { user: authUser } = useContext(AuthContext);
     const queryClient = useQueryClient();
@@ -210,6 +212,28 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
         }
     };
 
+    const handleDistribute = async () => {
+        if (!postDetail?.projectId) return;
+        if (!postDetail?.distributionAmount) {
+            toast.warn("수익금 정보가 없습니다.");
+            return;
+        }
+
+        setIsDistributing(true);
+        try {
+            await postDistribution(postDetail.distributionAmount, postDetail.projectId, 1, 3);
+            toast.success("분배 요청이 완료되었습니다.");
+
+            await queryClient.invalidateQueries(["postAllDetail", postId]);
+            onStatusChange && onStatusChange();
+            onClose();
+        } catch (error) {
+            toast.error("분배 요청 중 오류가 발생했습니다.");
+            console.error(error);
+        } finally {
+            setIsDistributing(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -281,10 +305,36 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
                                 {postDetail.adminId && <div>관리자 ID: {postDetail.adminId}</div>}
                                 {postDetail.updateStopReason && <div>정지/수정 사유: {postDetail.updateStopReason}</div>}
                                 {postDetail.rejectReason && <div>거절 사유: {postDetail.rejectReason}</div>}
+                                {postDetail.distributionAmount && <div>수익금: {postDetail.distributionAmount}원</div>}
+                                {postDetail.distributionPercent && <div>수익률: {postDetail.distributionPercent}%</div>}
                                 {postDetail.files && postDetail.files.length > 0 && (
                                     <div>첨부 파일: {postDetail.files.map(file => (
                                         <a key={file.url} href={file.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">{file.name}</a>
                                     ))}</div>
+                                )}
+                                {postDetail.images && postDetail.images.length > 0 && (
+                                    <div>첨부 이미지 ({postDetail.images.length}개):
+                                        {postDetail.images.map((image, index) => (
+                                            <div key={index} className="ml-2">
+                                                {image.url && image.url.trim() !== '' ? (
+                                                    <a href={image.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">
+                                                        {image.name || 'Unknown Image'}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-red-500 block">{image.name || 'Invalid Image'} (URL 없음)</span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                {postDetail.imageUrl && (
+                                    <div>대표 이미지:
+                                        <div className="ml-2">
+                                            <a href={postDetail.imageUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline block">
+                                                {postDetail.imageUrl.split('/').pop() || 'Image'}
+                                            </a>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -300,13 +350,32 @@ export default function PostAllDetailModal({ open, onClose, postId, onStatusChan
                     </div>
 
                     <div className="space-y-4">
+                        {postDetail.projectStatus === "DISTRIBUTING" && (
+                            <div className="mb-3">
+                                <div className="border w-full px-3 py-2 rounded-md bg-gray-50 text-lg font-semibold text-center">
+                                    수익금: {postDetail.distributionAmount?.toLocaleString() || 0} 원
+                                </div>
+                            </div>
+                        )}
                         <div className="pt-4 border-t border-slate-200 flex justify-end gap-2">
+                            {postDetail.projectStatus === 'DISTRIBUTING' ? (
+                                // ✅ 분배하기 버튼만 노출
+                                <ActionButton
+                                    kind="approve"
+                                    onClick={handleDistribute}
+                                    loading={isDistributing}
+                                    disabled={isDistributing}
+                                >
+                                    분배하기
+                                </ActionButton>
+                            ) : (
                             <ActionButton
                                 kind="closed"
                                 onClick={handleCloseProject}
                             >
                                 프로젝트 종료
                             </ActionButton>
+                                )}
                             <ActionButton
                                 kind="secondary"
                                 onClick={onClose}
