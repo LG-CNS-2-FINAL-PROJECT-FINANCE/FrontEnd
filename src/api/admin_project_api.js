@@ -158,7 +158,11 @@ function mapToPostDetail(item) {
         amount: item.amount ?? null, // 현재 모금액
 
         projectStatus: item.projectStatus ?? null,
-        projectVisibility: item.projectVisibility ?? null
+        projectVisibility: item.projectVisibility ?? null,
+
+        distributionAmount: item.distributionAmount ?? null,
+        distributionPercent: item.distributionPercent ?? null
+
     };
 }
 
@@ -233,4 +237,28 @@ export async  function buttonPostClosed(projectId){
         console.error(`[admin_project_api buttonPostClosed 오류 (ProjectId: ${projectId}):`, error)
         throw error;
     }
+}
+
+
+//분배요청 api
+export async function postDistribution(buyPrice, projectId, ordersId = 1, transType = 3){
+    console.log(`[admin_project_api] postDistribution 호출. ProjectId: ${projectId}`)
+
+    const payload = {
+        transType,   // 거래 타입
+        ordersId,    // 주문 ID
+        buyPrice,    // 매수가
+        projectId,   // 프로젝트 ID
+    };
+
+    try{
+        const res = await api.post(`/asset/market/distribution`, payload);
+        console.log(`[admin_project_api] postDistribution 응답:`, res.data)
+        return res.data;
+
+    }catch (error){
+        console.error(`[admin_project_api] postDistribution 오류 ProjectId: ${projectId}`, error)
+        throw error;
+    }
+
 }
