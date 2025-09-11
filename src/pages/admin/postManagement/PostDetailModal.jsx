@@ -333,6 +333,8 @@ export default function PostDetailModal({ open, onClose, postId, onStatusChange 
                                 {postDetail.adminId && <div>관리자 ID: {postDetail.adminId}</div>}
                                 {postDetail.updateStopReason && <div>정지/수정 사유: {postDetail.updateStopReason}</div>}
                                 {postDetail.rejectReason && <div>거절 사유: {postDetail.rejectReason}</div>}
+                                {postDetail.distributionAmount && <div>수익금: {postDetail.distributionAmount}원</div>}
+                                {postDetail.distributionPercent && <div>수익률: {postDetail.distributionPercent}%</div>}
                                 {postDetail.files && postDetail.files.length > 0 && (
                                     <div>첨부 파일 ({postDetail.files.length}개): 
                                         {postDetail.files.map((file, index) => (
