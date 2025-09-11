@@ -2,7 +2,7 @@ import { useState } from "react";
 import { postProfit } from "../../../api/project_api";
 import {toast} from "react-toastify";
 
-export default function EscrowModal({ projectId, isOpen, onClose }) {
+export default function EscrowModal({ projectId, isOpen, onClose, onConfirmed }) {
     const [buyPrice, setBuyPrice] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -13,8 +13,11 @@ export default function EscrowModal({ projectId, isOpen, onClose }) {
             setLoading(true);
             await postProfit({ buyPrice, projectId });
             toast.success("수익금 예치 완료!");
+
+            if (onConfirmed) { // onConfirmed prop이 전달되었는지 확인
+                onConfirmed(); // 부모 컴포넌트에서 전달된 콜백 함수 실행
+            }
             onClose();
-            window.location.reload();
         } catch (err) {
             toast.error("예치 실패. 다시 시도해주세요.");
         } finally {
