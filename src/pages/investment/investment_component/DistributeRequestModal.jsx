@@ -15,7 +15,7 @@ function DistributeRequestModal({ isOpen, onClose, projectId, title }) {
         e.preventDefault();
 
         if (!reason.trim()) {
-            toast.error("분배 사유를 입력해주세요.");
+            toast.error("분배 내용을 입력해주세요.");
             return;
         }
 
@@ -155,12 +155,12 @@ function DistributeRequestModal({ isOpen, onClose, projectId, title }) {
                     {/* Reason */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            분배 사유 <span className="text-red-500">*</span>
+                            분배 내용 <span className="text-red-500">*</span>
                         </label>
                         <textarea
                             value={reason}
                             onChange={(e) => setReason(e.target.value)}
-                            placeholder="프로젝트 수익 분배를 요청하는 사유를 입력해주세요..."
+                            placeholder="프로젝트 수익 분배를 요청하는 내용을 입력해주세요..."
                             className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 resize-none"
                             rows="4"
                             disabled={isSubmitting}
@@ -180,7 +180,7 @@ function DistributeRequestModal({ isOpen, onClose, projectId, title }) {
                             className={`flex-1 px-4 py-2 rounded font-medium transition-colors ${
                                 !isFormValid || isSubmitting
                                     ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : 'bg-green-600 hover:bg-green-700 text-white'
+                                    : 'bg-blue-500 hover:bg-blue-600 text-white'
                             }`}
                         >
                             {isSubmitting ? "처리중..." : "분배 요청"}
