@@ -1,0 +1,536 @@
+import { useMemo, useState } from "react";
+import { FaRegCopy } from "react-icons/fa";
+import AssetDepositModal from "./modals/AssetDepositModal";
+import AssetWithdrawModal from "./modals/AssetWithdrawModal";
+import { toast } from "react-toastify";
+import AssetCheckModal from "./modals/AssetCheckModal";
+import DomeGallery from "../../component/DomeGallery";
+import InfiniteMenu from "../../component/InfiniteMenu";
+import {
+  getAccountAllHistory,
+  getWalletToken,
+  getAccumulatedAmount,
+} from "../../api/asset_api";
+import { useQuery } from "@tanstack/react-query";
+import { toKSTDateTime } from "../../lib/toKSTDateTime";
+import { getTokenTradeDoneHistoryByUserId } from "../../api/market_api";
+import { useNavigate } from "react-router-dom";
+
+// --- helpers: 단색 박스 이미지 만들기 & 팔레트/색상할당 -----------------
+const PALETTE = [
+  "#EF4444",
+  "#F59E0B",
+  "#10B981",
+  "#3B82F6",
+  "#8B5CF6",
+  "#EC4899",
+  "#14B8A6",
+  "#F97316",
+  "#22C55E",
+  "#6366F1",
+];
+
+// 문자열 해시로 안정적인 색 선택
+const colorByString = (s) => {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  const idx = Math.abs(h) % PALETTE.length;
+  return PALETTE[idx];
+};
+
+// 지정 색의 정사각 박스 SVG data URI
+const solidBoxDataURI = (hex, size = 400) => {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}' viewBox='0 0 ${size} ${size}'><rect width='100%' height='100%' rx='40' ry='40' fill='${hex}'/></svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
+// 숫자 포맷
+const fmtKRW = (n) => new Intl.NumberFormat("ko-KR").format(n);
+
+function MyAsset({ account, wallet }) {
+  const navigate = useNavigate();
+  const {
+    data: accountAllHistory,
+    isLoading: accountAllHistoryLoading,
+    isError: accountAllHistoryError,
+  } = useQuery({
+    queryKey: ["accountAllHistory"],
+    queryFn: getAccountAllHistory,
+    retry: false,
+  });
+  const {
+    data: walletToken,
+    isLoading: walletTokenLoading,
+    isError: walletTokenError,
+  } = useQuery({
+    queryKey: ["walletToken"],
+    queryFn: getWalletToken,
+    retry: false,
+  });
+  const {
+    data: walletTokenTradeHistory,
+    isLoading: walletTokenTradeHistoryLoading,
+    isError: walletTokenTradeHistoryError,
+  } = useQuery({
+    queryKey: ["walletTokenTradeHistory"],
+    queryFn: getTokenTradeDoneHistoryByUserId,
+    retry: false,
+  });
+
+  const menuItems = useMemo(() => {
+    if (!walletToken || !Array.isArray(walletToken)) return [];
+
+    return walletToken.map((token, i) => {
+      const color = colorByString(token.title ?? `token-${i}`);
+      return {
+        image: solidBoxDataURI(color, 600),
+        title: token.title ?? "이름없는 토큰",
+        description:
+          typeof token.currentPrice === "number"
+            ? `현재 가격은 ${fmtKRW(token.currentPrice)}원 입니다!`
+            : "현재 가격 정보가 없습니다.",
+      };
+    });
+  }, [walletToken]);
+
+  //누적입금액 (moneyType = 0)
+  const {
+    data: accumulatedDeposit,
+    isLoading: accumulatedDepositLoading,
+    isError: accumulatedDepositError,
+  } = useQuery({
+    queryKey: ["accumulatedDeposit"],
+    queryFn: () => getAccumulatedAmount(0),
+    retry: false,
+  });
+
+  //누적출금액 (moneyType = 1)
+  const {
+    data: accumulatedWithdrawal,
+    isLoading: accumulatedWithdrawalLoading,
+    isError: accumulatedWithdrawalError,
+  } = useQuery({
+    queryKey: ["accumulatedWithdrawal"],
+    queryFn: () => getAccumulatedAmount(1),
+    retry: false,
+  });
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(""); // "입금" 또는 "출금"
+  const [activeTab, setActiveTab] = useState("계좌 정보");
+
+  const [isCheckOpen, setIsCheckOpen] = useState(false);
+  const [depositAmount, setDepositAmount] = useState(null);
+  const [withdrawAmount, setWithdrawAmount] = useState(null);
+
+  const openModal = (type) => {
+    setModalType(type);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleDepositConfirm = (amount) => {
+    setDepositAmount(amount); // 입금 출금 금액
+    setIsCheckOpen(true); // 확인 모달 열기
+  };
+  const handleWithdrawConfirm = (amount) => {
+    setWithdrawAmount(amount);
+    setIsCheckOpen(true);
+  };
+
+  // 계좌번호, 지갑번호 복사 기능
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+    console.log(`Copied to clipboard: ${text}`);
+  };
+
+  const notify = () => toast("Copied to clipboard!");
+  const formatNumber = (digits) => digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  return (
+    <div className="mt-8 mb-16">
+      <h1 className="text-3xl font-bold mb-2">자산 조회</h1>
+      <p className="text-gray-500 mb-6">
+        계좌 잔액, 입출금, 투자 지갑을 한눈에 확인하세요.
+      </p>
+
+      <div className="flex items-center gap-12 mb-6">
+        <div className="flex-col items-center gap-2">
+          <span className="text-gray-500 text-sm">계좌 번호</span>
+          <div className="flex items-center gap-2">
+            <p className="text-md">{account.bankNumber}</p>
+            <button
+              onClick={() => {
+                copyToClipboard(account.bankNumber);
+                notify();
+              }}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <FaRegCopy />
+            </button>
+          </div>
+        </div>
+        <div className="flex-col items-center gap-2">
+          <span className="text-gray-500 text-sm">지갑 번호</span>
+          <div className="flex items-center gap-2">
+            <p className="text-md">{wallet}</p>
+            <button
+              onClick={() => {
+                copyToClipboard(wallet);
+                notify();
+              }}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <FaRegCopy />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 탭 메뉴 */}
+      <div className="flex border-b mb-6">
+        <button
+          className={`px-4 py-2 font-bold ${
+            activeTab === "계좌 정보"
+              ? "text-red-500 border-b-2 border-red-500"
+              : "text-gray-400"
+          }`}
+          onClick={() => setActiveTab("계좌 정보")}
+        >
+          계좌 정보
+        </button>
+        <button
+          className={`px-4 py-2 font-bold ${
+            activeTab === "지갑 정보"
+              ? "text-red-500 border-b-2 border-red-500"
+              : "text-gray-400"
+          }`}
+          onClick={() => setActiveTab("지갑 정보")}
+        >
+          지갑 정보
+        </button>
+        <button
+          className={`px-4 py-2 font-bold ${
+            activeTab === "블록 정보"
+              ? "text-red-500 border-b-2 border-red-500"
+              : "text-gray-400"
+          }`}
+          onClick={() => setActiveTab("블록 정보")}
+        >
+          블록 정보
+        </button>
+      </div>
+
+      {/* 계좌 정보 */}
+      {activeTab === "계좌 정보" && (
+        <div>
+          <div className="border rounded-lg p-6 px-16 mb-6">
+            <div className="flex justify-around items-center mb-4">
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">누적 입금액</span>
+                <p className="text-3xl font-bold">
+                  {accumulatedDepositLoading
+                    ? "Loading..."
+                    : accumulatedDepositError
+                    ? "Error"
+                    : `${formatNumber((accumulatedDeposit || 0).toString())}원`}
+                </p>
+              </div>
+              <span className="text-gray-300">|</span>
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">잔액</span>
+                <p className="text-3xl font-bold">
+                  {formatNumber(account.deposit.toString())} 원
+                </p>
+              </div>
+              <span className="text-gray-300">|</span>
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">누적 출금액</span>
+                <p className="text-3xl font-bold">
+                  {accumulatedWithdrawalLoading
+                    ? "Loading..."
+                    : accumulatedWithdrawalError
+                    ? "Error"
+                    : `${formatNumber(
+                        (accumulatedWithdrawal || 0).toString()
+                      )}원`}
+                </p>
+              </div>
+            </div>
+            <div className="mt-12 w-full flex justify-center gap-16">
+              <button
+                className="w-52 bg-red-500 text-white font-bold rounded-lg px-8 py-3"
+                onClick={() => openModal("입금")}
+              >
+                입금
+              </button>
+              <button
+                className="w-52 bg-red-100 text-red-500 font-bold rounded-lg px-8 py-3"
+                onClick={() => openModal("출금")}
+              >
+                출금
+              </button>
+            </div>
+            {/* Modal */}
+            {isModalOpen && (
+              <>
+                {/* Modal */}
+                <>
+                  {modalType === "입금" && (
+                    <AssetDepositModal
+                      isOpen={isModalOpen}
+                      onClose={closeModal}
+                      onConfirm={handleDepositConfirm}
+                    />
+                  )}
+                  {modalType === "출금" && (
+                    <AssetWithdrawModal
+                      isOpen={isModalOpen}
+                      onClose={closeModal}
+                      onConfirm={handleWithdrawConfirm}
+                    />
+                  )}
+                  <AssetCheckModal
+                    isOpen={isCheckOpen}
+                    onClose={() => setIsCheckOpen(false)}
+                    onConfirmAll={() => {
+                      setIsCheckOpen(false); // 체크 모달 닫기
+                      setIsModalOpen(false); // 입금/출금 모달도 함께 닫기
+                    }}
+                    amount={
+                      modalType === "입금" ? depositAmount : withdrawAmount
+                    }
+                    type={modalType}
+                  />
+                </>
+              </>
+            )}
+          </div>
+
+          {/* 거래 기록 */}
+          <h2 className="text-xl font-bold mb-4 mt-12">입출금 내역</h2>
+          <div className="border-gray-200 border rounded-lg p-6 overflow-x-auto">
+            <table className="w-full text-sm rounded-lg">
+              <thead className="border-b border-gray-200">
+                <tr className="text-gray-500 text-left">
+                  <th className="py-2 font-normal">Date</th>
+                  <th className="font-normal">Amount</th>
+                  <th className="font-normal">Time</th>
+                  <th className="font-normal">Type</th>
+                </tr>
+              </thead>
+              <tbody>
+                {accountAllHistoryLoading ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : accountAllHistoryError ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center">
+                      거래 기록이 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  accountAllHistory.data.map((transaction, index) => {
+                    const { date, time } = toKSTDateTime(transaction.bankTime);
+                    return (
+                      <tr
+                        key={index}
+                        className="w-1/4 border-b border-gray-100"
+                      >
+                        <td className="w-1/4 py-4">{date}</td>
+                        <td
+                          className={`w-1/4 font-bold ${
+                            transaction.moneyType === 0
+                              ? "text-red-500"
+                              : "text-blue-500"
+                          }`}
+                        >
+                          {formatNumber(transaction.bankPrice.toString())}
+                        </td>
+                        <td className="w-1/4">{time}</td>
+                        <td
+                          className={`w-1/4 ${
+                            transaction.moneyType === 0
+                              ? "text-red-500"
+                              : "text-blue-500"
+                          }`}
+                        >
+                          {transaction.moneyType === 0 ? "입금" : "출금"}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* 지갑 정보 */}
+      {activeTab === "지갑 정보" && (
+        <div>
+          <div className="border rounded-lg p-6 px-16 mb-6">
+            <div className="flex justify-around items-center mb-4">
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">토큰 비율</span>
+                <p className="text-3xl font-bold">12,000원</p>
+              </div>
+              <span className="text-gray-300">|</span>
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">토큰 총액</span>
+                <p className="text-3xl font-bold">
+                  {formatNumber(account.deposit.toString())}원
+                </p>
+              </div>
+              <span className="text-gray-300">|</span>
+              <div className="text-center">
+                <span className="text-gray-500 text-sm">이번달 수익</span>
+                <p className="text-3xl font-bold">12,000원</p>
+              </div>
+            </div>
+          </div>
+          {/* 토큰 내역 */}
+          <h2 className="text-xl font-bold mb-4">토큰 내역</h2>
+          <div className="border-gray-200 border rounded-lg p-6 overflow-x-auto mb-6">
+            <table className="w-full text-sm rounded-lg">
+              <thead className="border-b border-gray-200">
+                <tr className="text-gray-500 text-left">
+                  <th className="py-2 font-normal w-1/5">프로젝트명</th>
+                  <th className="font-normal w-1/5">수량</th>
+                  <th className="font-normal w-1/5">가격</th>
+                  <th className="font-normal w-1/5">토큰명</th>
+                </tr>
+              </thead>
+              <tbody>
+                {walletTokenLoading ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : walletTokenError ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center">
+                      Error loading wallet tokens
+                    </td>
+                  </tr>
+                ) : !walletToken ||
+                  !Array.isArray(walletToken) ||
+                  walletToken.length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-4 text-center text-gray-400">
+                      보유한 토큰이 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  walletToken.map((token, index) => (
+                    <tr
+                      key={index}
+                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition"
+                      onClick={() => navigate(`/asset/tokens/${token.tokenId}`)}
+                    >
+                      <td className="py-4 w-1/5">{token.title}</td>
+                      <td className="w-1/5">{token.amount}</td>
+                      <td className="w-1/5">{token.price}</td>
+                      <td className="text-blue-500 w-1/5">{token.name}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 토큰 거래 기록 */}
+          <h2 className="text-xl font-bold mb-4">토큰 거래 기록</h2>
+          <div className="border-gray-200 border rounded-lg p-6 overflow-x-auto mb-6">
+            <table className="w-full text-sm rounded-lg">
+              <thead className="border-b border-gray-200">
+                <tr className="text-gray-500 text-left">
+                  <th className="py-2 font-normal w-1/5">프로젝트명</th>
+                  <th className="font-normal w-1/5">수량</th>
+                  <th className="font-normal w-1/5">가격</th>
+                  <th className="font-normal w-1/5">날짜</th>
+                  <th className="font-normal w-1/5">매도/매수</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* projectId; tradeType; tradePrice; tokenQuantity; tradedAt; */}
+                {walletTokenTradeHistoryLoading ? (
+                  <tr>
+                    <td colSpan={5} className="py-4 text-center">
+                      Loading...
+                    </td>
+                  </tr>
+                ) : walletTokenTradeHistoryError ? (
+                  <tr>
+                    <td colSpan={5} className="py-4 text-center">
+                      Error loading token trade history
+                    </td>
+                  </tr>
+                ) : !walletTokenTradeHistory ||
+                  walletTokenTradeHistory.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="py-4 text-center text-gray-400">
+                      토큰 거래 기록이 없습니다.
+                    </td>
+                  </tr>
+                ) : (
+                  walletTokenTradeHistory.map((history, index) => {
+                    const { date, time } = toKSTDateTime(history.tradedAt);
+                    return (
+                      <tr key={index} className="border-b border-gray-100">
+                        <td className="py-4 w-1/5">{history.title}</td>
+                        <td className=" w-1/5">{history.tokenQuantity}</td>
+                        <td
+                          className={`py-4 font-semibold ${
+                            history.tradeType === 1
+                              ? "text-red-500"
+                              : "text-blue-500"
+                          } w-1/5`}
+                        >
+                          {formatNumber(String(history.tradePrice))}
+                        </td>
+                        <td className="w-1/5">
+                          {date} {time}
+                        </td>
+                        <td
+                          className={`w-1/5 font-semibold text-${
+                            history.tradeType === 1 ? "red-500" : "blue-500"
+                          }  `}
+                        >
+                          {history.tradeType === 0 ? "매도" : "매수"}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+      {activeTab === "블록 정보" && (
+        <div style={{ width: "80vw", height: "80vh" }}>
+          {walletTokenLoading ? (
+            <div className="text-gray-400">로딩 중…</div>
+          ) : walletTokenError ? (
+            <div className="text-red-500">토큰을 불러오지 못했어요.</div>
+          ) : menuItems.length === 0 ? (
+            <div className="text-gray-400">보여줄 토큰이 없습니다.</div>
+          ) : (
+            <InfiniteMenu items={menuItems} />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default MyAsset;

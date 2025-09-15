@@ -1,0 +1,21 @@
+import React from "react";
+
+function SearchBar({ searchTerm, onSearchChange }) {
+  const handleInputChange = (e) => {
+    onSearchChange(e.target.value);
+  };
+
+  return (
+    <div className="w-full flex justify-center">
+      <input
+        type="text"
+        placeholder=" 찾고 싶은 상품을 검색해주세요."
+        value={searchTerm}
+        onChange={handleInputChange}
+        className="w-full pl-5 p-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-lg"
+      />
+    </div>
+  );
+}
+
+export default SearchBar;
